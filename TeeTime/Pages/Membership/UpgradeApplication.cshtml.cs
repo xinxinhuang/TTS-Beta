@@ -109,7 +109,8 @@ namespace TeeTime.Pages.Membership
                 Sponsor1MemberID = UpgradeApplication.Sponsor1MemberID,
                 Sponsor2MemberID = UpgradeApplication.Sponsor2MemberID,
                 DesiredMembershipCategoryID = UpgradeApplication.DesiredMembershipCategoryID,
-                Status = "Pending"
+                Status = "Pending",
+                ApplicationDate = DateTime.Now
             };
 
             _context.MemberUpgrades.Add(memberUpgrade);
@@ -131,6 +132,25 @@ namespace TeeTime.Pages.Membership
                 .Where(m => m.MembershipCategory.CanSponsor)
                 .ToListAsync();
             GoldMembers = new SelectList(sponsors, "MemberID", "User.FirstName");
+        }
+
+        public async Task<IActionResult> OnPostWithdrawAsync(int applicationId)
+        {
+            // Find the application
+            var application = await _context.MemberUpgrades
+                .FirstOrDefaultAsync(mu => mu.ApplicationID == applicationId && mu.Status == "Pending");
+
+            if (application == null)
+            {
+                return NotFound("Application not found or already processed.");
+            }
+
+            // Delete the application
+            _context.MemberUpgrades.Remove(application);
+            await _context.SaveChangesAsync();
+
+            // Redirect back to the same page to show the form for a new application
+            return RedirectToPage();
         }
     }
 

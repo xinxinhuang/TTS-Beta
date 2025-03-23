@@ -59,6 +59,9 @@ namespace TeeTime.Models
         public string Status { get; set; } = "Pending";
 
         [DataType(DataType.Date)]
+        public DateTime ApplicationDate { get; set; } = DateTime.Now;
+
+        [DataType(DataType.Date)]
         public DateTime? ApprovalDate { get; set; }
 
         public int? ApprovalByUserID { get; set; }
