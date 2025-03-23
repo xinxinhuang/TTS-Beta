@@ -1,0 +1,257 @@
+@page
+@model TeeTime.Pages.TeeSheet.ManageModel
+@{
+    ViewData["Title"] = "Manage Tee Sheets";
+}
+
+<div class="container">
+    <h2 class="mb-4">Tee Sheet Management</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Generate Tee Sheet</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Generate" name="generateForm">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success mb-3">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger mb-3">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="StartDate" class="control-label">Start Date (Week Beginning)</label>
+                                    <input asp-for="StartDate" type="date" class="form-control" />
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FirstTeeTime" class="control-label">First Tee Time</label>
+                                    <input asp-for="FirstTeeTime" type="time" class="form-control" value="07:00" />
+                                    <span asp-validation-for="FirstTeeTime" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="LastTeeTime" class="control-label">Last Tee Time</label>
+                                    <input asp-for="LastTeeTime" type="time" class="form-control" value="18:00" />
+                                    <span asp-validation-for="LastTeeTime" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                <label asp-for="Interval" class="control-label">Interval (minutes)</label>
+                                <input type="text" asp-for="Interval" class="form-control" value="8" readonly />
+                                <span asp-validation-for="Interval" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Generate Tee Sheet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @if (Model.WeekStartDate.HasValue)
+    {
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Special Events / Tournaments</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="selectedWeekStart" value="@Model.WeekStartDate" />
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="EventDate" class="control-label">Event Date</label>
+                                        <input asp-for="EventDate" type="date" class="form-control" min="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" max="@Model.WeekStartDate.Value.AddDays(6).ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="EventDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="EventName" class="control-label">Event Name</label>
+                                        <input asp-for="EventName" type="text" class="form-control" />
+                                        <span asp-validation-for="EventName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="EventStartTime" class="control-label">Start Time</label>
+                                        <input asp-for="EventStartTime" type="time" class="form-control" />
+                                        <span asp-validation-for="EventStartTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="EventEndTime" class="control-label">End Time</label>
+                                        <input asp-for="EventEndTime" type="time" class="form-control" />
+                                        <span asp-validation-for="EventEndTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" asp-page-handler="AddEvent" class="btn btn-success">Add Event</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="teeSheetTabs" role="tablist">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.WeekStartDate.Value.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @isActive" id="@dayName-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#@dayName" type="button" role="tab" 
+                                    aria-controls="@dayName" aria-selected="@(i == 0 ? "true" : "false")">
+                                @dayName<br/>@date.ToString("MM/dd")
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="teeSheetTabContent">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.WeekStartDate.Value.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <div class="tab-pane fade show @isActive" id="@dayName" role="tabpanel" aria-labelledby="@dayName-tab">
+                            <h4>@dayName - @date.ToString("MMMM d, yyyy")</h4>
+                            
+                            @if (Model.TeeSheets.TryGetValue(date.Date, out var teeTimesForDay))
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                                <th>Special Event/Tournament</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.ScheduledTime))
+                                            {
+                                                <tr>
+                                                    <td>@teeTime.ScheduledTime.Hours.ToString("00"):@teeTime.ScheduledTime.Minutes.ToString("00")</td>
+                                                    <td>
+                                                        @if (teeTime.IsAvailable)
+                                                        {
+                                                            <span class="badge bg-success">Available</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">Blocked</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (!teeTime.IsAvailable)
+                                                        {
+                                                            <span>@(Model.Events.TryGetValue(teeTime.ScheduledGolfTimeID, out var eventName) ? eventName : "Blocked")</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" class="d-inline">
+                                                            <input type="hidden" name="TeeTimeId" value="@teeTime.ScheduledGolfTimeID" />
+                                                            @if (teeTime.IsAvailable)
+                                                            {
+                                                                <button type="submit" asp-page-handler="Block" class="btn btn-sm btn-warning">Block</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button type="submit" asp-page-handler="Unblock" class="btn btn-sm btn-success">Unblock</button>
+                                                            }
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    No tee times have been generated for this day.
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center">
+                <form method="post">
+                    <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />
+                    <button type="submit" asp-page-handler="Publish" class="btn btn-lg btn-primary">Publish Tee Sheet</button>
+                    <p class="text-muted mt-2">Publishing will make these tee times available for member booking.</p>
+                </form>
+            </div>
+        </div>
+    }
+    
+    @if (Model.PublishedWeeks.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Published Tee Sheets</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Week Starting</th>
+                                <th>Number of Tee Times</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var week in Model.PublishedWeeks)
+                            {
+                                <tr>
+                                    <td>@week.StartDate.ToString("MMMM d, yyyy")</td>
+                                    <td>@week.TeeTimeCount</td>
+                                    <td>
+                                        <a asp-page="./View" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
