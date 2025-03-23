@@ -1,0 +1,61 @@
+Login screen, new user sign up
+
+sign up => User1 registration (username, password and email, membership level(Gold, silver, bronze, copper))
+
+User1 Login successfully with newly created account, and membership level. Dashboard: Book Tee Time except for copper.
+
+If Gold member login, Dashboard: Book Tee Time and Shareholder/Associate upgrade Application available
+
+User1 select membership upgrade Application (shareholder or Associate), after finish, the application needs to be approved by club committee. 
+
+Club committee reviews new member application, approved it.
+
+User1 login, membership updated to Shareholder or associate member level, dashboard now displays Book Tee Time, Standing Tee Time request.
+
+
+Role table:
+Role ID:
+Role description: Member, Clerk, Pro Shop Staff, Committee Member
+
+User table:
+User ID:
+First name:
+Last name:
+email:
+password hash:
+Role ID: 
+
+Member table:
+Member ID: 
+User ID: 
+Membership Category ID:  
+Join Date:
+Status:
+
+Membership Category table:
+Membership Category ID
+Membership Name
+Can Sponsor bool
+Can Make Standing Tee Time
+
+Member upgrade table: 
+Application ID:
+User ID: hidden, auto filled.
+Last Name:  
+First Name:  
+Address:  
+Postal Code:  
+Phone:  
+Alternate Phone:  
+Email:  
+Date of Birth: (Month/Day/Year) 
+Occupation (nullable only applies to Gold member application):  
+Company Name:  
+Company Address:  
+Company Postal Code:  
+Company Phone:  
+Sponsor1: Gold member:
+Sponsor2: Gold member:
+Status:
+Approval Date:
+Approval By ID:

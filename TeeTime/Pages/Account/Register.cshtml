@@ -1,0 +1,76 @@
+@page
+@model TeeTime.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center">Create a New Account</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="RegisterInput.FirstName" class="form-label"></label>
+                                    <input asp-for="RegisterInput.FirstName" class="form-control" />
+                                    <span asp-validation-for="RegisterInput.FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="RegisterInput.LastName" class="form-label"></label>
+                                    <input asp-for="RegisterInput.LastName" class="form-control" />
+                                    <span asp-validation-for="RegisterInput.LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="RegisterInput.Email" class="form-label"></label>
+                            <input asp-for="RegisterInput.Email" class="form-control" />
+                            <span asp-validation-for="RegisterInput.Email" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="RegisterInput.Password" class="form-label"></label>
+                                    <input asp-for="RegisterInput.Password" class="form-control" />
+                                    <span asp-validation-for="RegisterInput.Password" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="RegisterInput.ConfirmPassword" class="form-label"></label>
+                                    <input asp-for="RegisterInput.ConfirmPassword" class="form-control" />
+                                    <span asp-validation-for="RegisterInput.ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="RegisterInput.MembershipCategoryID" class="form-label">Membership Level</label>
+                            <select asp-for="RegisterInput.MembershipCategoryID" class="form-select" asp-items="Model.MembershipCategories">
+                                <option value="">-- Select Membership Level --</option>
+                            </select>
+                            <span asp-validation-for="RegisterInput.MembershipCategoryID" class="text-danger"></span>
+                        </div>
+                        <div class="form-group d-grid">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Already have an account? <a asp-page="./Login">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

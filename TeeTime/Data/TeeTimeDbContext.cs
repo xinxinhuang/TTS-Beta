@@ -1,0 +1,104 @@
+using Microsoft.EntityFrameworkCore;
+using TeeTime.Models;
+
+namespace TeeTime.Data
+{
+    public class TeeTimeDbContext : DbContext
+    {
+        public TeeTimeDbContext(DbContextOptions<TeeTimeDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<MembershipCategory> MembershipCategories { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Member> Members { get; set; }
+        public DbSet<MemberUpgrade> MemberUpgrades { get; set; }
+        public DbSet<ScheduledGolfTime> ScheduledGolfTimes { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Configure entity relationships
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.MembershipCategory)
+                .WithMany(mc => mc.Users)
+                .HasForeignKey(u => u.MembershipCategoryID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Member)
+                .WithOne(m => m.User)
+                .HasForeignKey<Member>(m => m.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Member>()
+                .HasOne(m => m.MembershipCategory)
+                .WithMany(mc => mc.Members)
+                .HasForeignKey(m => m.MembershipCategoryID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MemberUpgrade>()
+                .HasOne(mu => mu.User)
+                .WithMany()
+                .HasForeignKey(mu => mu.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MemberUpgrade>()
+                .HasOne(mu => mu.DesiredMembershipCategory)
+                .WithMany(mc => mc.MemberUpgrades)
+                .HasForeignKey(mu => mu.DesiredMembershipCategoryID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MemberUpgrade>()
+                .HasOne(mu => mu.Sponsor1)
+                .WithMany(m => m.SponsoredUpgrades1)
+                .HasForeignKey(mu => mu.Sponsor1MemberID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MemberUpgrade>()
+                .HasOne(mu => mu.Sponsor2)
+                .WithMany(m => m.SponsoredUpgrades2)
+                .HasForeignKey(mu => mu.Sponsor2MemberID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MemberUpgrade>()
+                .HasOne(mu => mu.ApprovalBy)
+                .WithMany(u => u.ApprovedUpgrades)
+                .HasForeignKey(mu => mu.ApprovalByUserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Member)
+                .WithMany(m => m.Reservations)
+                .HasForeignKey(r => r.MemberID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.ScheduledGolfTime)
+                .WithMany(sgt => sgt.Reservations)
+                .HasForeignKey(r => r.ScheduledGolfTimeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StandingTeeTimeRequest>()
+                .HasOne(sttr => sttr.Member)
+                .WithMany(m => m.StandingTeeTimeRequests)
+                .HasForeignKey(sttr => sttr.MemberID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StandingTeeTimeRequest>()
+                .HasOne(sttr => sttr.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(sttr => sttr.ApprovedByUserID)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+}
