@@ -11,23 +11,36 @@ namespace TeeTime.Data
                 serviceProvider.GetRequiredService<DbContextOptions<TeeTimeDbContext>>()))
             {
                 // Add Roles if they don't exist
-                if (!context.Roles.Any())
+                if (!context.Role.Any())
                 {
-                    context.Roles.AddRange(
+                    context.Role.AddRange(
                         new Role { RoleDescription = "Member" },
-                        new Role { RoleDescription = "Staff" },
-                        new Role { RoleDescription = "Admin" }
+                        new Role { RoleDescription = "Clerk" },
+                        new Role { RoleDescription = "Pro Shop Staff" },
+                        new Role { RoleDescription = "Committee Member" }
                     );
                     context.SaveChanges();
                 }
 
                 // Add Membership Categories if they don't exist
-                if (!context.MembershipCategories.Any())
+                if (!context.MembershipCategory.Any())
                 {
-                    context.MembershipCategories.AddRange(
+                    context.MembershipCategory.AddRange(
                         new MembershipCategory
                         {
                             MembershipName = "Gold",
+                            CanSponsor = false,
+                            CanMakeStandingTeeTime = false
+                        },
+                        new MembershipCategory
+                        {
+                            MembershipName = "Gold Shareholder",
+                            CanSponsor = true,
+                            CanMakeStandingTeeTime = true
+                        },
+                        new MembershipCategory
+                        {
+                            MembershipName = "Gold Associate",
                             CanSponsor = true,
                             CanMakeStandingTeeTime = true
                         },
@@ -35,7 +48,7 @@ namespace TeeTime.Data
                         {
                             MembershipName = "Silver",
                             CanSponsor = false,
-                            CanMakeStandingTeeTime = true
+                            CanMakeStandingTeeTime = false
                         },
                         new MembershipCategory
                         {

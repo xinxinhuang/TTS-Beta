@@ -26,7 +26,7 @@ CREATE TABLE MembershipCategory (
 );
 GO
 INSERT INTO MembershipCategory (MembershipName, CanSponsor, CanMakeStandingTeeTime) VALUES
-('Gold', 1, 1),
+('Gold', 0, 0),
 ('Gold Shareholder', 1, 1),
 ('Gold Associate', 1, 1),
 ('Silver', 0, 0),

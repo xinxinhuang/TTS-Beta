@@ -28,18 +28,22 @@ namespace TeeTime.Pages.Account
 
         public async Task OnGetAsync()
         {
-            // Load membership categories for dropdown
+            // Load membership categories for dropdown, excluding 'Gold Shareholder' and 'Gold Associate'
             MembershipCategories = new SelectList(
-                await _context.MembershipCategories.ToListAsync(),
+                await _context.MembershipCategory
+                    .Where(m => m.MembershipName != "Gold Shareholder" && m.MembershipName != "Gold Associate")
+                    .ToListAsync(),
                 "MembershipCategoryID", 
                 "MembershipName");
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Reload membership categories in case of validation error
+            // Reload membership categories in case of validation error, excluding 'Gold Shareholder' and 'Gold Associate'
             MembershipCategories = new SelectList(
-                await _context.MembershipCategories.ToListAsync(),
+                await _context.MembershipCategory
+                    .Where(m => m.MembershipName != "Gold Shareholder" && m.MembershipName != "Gold Associate")
+                    .ToListAsync(),
                 "MembershipCategoryID", 
                 "MembershipName");
 
