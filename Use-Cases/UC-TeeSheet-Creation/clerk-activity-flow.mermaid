@@ -1,0 +1,21 @@
+flowchart TD
+    A[Friday: Receive Special Events by 5PM] --> B[Login to Tee Sheet System]
+    B --> C[Select Next Week's Date Range]
+    C --> D[System Generates Blank Tee Sheets]
+    D --> E[Input Special Events/Tournaments]
+    E --> F[System Blocks Affected Tee Times]
+    
+    F --> G{Review Each Day's Tee Sheet}
+    G --> H[Apply Day-Specific Rules]
+    H --> I[Adjust Time Slots if Needed]
+    I --> J{More Days to Review?}
+    
+    J -->|Yes| G
+    J -->|No| K[Final Review of All Tee Sheets]
+    
+    K --> L{Changes Needed?}
+    L -->|Yes| M[Make Adjustments]
+    M --> K
+    
+    L -->|No| N[Publish Tee Sheets by Sunday 5PM]
+    N --> O[System Makes Tee Sheets Available for Booking]

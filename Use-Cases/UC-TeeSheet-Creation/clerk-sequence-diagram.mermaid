@@ -1,0 +1,38 @@
+sequenceDiagram
+    actor Clerk
+    participant System
+    participant Calendar
+    participant SpecialEvents
+    participant TeeSheets
+    
+    Note over Clerk,TeeSheets: Process occurs between Friday 5PM-Sunday 5PM
+    
+    Clerk->>System: Login to tee sheet management
+    System-->>Clerk: Display management dashboard
+    
+    Clerk->>System: Select next week dates
+    System->>Calendar: Retrieve next week date range
+    Calendar-->>System: Return 7-day range
+    
+    System->>TeeSheets: Generate blank tee sheets for each day
+    TeeSheets-->>System: Return 7 blank daily tee sheets
+    System-->>Clerk: Display blank tee sheets
+    
+    Clerk->>System: Input special events
+    Clerk->>System: Upload tournament schedule
+    System->>SpecialEvents: Record special events
+    
+    loop For each affected day
+        System->>TeeSheets: Block affected time slots
+        TeeSheets-->>System: Confirm time slots blocked
+        System-->>Clerk: Display updated tee sheets
+    end
+    
+    Clerk->>System: Review all tee sheets
+    Clerk->>System: Make final adjustments
+    
+    Clerk->>System: Publish tee sheets
+    System->>TeeSheets: Mark tee sheets as published
+    System-->>Clerk: Confirm publication (by Sunday 5PM)
+    
+    Note over System,TeeSheets: Tee sheets now available for member bookings
