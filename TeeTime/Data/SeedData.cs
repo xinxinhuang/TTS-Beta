@@ -11,9 +11,9 @@ namespace TeeTime.Data
                 serviceProvider.GetRequiredService<DbContextOptions<TeeTimeDbContext>>()))
             {
                 // Add Roles if they don't exist
-                if (!context.Role.Any())
+                if (!context.Roles.Any())
                 {
-                    context.Role.AddRange(
+                    context.Roles.AddRange(
                         new Role { RoleDescription = "Member" },
                         new Role { RoleDescription = "Clerk" },
                         new Role { RoleDescription = "Pro Shop Staff" },
@@ -23,9 +23,9 @@ namespace TeeTime.Data
                 }
 
                 // Add Membership Categories if they don't exist
-                if (!context.MembershipCategory.Any())
+                if (!context.MembershipCategories.Any())
                 {
-                    context.MembershipCategory.AddRange(
+                    context.MembershipCategories.AddRange(
                         new MembershipCategory
                         {
                             MembershipName = "Gold",

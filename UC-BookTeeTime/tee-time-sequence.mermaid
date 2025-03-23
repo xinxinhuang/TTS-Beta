@@ -1,0 +1,39 @@
+sequenceDiagram
+    actor Member
+    participant System
+    participant Database
+    
+    Member->>System: Login with credentials
+    System->>Database: Verify membership
+    Database-->>System: Return membership level
+    
+    Member->>System: Select booking date
+    System->>Database: Check for special events
+    Database-->>System: Return event schedule
+    
+    System->>Database: Retrieve available tee times
+    Database-->>System: Return available slots
+    System->>System: Filter by membership level
+    System-->>Member: Display eligible tee times
+    
+    Member->>System: Select tee time
+    Member->>System: Enter player count (1-4)
+    Member->>System: Request cart(s)
+    
+    System->>Database: Verify availability
+    Database-->>System: Confirm slot available
+    System->>Database: Record reservation
+    System-->>Member: Confirm booking
+    
+    opt View Tee Sheet
+        Member->>System: Request full tee sheet
+        System->>Database: Retrieve all bookings
+        Database-->>System: Return bookings with names
+        System-->>Member: Display tee sheet
+    end
+    
+    opt Cancel Booking
+        Member->>System: Request cancellation
+        System->>Database: Update reservation status
+        System-->>Member: Confirm cancellation
+    end

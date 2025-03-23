@@ -1,0 +1,107 @@
+@page
+@model TeeTime.Pages.TeeTimeBookTeeTimeModel
+@{
+    ViewData["Title"] = "Book Tee Time";
+}
+
+<div class="container">
+    <h2 class="mb-4">Book a Tee Time</h2>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Select a Date</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="DateSelected">
+                        <div class="form-group">
+                            <label asp-for="SelectedDate" class="control-label">Date</label>
+                            <input asp-for="SelectedDate" type="date" class="form-control" min="@Model.MinDate.ToString("yyyy-MM-dd")" max="@Model.MaxDate.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="SelectedDate" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Check Available Times</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        @if (Model.DateSelected)
+        {
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Available Tee Times for @Model.SelectedDate.ToShortDateString()</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.AvailableTimes.Count == 0)
+                        {
+                            <div class="alert alert-warning">
+                                No tee times are available for the selected date. Please select another date.
+                            </div>
+                        }
+                        else
+                        {
+                            <form method="post" asp-page-handler="BookTimeAsync">
+                                <input type="hidden" asp-for="SelectedDate" />
+                                
+                                <div class="form-group mb-3">
+                                    <label asp-for="SelectedTimeId" class="control-label">Tee Time</label>
+                                    <select asp-for="SelectedTimeId" class="form-control">
+                                        <option value="">Select a time...</option>
+                                        @foreach (var time in Model.AvailableTimes)
+                                        {
+                                            <option value="@time.ScheduledGolfTimeID">@time.ScheduledTime.ToString(@"hh\:mm tt")</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="SelectedTimeId" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label asp-for="NumberOfPlayers" class="control-label">Number of Players</label>
+                                    <select asp-for="NumberOfPlayers" class="form-control">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                    <span asp-validation-for="NumberOfPlayers" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label asp-for="NumberOfCarts" class="control-label">Number of Carts</label>
+                                    <select asp-for="NumberOfCarts" class="form-control">
+                                        <option value="0">None</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                    <span asp-validation-for="NumberOfCarts" class="text-danger"></span>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">Book Tee Time</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    @if (Model.BookingConfirmed)
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <h4>Booking Confirmed!</h4>
+                    <p>Your tee time has been booked for @Model.SelectedDate.ToShortDateString() at @Model.ConfirmedTime.ToString("hh:mm tt").</p>
+                    <p>Confirmation #: @Model.ConfirmationNumber</p>
+                    <p>Players: @Model.NumberOfPlayers | Carts: @Model.NumberOfCarts</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

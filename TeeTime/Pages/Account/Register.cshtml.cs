@@ -30,7 +30,7 @@ namespace TeeTime.Pages.Account
         {
             // Load membership categories for dropdown, excluding 'Gold Shareholder' and 'Gold Associate'
             MembershipCategories = new SelectList(
-                await _context.MembershipCategory
+                await _context.MembershipCategories
                     .Where(m => m.MembershipName != "Gold Shareholder" && m.MembershipName != "Gold Associate")
                     .ToListAsync(),
                 "MembershipCategoryID", 
@@ -41,7 +41,7 @@ namespace TeeTime.Pages.Account
         {
             // Reload membership categories in case of validation error, excluding 'Gold Shareholder' and 'Gold Associate'
             MembershipCategories = new SelectList(
-                await _context.MembershipCategory
+                await _context.MembershipCategories
                     .Where(m => m.MembershipName != "Gold Shareholder" && m.MembershipName != "Gold Associate")
                     .ToListAsync(),
                 "MembershipCategoryID", 
