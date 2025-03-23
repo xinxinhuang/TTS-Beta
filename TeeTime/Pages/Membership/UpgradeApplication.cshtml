@@ -1,0 +1,157 @@
+@page
+@model TeeTime.Pages.Membership.UpgradeApplicationModel
+@{
+    ViewData["Title"] = "Membership Upgrade Application";
+}
+
+<div class="container">
+    <h1 class="mb-4">Membership Upgrade Application</h1>
+
+    @if (Model.HasPendingApplication)
+    {
+        <div class="alert alert-info">
+            <h4>You have a pending application</h4>
+            <p>You have already submitted an application to upgrade to @Model.PendingApplication.DesiredMembershipCategory.MembershipName.</p>
+            <p>Status: <strong>@Model.PendingApplication.Status</strong></p>
+            <p>Submitted on: @Model.PendingApplication.DateOfBirth.ToShortDateString()</p>
+            <hr />
+            <p>Please wait for the committee to review your application.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Apply for Membership Upgrade</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.DesiredMembershipCategoryID" class="form-label">Desired Membership Type</label>
+                                <select asp-for="UpgradeApplication.DesiredMembershipCategoryID" asp-items="Model.MembershipCategories" class="form-select">
+                                    <option value="">-- Select Membership Type --</option>
+                                </select>
+                                <span asp-validation-for="UpgradeApplication.DesiredMembershipCategoryID" class="text-danger"></span>
+                            </div>
+
+                            <h5 class="mt-4 mb-3">Personal Information</h5>
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.Address" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.Address" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.Address" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.PostalCode" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.PostalCode" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.PostalCode" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.Phone" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.Phone" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.Phone" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.AlternatePhone" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.AlternatePhone" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.AlternatePhone" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.DateOfBirth" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.DateOfBirth" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.DateOfBirth" class="text-danger"></span>
+                            </div>
+
+                            <h5 class="mt-4 mb-3">Professional Information</h5>
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.Occupation" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.Occupation" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.Occupation" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.CompanyName" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.CompanyName" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.CompanyName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.CompanyAddress" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.CompanyAddress" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.CompanyAddress" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.CompanyPostalCode" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.CompanyPostalCode" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.CompanyPostalCode" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.CompanyPhone" class="form-label"></label>
+                                <input asp-for="UpgradeApplication.CompanyPhone" class="form-control" />
+                                <span asp-validation-for="UpgradeApplication.CompanyPhone" class="text-danger"></span>
+                            </div>
+
+                            <h5 class="mt-4 mb-3">Sponsors</h5>
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.Sponsor1MemberID" class="form-label"></label>
+                                <select asp-for="UpgradeApplication.Sponsor1MemberID" asp-items="Model.GoldMembers" class="form-select">
+                                    <option value="">-- Select First Sponsor --</option>
+                                </select>
+                                <span asp-validation-for="UpgradeApplication.Sponsor1MemberID" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="UpgradeApplication.Sponsor2MemberID" class="form-label"></label>
+                                <select asp-for="UpgradeApplication.Sponsor2MemberID" asp-items="Model.GoldMembers" class="form-select">
+                                    <option value="">-- Select Second Sponsor --</option>
+                                </select>
+                                <span asp-validation-for="UpgradeApplication.Sponsor2MemberID" class="text-danger"></span>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">Submit Application</button>
+                                <a asp-page="/Dashboard" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Membership Benefits</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Gold Shareholder Benefits:</h6>
+                        <ul>
+                            <li>Ability to sponsor new members</li>
+                            <li>Access to standing tee time requests</li>
+                            <li>Priority booking privileges</li>
+                            <li>Voting rights in club decisions</li>
+                            <li>Exclusive access to shareholder events</li>
+                        </ul>
+                        
+                        <h6>Gold Associate Benefits:</h6>
+                        <ul>
+                            <li>Ability to sponsor new members</li>
+                            <li>Access to standing tee time requests</li>
+                            <li>Priority booking privileges</li>
+                            <li>Participation in associate-only tournaments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

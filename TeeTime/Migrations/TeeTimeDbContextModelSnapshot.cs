@@ -58,7 +58,7 @@ namespace TeeTime.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Members");
+                    b.ToTable("Members", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.MemberUpgrade", b =>
@@ -151,7 +151,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("MemberUpgrades");
+                    b.ToTable("MemberUpgrades", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.MembershipCategory", b =>
@@ -175,7 +175,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("MembershipCategoryID");
 
-                    b.ToTable("MembershipCategories");
+                    b.ToTable("MembershipCategories", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.Reservation", b =>
@@ -212,7 +212,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("ScheduledGolfTimeID");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.Role", b =>
@@ -230,7 +230,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("RoleID");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.ScheduledGolfTime", b =>
@@ -255,7 +255,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("ScheduledGolfTimeID");
 
-                    b.ToTable("ScheduledGolfTimes");
+                    b.ToTable("ScheduledGolfTimes", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.StandingTeeTimeRequest", b =>
@@ -301,7 +301,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("StandingTeeTimeRequests");
+                    b.ToTable("StandingTeeTimeRequests", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.User", b =>
@@ -344,7 +344,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("RoleID");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("TeeTime.Models.Member", b =>

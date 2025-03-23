@@ -27,11 +27,6 @@ namespace TeeTime.Models
         public string? AlternatePhone { get; set; }
 
         [Required]
-        [MaxLength(255)]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
-        [Required]
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
