@@ -59,7 +59,7 @@ namespace TeeTime.Pages.Membership
             }
 
             // Get eligible membership categories (Gold Shareholder and Gold Associate)
-            var eligibleCategories = await _context.MembershipCategory
+            var eligibleCategories = await _context.MembershipCategories
                 .Where(mc => mc.MembershipName == "Gold Shareholder" || mc.MembershipName == "Gold Associate")
                 .ToListAsync();
             MembershipCategories = new SelectList(eligibleCategories, "MembershipCategoryID", "MembershipName");
@@ -120,7 +120,7 @@ namespace TeeTime.Pages.Membership
 
         private async Task SetupSelectLists()
         {
-            var eligibleCategories = await _context.MembershipCategory
+            var eligibleCategories = await _context.MembershipCategories
                 .Where(mc => mc.MembershipName == "Gold Shareholder" || mc.MembershipName == "Gold Associate")
                 .ToListAsync();
             MembershipCategories = new SelectList(eligibleCategories, "MembershipCategoryID", "MembershipName");
