@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeeTime.Data;
 
@@ -11,9 +12,11 @@ using TeeTime.Data;
 namespace TeeTime.Migrations
 {
     [DbContext(typeof(TeeTimeDbContext))]
-    partial class TeeTimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250323184325_UpdatedModels")]
+    partial class UpdatedModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,9 +81,6 @@ namespace TeeTime.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("ApplicationDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("ApprovalByUserID")
                         .HasColumnType("int");
 
@@ -100,8 +100,8 @@ namespace TeeTime.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("CompanyPostalCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
