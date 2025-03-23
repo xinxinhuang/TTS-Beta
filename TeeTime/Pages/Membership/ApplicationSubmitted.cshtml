@@ -1,0 +1,29 @@
+@page
+@model TeeTime.Pages.Membership.ApplicationSubmittedModel
+@{
+    ViewData["Title"] = "Application Submitted";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Application Submitted Successfully!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h4 class="text-center mb-3">Thank you for your membership upgrade application</h4>
+                    <p class="text-center">Your application has been received and is pending review by the club committee.</p>
+                    <p class="text-center">You will be notified once a decision has been made on your application.</p>
+                    <hr />
+                    <div class="text-center mt-4">
+                        <a asp-page="/Dashboard" class="btn btn-primary">Return to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

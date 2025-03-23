@@ -10,8 +10,8 @@ namespace TeeTime.Data
         {
         }
 
-        public DbSet<Role> Role { get; set; }
-        public DbSet<MembershipCategory> MembershipCategory { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<MembershipCategory> MembershipCategories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<MemberUpgrade> MemberUpgrades { get; set; }

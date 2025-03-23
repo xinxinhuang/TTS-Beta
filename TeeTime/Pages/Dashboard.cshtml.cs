@@ -23,6 +23,13 @@ namespace TeeTime.Pages
         public bool CanBookTeeTime { get; set; }
         public bool CanRequestStandingTeeTime { get; set; }
         public bool CanApplyForUpgrade { get; set; }
+        public bool IsCommitteeMember { get; set; }
+        
+        // Properties for showing the membership upgrade notification
+        public bool ShowUpgradeNotification { get; set; }
+        public MemberUpgrade RecentUpgrade { get; set; }
+        [TempData]
+        public bool DismissUpgradeNotification { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -37,9 +44,11 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
 
+            var userId = int.Parse(userIdClaim);
             var user = await _context.Users
                 .Include(u => u.MembershipCategory)
-                .FirstOrDefaultAsync(u => u.UserID == int.Parse(userIdClaim));
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
 
             if (user == null || user.MembershipCategory == null)
             {
@@ -48,13 +57,41 @@ namespace TeeTime.Pages
 
             UserFullName = $"{user.FirstName} {user.LastName}";
             MembershipLevel = user.MembershipCategory.MembershipName;
+            
+            // Check if user is a committee member
+            IsCommitteeMember = user.Role?.RoleDescription == "Committee Member";
 
             // Set permissions based on membership level
             CanBookTeeTime = MembershipLevel != "Copper"; // All except Copper can book tee times
             CanRequestStandingTeeTime = user.MembershipCategory.CanMakeStandingTeeTime;
             CanApplyForUpgrade = MembershipLevel == "Gold"; // Only Gold members can upgrade to Shareholder/Associate
 
+            // Check for recent membership upgrade (approved in the last 7 days)
+            if (!DismissUpgradeNotification)
+            {
+                var recentUpgrade = await _context.MemberUpgrades
+                    .Include(mu => mu.DesiredMembershipCategory)
+                    .Where(mu => mu.UserID == userId && 
+                                 mu.Status == "Approved" && 
+                                 mu.ApprovalDate.HasValue && 
+                                 mu.ApprovalDate.Value >= DateTime.Now.AddDays(-7))
+                    .OrderByDescending(mu => mu.ApprovalDate)
+                    .FirstOrDefaultAsync();
+
+                if (recentUpgrade != null)
+                {
+                    ShowUpgradeNotification = true;
+                    RecentUpgrade = recentUpgrade;
+                }
+            }
+
             return Page();
+        }
+
+        public IActionResult OnPostDismissNotification()
+        {
+            DismissUpgradeNotification = true;
+            return RedirectToPage();
         }
     }
 }

@@ -5,16 +5,67 @@
 }
 
 <div class="container mt-4">
+    @if (Model.ShowUpgradeNotification)
+    {
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-3">
+                                    <i class="bi bi-trophy-fill me-2"></i>
+                                    Congratulations, you are now a @Model.RecentUpgrade.DesiredMembershipCategory.MembershipName!
+                                </h3>
+                                <p class="mb-0">Your membership has been upgraded, giving you access to new privileges:</p>
+                                <ul class="mt-2">
+                                    @if (Model.RecentUpgrade.DesiredMembershipCategory.CanMakeStandingTeeTime)
+                                    {
+                                        <li>Access to standing tee time requests</li>
+                                    }
+                                    @if (Model.RecentUpgrade.DesiredMembershipCategory.CanSponsor)
+                                    {
+                                        <li>Ability to sponsor new members</li>
+                                    }
+                                    <li>Priority booking privileges</li>
+                                    @if (Model.MembershipLevel.Contains("Shareholder"))
+                                    {
+                                        <li>Voting rights in club decisions</li>
+                                        <li>Exclusive access to shareholder events</li>
+                                    }
+                                    else if (Model.MembershipLevel.Contains("Associate"))
+                                    {
+                                        <li>Participation in associate-only tournaments</li>
+                                    }
+                                </ul>
+                            </div>
+                            <form method="post" asp-page-handler="DismissNotification">
+                                <button type="submit" class="btn-close btn-close-white" aria-label="Close"></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h2>Welcome, @Model.UserFullName!</h2>
-                    <p class="mb-0">Membership Level: <span class="badge bg-info">@Model.MembershipLevel</span></p>
+                    @if (Model.IsCommitteeMember)
+                    {
+                        <p class="mb-0">Role: <span class="badge bg-info">Committee Member</span></p>
+                    }
+                    else
+                    {
+                        <p class="mb-0">Membership Level: <span class="badge bg-info">@Model.MembershipLevel</span></p>
+                    }
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        @if (Model.CanBookTeeTime)
+                        @if (Model.CanBookTeeTime && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
@@ -28,7 +79,7 @@
                             </div>
                         }
 
-                        @if (Model.CanRequestStandingTeeTime)
+                        @if (Model.CanRequestStandingTeeTime && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
@@ -42,7 +93,7 @@
                             </div>
                         }
 
-                        @if (Model.CanApplyForUpgrade && Model.MembershipLevel == "Gold")
+                        @if (Model.CanApplyForUpgrade && Model.MembershipLevel == "Gold" && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
@@ -50,7 +101,21 @@
                                         <i class="bi bi-arrow-up-circle" style="font-size: 3rem; color: #0d6efd;"></i>
                                         <h4 class="mt-3">Membership Upgrade</h4>
                                         <p>Apply for Shareholder/Associate status</p>
-                                        <a href="#" class="btn btn-primary">Apply Now</a>
+                                        <a asp-page="/Membership/UpgradeApplication" class="btn btn-primary">Apply Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.IsCommitteeMember)
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-clipboard-check" style="font-size: 3rem; color: #0d6efd;"></i>
+                                        <h4 class="mt-3">Review Applications</h4>
+                                        <p>Review pending membership upgrades</p>
+                                        <a asp-page="/Membership/ApplicationReview" class="btn btn-primary">Review Now</a>
                                     </div>
                                 </div>
                             </div>
