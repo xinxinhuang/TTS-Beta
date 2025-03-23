@@ -9,6 +9,24 @@ namespace TeeTime.Data
 {
     public static class SeedData
     {
+        // Helper function to hash passwords
+        private static string HashPassword(string password)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // Convert the input string to a byte array and compute the hash
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                // Convert byte array to a string
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using (var context = new TeeTimeDbContext(
@@ -93,24 +111,6 @@ namespace TeeTime.Data
                     var goldShareholderCategoryId = goldShareholderCategory.MembershipCategoryID;
                     var goldAssociateCategoryId = goldAssociateCategory.MembershipCategoryID;
                     var memberRoleId = memberRole.RoleID;
-
-                    // Helper function to hash passwords
-                    string HashPassword(string password)
-                    {
-                        using (SHA256 sha256Hash = SHA256.Create())
-                        {
-                            // Convert the input string to a byte array and compute the hash
-                            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-
-                            // Convert byte array to a string
-                            StringBuilder builder = new StringBuilder();
-                            for (int i = 0; i < bytes.Length; i++)
-                            {
-                                builder.Append(bytes[i].ToString("x2"));
-                            }
-                            return builder.ToString();
-                        }
-                    }
 
                     try
                     {
@@ -208,6 +208,59 @@ namespace TeeTime.Data
                     {
                         // This provides more detailed error information
                         throw new InvalidOperationException($"Error seeding user data: {ex.Message}", ex);
+                    }
+                }
+
+                // Add a Golf Committee member if one doesn't exist
+                if (!context.Users.Any(u => u.Email.Contains("committee")))
+                {
+                    // Get the committee member role
+                    var committeeRole = context.Roles
+                        .FirstOrDefault(r => r.RoleDescription == "Committee Member");
+
+                    if (committeeRole == null)
+                    {
+                        // Log error or throw exception
+                        throw new InvalidOperationException("Committee Member role not found in database");
+                    }
+
+                    var committeeRoleId = committeeRole.RoleID;
+
+                    try
+                    {
+                        // Create Golf Committee member
+                        var committeeUser = new User
+                        {
+                            FirstName = "Robert",
+                            LastName = "Johnson",
+                            Email = "committee@teetimeclub.com",
+                            PasswordHash = HashPassword("Password123!"),
+                            RoleID = committeeRoleId,
+                            // Committee members can have Gold membership
+                            MembershipCategoryID = context.MembershipCategories
+                                .FirstOrDefault(m => m.MembershipName == "Gold")?.MembershipCategoryID ?? throw new InvalidOperationException("Gold membership category not found")
+                        };
+                        context.Users.Add(committeeUser);
+                        context.SaveChanges();
+
+                        // Create Member record for the committee member
+                        context.Members.Add(
+                            new Member
+                            {
+                                UserID = committeeUser.UserID,
+                                MembershipCategoryID = committeeUser.MembershipCategoryID,
+                                JoinDate = DateTime.Now.AddYears(-5),
+                                Status = "Active",
+                                MemberPhone = "555-987-6543",
+                                GoodStanding = true
+                            }
+                        );
+                        context.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        // This provides more detailed error information
+                        throw new InvalidOperationException($"Error seeding committee member data: {ex.Message}", ex);
                     }
                 }
             }

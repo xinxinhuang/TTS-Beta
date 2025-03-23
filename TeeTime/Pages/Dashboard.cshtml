@@ -54,11 +54,18 @@
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h2>Welcome, @Model.UserFullName!</h2>
-                    <p class="mb-0">Membership Level: <span class="badge bg-info">@Model.MembershipLevel</span></p>
+                    @if (Model.IsCommitteeMember)
+                    {
+                        <p class="mb-0">Role: <span class="badge bg-info">Committee Member</span></p>
+                    }
+                    else
+                    {
+                        <p class="mb-0">Membership Level: <span class="badge bg-info">@Model.MembershipLevel</span></p>
+                    }
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        @if (Model.CanBookTeeTime)
+                        @if (Model.CanBookTeeTime && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
@@ -72,7 +79,7 @@
                             </div>
                         }
 
-                        @if (Model.CanRequestStandingTeeTime)
+                        @if (Model.CanRequestStandingTeeTime && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
@@ -86,7 +93,7 @@
                             </div>
                         }
 
-                        @if (Model.CanApplyForUpgrade && Model.MembershipLevel == "Gold")
+                        @if (Model.CanApplyForUpgrade && Model.MembershipLevel == "Gold" && !Model.IsCommitteeMember)
                         {
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">

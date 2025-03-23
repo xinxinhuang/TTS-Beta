@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using TeeTime.Data;
 using TeeTime.Models;
 
@@ -20,27 +21,47 @@ namespace TeeTime.Pages.Membership
         [BindProperty]
         public MemberUpgradeViewModel UpgradeApplication { get; set; } = new();
 
-        public SelectList MembershipCategories { get; set; }
-        public SelectList GoldMembers { get; set; }
+        public SelectList? MembershipCategories { get; set; }
+        public SelectList? GoldMembers { get; set; }
         
-        public User CurrentUser { get; set; }
-        public Member CurrentMember { get; set; }
+        public User? CurrentUser { get; set; }
+        public Member? CurrentMember { get; set; }
         
         public bool HasPendingApplication { get; set; }
-        public MemberUpgrade PendingApplication { get; set; }
+        public MemberUpgrade? PendingApplication { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // For demo purposes, get the first Gold member
-            // In a real application, you would get the current logged-in user
+            // Check if user is authenticated
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            // Get the authenticated user's ID
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            // Get the current logged-in user
             CurrentUser = await _context.Users
                 .Include(u => u.MembershipCategory)
                 .Include(u => u.Member)
-                .FirstOrDefaultAsync(u => u.MembershipCategory.MembershipName == "Gold");
+                .FirstOrDefaultAsync(u => u.UserID == userId);
 
             if (CurrentUser == null)
             {
-                return NotFound("No Gold member found. Please create a Gold member first.");
+                return NotFound("User not found in the database.");
+            }
+
+            // Check if user has Gold membership (required for upgrade)
+            if (CurrentUser.MembershipCategory?.MembershipName != "Gold")
+            {
+                return RedirectToPage("/Dashboard", new { message = "Only Gold members can apply for membership upgrade." });
             }
 
             CurrentMember = CurrentUser.Member;
@@ -68,7 +89,7 @@ namespace TeeTime.Pages.Membership
             var sponsors = await _context.Members
                 .Include(m => m.User)
                 .Include(m => m.MembershipCategory)
-                .Where(m => m.MembershipCategory.CanSponsor)
+                .Where(m => m.MembershipCategory != null && m.MembershipCategory.CanSponsor)
                 .ToListAsync();
             GoldMembers = new SelectList(sponsors, "MemberID", "User.FirstName");
 
@@ -83,14 +104,36 @@ namespace TeeTime.Pages.Membership
                 return Page();
             }
 
-            // Get current user (in a real app, this would be from authentication)
+            // Check if user is authenticated
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            // Get the authenticated user's ID
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            // Get the current logged-in user
             var user = await _context.Users
                 .Include(u => u.Member)
-                .FirstOrDefaultAsync(u => u.MembershipCategory.MembershipName == "Gold");
+                .Include(u => u.MembershipCategory)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
 
             if (user == null)
             {
-                return NotFound("User not found");
+                return NotFound("User not found in the database.");
+            }
+
+            // Check if user has Gold membership (required for upgrade)
+            if (user.MembershipCategory?.MembershipName != "Gold")
+            {
+                return RedirectToPage("/Dashboard", new { message = "Only Gold members can apply for membership upgrade." });
             }
 
             var memberUpgrade = new MemberUpgrade
@@ -100,7 +143,7 @@ namespace TeeTime.Pages.Membership
                 PostalCode = UpgradeApplication.PostalCode,
                 Phone = UpgradeApplication.Phone,
                 AlternatePhone = UpgradeApplication.AlternatePhone,
-                DateOfBirth = UpgradeApplication.DateOfBirth,
+                DateOfBirth = UpgradeApplication.DateOfBirth ?? DateTime.Now, // Provide default if null
                 Occupation = UpgradeApplication.Occupation,
                 CompanyName = UpgradeApplication.CompanyName,
                 CompanyAddress = UpgradeApplication.CompanyAddress,
@@ -129,16 +172,33 @@ namespace TeeTime.Pages.Membership
             var sponsors = await _context.Members
                 .Include(m => m.User)
                 .Include(m => m.MembershipCategory)
-                .Where(m => m.MembershipCategory.CanSponsor)
+                .Where(m => m.MembershipCategory != null && m.MembershipCategory.CanSponsor)
                 .ToListAsync();
             GoldMembers = new SelectList(sponsors, "MemberID", "User.FirstName");
         }
 
         public async Task<IActionResult> OnPostWithdrawAsync(int applicationId)
         {
-            // Find the application
+            // Check if user is authenticated
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            // Get the authenticated user's ID
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            // Find the application, ensuring it belongs to the current user
             var application = await _context.MemberUpgrades
-                .FirstOrDefaultAsync(mu => mu.ApplicationID == applicationId && mu.Status == "Pending");
+                .FirstOrDefaultAsync(mu => mu.ApplicationID == applicationId 
+                                        && mu.UserID == userId 
+                                        && mu.Status == "Pending");
 
             if (application == null)
             {
@@ -175,7 +235,7 @@ namespace TeeTime.Pages.Membership
         [Required]
         [Display(Name = "Date of Birth")]
         [DataType(DataType.Date)]
-        public DateTime DateOfBirth { get; set; } = DateTime.Now.AddYears(-30);
+        public DateTime? DateOfBirth { get; set; }
 
         [Display(Name = "Occupation")]
         public string? Occupation { get; set; }
