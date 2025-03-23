@@ -142,6 +142,7 @@ namespace TeeTime.Pages.Membership
 
         [Required]
         [Display(Name = "Postal Code")]
+        [RegularExpression(@"^[A-Za-z]\d[A-Za-z]\s\d[A-Za-z]\d$", ErrorMessage = "Postal code must be in format 'A1A 1A1'")]
         public string PostalCode { get; set; } = string.Empty;
 
         [Required]
@@ -166,6 +167,7 @@ namespace TeeTime.Pages.Membership
         public string? CompanyAddress { get; set; }
 
         [Display(Name = "Company Postal Code")]
+        [RegularExpression(@"^[A-Za-z]\d[A-Za-z]\s\d[A-Za-z]\d$", ErrorMessage = "Company postal code must be in format 'A1A 1A1'")]
         public string? CompanyPostalCode { get; set; }
 
         [Display(Name = "Company Phone")]

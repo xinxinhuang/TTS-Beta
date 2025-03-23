@@ -17,6 +17,7 @@ namespace TeeTime.Models
 
         [Required]
         [MaxLength(20)]
+        [RegularExpression(@"^[A-Za-z]\d[A-Za-z]\s\d[A-Za-z]\d$", ErrorMessage = "Postal code must be in format 'A1A 1A1'")]
         public string PostalCode { get; set; } = string.Empty;
 
         [Required]
@@ -39,7 +40,8 @@ namespace TeeTime.Models
         [MaxLength(255)]
         public string? CompanyAddress { get; set; }
 
-        [MaxLength(20)]
+        [MaxLength(50)]
+        [RegularExpression(@"^[A-Za-z]\d[A-Za-z]\s\d[A-Za-z]\d$", ErrorMessage = "Company postal code must be in format 'A1A 1A1'")]
         public string? CompanyPostalCode { get; set; }
 
         [MaxLength(20)]
