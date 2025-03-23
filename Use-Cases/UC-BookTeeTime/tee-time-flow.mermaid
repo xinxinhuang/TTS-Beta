@@ -1,0 +1,27 @@
+flowchart TD
+    A[Member Login] --> B{Verify Membership}
+    B -->|Valid| C[Select Booking Date]
+    B -->|Invalid| Z[Error: Invalid Membership]
+    
+    C --> D[Check for Events/Tournaments]
+    D --> E[Check Member Level]
+    
+    E -->|Gold| F[Show All Available Times]
+    E -->|Silver| G[Filter by Silver Time Restrictions]
+    E -->|Bronze| H[Filter by Bronze Time Restrictions]
+    
+    F --> I[Display Available Tee Times]
+    G --> I
+    H --> I
+    
+    I --> J[Member Selects Time]
+    J --> K[Enter Player Details 1-4]
+    K --> L[Request Cart if Needed]
+    L --> M{Verify Final Availability}
+    
+    M -->|Available| N[Confirm Booking]
+    M -->|Not Available| O[Notify Unavailable]
+    O --> I
+    
+    N --> P[Update Tee Sheet]
+    P --> Q[Send Confirmation]
