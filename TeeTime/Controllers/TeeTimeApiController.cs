@@ -35,9 +35,9 @@ namespace TeeTime.Controllers
                     return Unauthorized();
                 }
 
-                // Calculate date range (today to 14 days ahead)
+                // Calculate date range (today to 30 days ahead for the calendar view)
                 var startDate = DateTime.Today;
-                var endDate = startDate.AddDays(14);
+                var endDate = startDate.AddDays(30);
 
                 // Get all scheduled tee times in the date range
                 var scheduledTimes = await _context.ScheduledGolfTimes
@@ -93,11 +93,26 @@ namespace TeeTime.Controllers
                     }
                 }
 
+                // Get date summaries for the tooltips
+                var dateSummaries = new Dictionary<string, object>();
+                foreach (var dateEntry in teeTimesByDate)
+                {
+                    var date = dateEntry.Key;
+                    var formattedDate = date.ToString("yyyy-MM-dd");
+                    
+                    dateSummaries[formattedDate] = new {
+                        totalSlots = dateEntry.Value.TotalSlots,
+                        availableSlots = dateEntry.Value.AvailableSlots,
+                        percentAvailable = Math.Round((double)dateEntry.Value.AvailableSlots / dateEntry.Value.TotalSlots * 100)
+                    };
+                }
+                
                 // Return the results as JSON
                 return Ok(new
                 {
                     fullyBooked,
-                    limitedAvailability
+                    limitedAvailability,
+                    dateSummaries
                 });
             }
             catch (Exception ex)

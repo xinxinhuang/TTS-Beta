@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "aFF4voXIaNqbQ/opV8jJezWg4Re5RiG81nucfXAXUPY=",
+  "Hash": "hMWPfyTPfI75eAUujJaMj35B7FOAgZvA+1YrKUtBpNM=",
   "Source": "TeeTime",
   "BasePath": "_content/TeeTime",
   "Mode": "Default",
@@ -836,6 +836,27 @@
       "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.min.js"
     },
     {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jl6en6p95z-e8lkbqmiew.gz",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teesheet-calendar#[.{fingerprint=e8lkbqmiew}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "inbu9u5qge",
+      "Integrity": "grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js"
+    },
+    {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jra9hvs8rz-c2jlpeoesf.gz",
       "SourceId": "TeeTime",
       "SourceType": "Discovered",
@@ -876,6 +897,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k4m5rez4ip-x6aghrbey4.gz",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "lib/fullcalendar/index.global.min#[.{fingerprint=x6aghrbey4}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "5iwbzgt59c",
+      "Integrity": "szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js"
     },
     {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k7xsv1cknm-erw9l3u2r3.gz",
@@ -1256,6 +1298,27 @@
       "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\favicon.ico"
     },
     {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v2qn4d7wsv-65iuxsents.gz",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teetime/calendar#[.{fingerprint=65iuxsents}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "i0evagno4u",
+      "Integrity": "Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js"
+    },
+    {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v731kx7qcc-06098lyss8.gz",
       "SourceId": "TeeTime",
       "SourceType": "Discovered",
@@ -1527,6 +1590,48 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teesheet-calendar#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "e8lkbqmiew",
+      "Integrity": "fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\teesheet-calendar.js"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teetime/calendar#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "65iuxsents",
+      "Integrity": "pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\teetime\\calendar.js"
     },
     {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
@@ -2493,6 +2598,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\bootstrap\\LICENSE"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "lib/fullcalendar/index.global.min#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "x6aghrbey4",
+      "Integrity": "ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\fullcalendar\\index.global.min.js"
     },
     {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\jquery-validation-unobtrusive\\dist\\jquery.validate.unobtrusive.js",
@@ -4000,6 +4126,602 @@
         {
           "Name": "integrity",
           "Value": "sha256-Ydq7YvQUzhbo68waLZeQvZnPOvmTeQ+HyDqjkA1whsA="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.e8lkbqmiew.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jl6en6p95z-e8lkbqmiew.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000474383302"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2107"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "e8lkbqmiew"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teesheet-calendar.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.e8lkbqmiew.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8999"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "e8lkbqmiew"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teesheet-calendar.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.e8lkbqmiew.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jl6en6p95z-e8lkbqmiew.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2107"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "e8lkbqmiew"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teesheet-calendar.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jl6en6p95z-e8lkbqmiew.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000474383302"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2107"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8999"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-fhtnvYuHEY1wOuL5uG+GELQP/OhltlYjWoLxLagX8kk="
+        }
+      ]
+    },
+    {
+      "Route": "js/teesheet-calendar.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\jl6en6p95z-e8lkbqmiew.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2107"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:24:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-grjOKjw0Wev+VMgLQRKUN//VSTtSnkhrvAAxK45FaE8="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.65iuxsents.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v2qn4d7wsv-65iuxsents.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000499001996"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2003"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "65iuxsents"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/calendar.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.65iuxsents.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6684"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "65iuxsents"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/calendar.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.65iuxsents.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v2qn4d7wsv-65iuxsents.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2003"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "65iuxsents"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/calendar.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v2qn4d7wsv-65iuxsents.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000499001996"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2003"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6684"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-pvdqLUhecWutOaOCPS6mNoyokJ4yPMSdS7KXq0VQcIU="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/calendar.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\v2qn4d7wsv-65iuxsents.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2003"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:18:13 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Tq0Cfq/6u6LPFJfPOiRaQgp0R2rwQ5WvMKSrZOAhOfo="
         }
       ]
     },
@@ -17492,6 +18214,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-ZH6pA6BSx6fuHZvdaKph1DwUJ+VSYilIiEQu8ilnvqk="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k4m5rez4ip-x6aghrbey4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000012196758"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "81988"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "282117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k4m5rez4ip-x6aghrbey4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "81988"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.x6aghrbey4.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k4m5rez4ip-x6aghrbey4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000012196758"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "81988"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x6aghrbey4"
+        },
+        {
+          "Name": "label",
+          "Value": "lib/fullcalendar/index.global.min.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.x6aghrbey4.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "282117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x6aghrbey4"
+        },
+        {
+          "Name": "label",
+          "Value": "lib/fullcalendar/index.global.min.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZztCtsADLKbUFK/X6nOYnJr0eelmV2X3dhLDB/JK6fM="
+        }
+      ]
+    },
+    {
+      "Route": "lib/fullcalendar/index.global.min.x6aghrbey4.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\k4m5rez4ip-x6aghrbey4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "81988"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:23:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "x6aghrbey4"
+        },
+        {
+          "Name": "label",
+          "Value": "lib/fullcalendar/index.global.min.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-szM31Edq6lCmo0ANZfv7AFN7PnkhQDXnPlfp0O1rVvY="
         }
       ]
     },

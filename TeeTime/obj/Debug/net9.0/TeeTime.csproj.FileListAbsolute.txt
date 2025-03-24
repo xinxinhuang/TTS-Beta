@@ -237,3 +237,6 @@ F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\ref\TeeTime.dll
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\TeeTime.sourcelink.json
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\8y7peac339-4iebo1rn2h.gz
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\mz5f2v6gr8-igfrk8j61p.gz
+F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\v2qn4d7wsv-65iuxsents.gz
+F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\jl6en6p95z-e8lkbqmiew.gz
+F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\k4m5rez4ip-x6aghrbey4.gz

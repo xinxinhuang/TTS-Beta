@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using TeeTime.Data;
 using TeeTime.Models;
 
@@ -148,7 +149,8 @@ namespace TeeTime.Pages.TeeSheet
                             ScheduledDate = currentDate,
                             ScheduledTime = currentTime,
                             GolfSessionInterval = Interval,
-                            IsAvailable = true
+                            IsAvailable = true,
+                            IsPublished = false
                         };
 
                         _context.ScheduledGolfTimes.Add(teeTime);
@@ -158,8 +160,6 @@ namespace TeeTime.Pages.TeeSheet
 
                 Console.WriteLine("Saving changes to database");
                 await _context.SaveChangesAsync();
-                
-                TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
 
                 WeekStartDate = weekStartDate;
                 await LoadTeeSheetDataAsync(weekStartDate);
@@ -180,168 +180,206 @@ namespace TeeTime.Pages.TeeSheet
             }
         }
 
-        public async Task<IActionResult> OnPostAddEventAsync(DateTime selectedWeekStart)
+        [BindProperty]
+        public string EventJson { get; set; } = string.Empty;
+
+        public async Task<IActionResult> OnPostAddEventAsync()
         {
-            WeekStartDate = selectedWeekStart;
-
-            if (!EventDate.HasValue || string.IsNullOrWhiteSpace(EventName) || 
-                !EventStartTime.HasValue || !EventEndTime.HasValue)
+            try
             {
-                ModelState.AddModelError(string.Empty, "All event fields are required");
-                TempData["ErrorMessage"] = "Please fill in all event fields.";
-                await LoadPublishedWeeksAsync();
-                return Page();
+                // Parse the JSON data from the request
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                // Get the raw request body
+                using var reader = new StreamReader(Request.Body);
+                var requestBody = await reader.ReadToEndAsync();
+                
+                // Deserialize the JSON
+                var eventData = JsonSerializer.Deserialize<EventData>(requestBody, options);
+
+                if (eventData == null || string.IsNullOrWhiteSpace(eventData.EventName) ||
+                    string.IsNullOrWhiteSpace(eventData.EventDate) ||
+                    string.IsNullOrWhiteSpace(eventData.EventStartTime) ||
+                    string.IsNullOrWhiteSpace(eventData.EventEndTime))
+                {
+                    return new JsonResult(new { success = false, message = "Invalid event data" });
+                }
+
+                // Create new event
+                var newEvent = new Event
+                {
+                    EventName = eventData.EventName,
+                    EventDate = DateTime.Parse(eventData.EventDate),
+                    StartTime = TimeSpan.Parse(eventData.EventStartTime),
+                    EndTime = TimeSpan.Parse(eventData.EventEndTime)
+                };
+
+                // Add event to database
+                _context.Events.Add(newEvent);
+                
+                // Block all tee times that overlap with this event
+                var overlappingTeeTimes = await _context.ScheduledGolfTimes
+                    .Where(t => t.ScheduledDate.Date == newEvent.EventDate.Date &&
+                               t.ScheduledTime >= newEvent.StartTime &&
+                               t.ScheduledTime <= newEvent.EndTime)
+                    .ToListAsync();
+
+                foreach (var teeTime in overlappingTeeTimes)
+                {
+                    teeTime.IsAvailable = false;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = "Event added successfully" });
             }
-
-            var teeTimes = await _context.ScheduledGolfTimes
-                .Where(t => t.ScheduledDate.Date == EventDate.Value.Date &&
-                           t.ScheduledTime >= EventStartTime.Value &&
-                           t.ScheduledTime <= EventEndTime.Value)
-                .ToListAsync();
-
-            if (!teeTimes.Any())
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "No tee times found in the specified time range");
-                await LoadPublishedWeeksAsync();
-                return Page();
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            // Block all the tee times and record the event name
-            foreach (var teeTime in teeTimes)
-            {
-                teeTime.IsAvailable = false;
-                _context.ScheduledGolfTimes.Update(teeTime);
-            }
-
-            await _context.SaveChangesAsync();
-            
-            // Get the week that contains this event
-            DateTime weekStartDate = EventDate.Value.Date;
-            if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
-            {
-                weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
-            }
-
-            WeekStartDate = weekStartDate;
-            await LoadTeeSheetDataAsync(weekStartDate);
-            await LoadPublishedWeeksAsync();
-
-            return Page();
         }
 
-        public async Task<IActionResult> OnPostBlockAsync(int teeTimeId)
+        public class EventData
         {
-            var teeTime = await _context.ScheduledGolfTimes.FindAsync(teeTimeId);
-            if (teeTime != null)
-            {
-                teeTime.IsAvailable = false;
-                _context.ScheduledGolfTimes.Update(teeTime);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Tee time at {teeTime.ScheduledTime.Hours.ToString("00")}:{teeTime.ScheduledTime.Minutes.ToString("00")} has been blocked successfully.";
-            }
-
-            DateTime weekStartDate = teeTime?.ScheduledDate.Date ?? DateTime.Today;
-            if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
-            {
-                weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
-            }
-
-            WeekStartDate = weekStartDate;
-            await LoadTeeSheetDataAsync(weekStartDate);
-            await LoadPublishedWeeksAsync();
-
-            return Page();
+            public string EventDate { get; set; } = string.Empty;
+            public string EventName { get; set; } = string.Empty;
+            public string EventStartTime { get; set; } = string.Empty;
+            public string EventEndTime { get; set; } = string.Empty;
         }
 
-        public async Task<IActionResult> OnPostUnblockAsync(int teeTimeId)
+        public async Task<IActionResult> OnPostDeleteEventAsync(int id)
         {
-            var teeTime = await _context.ScheduledGolfTimes.FindAsync(teeTimeId);
-            if (teeTime != null)
+            try
             {
-                teeTime.IsAvailable = true;
-                _context.ScheduledGolfTimes.Update(teeTime);
+                // Extract the actual event ID from the format "event_{id}"
+                var eventId = id;
+                
+                // Find the event
+                var eventToDelete = await _context.Events.FindAsync(eventId);
+                if (eventToDelete == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found" }) { StatusCode = 404 };
+                }
+
+                // Find all blocked tee times associated with this event
+                var blockedTeeTimes = await _context.ScheduledGolfTimes
+                    .Where(t => t.ScheduledDate.Date == eventToDelete.EventDate.Date &&
+                               t.ScheduledTime >= eventToDelete.StartTime &&
+                               t.ScheduledTime <= eventToDelete.EndTime &&
+                               !t.IsAvailable)
+                    .ToListAsync();
+
+                // Unblock the tee times
+                foreach (var teeTime in blockedTeeTimes)
+                {
+                    teeTime.IsAvailable = true;
+                }
+
+                // Remove the event
+                _context.Events.Remove(eventToDelete);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Tee time at {teeTime.ScheduledTime.Hours.ToString("00")}:{teeTime.ScheduledTime.Minutes.ToString("00")} has been unblocked successfully.";
-            }
 
-            DateTime weekStartDate = teeTime?.ScheduledDate.Date ?? DateTime.Today;
-            if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
+                return new JsonResult(new { success = true, message = "Event deleted successfully" });
+            }
+            catch (Exception ex)
             {
-                weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            WeekStartDate = weekStartDate;
-            await LoadTeeSheetDataAsync(weekStartDate);
-            await LoadPublishedWeeksAsync();
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostPublishAsync(DateTime startDate)
         {
-            // In a real application, we would mark the tee sheet as published
-            // For now, we'll just reload the data
-            WeekStartDate = startDate;
-            await LoadTeeSheetDataAsync(startDate);
-            await LoadPublishedWeeksAsync();
-
-            TempData["SuccessMessage"] = $"Tee sheet for week of {startDate:MMMM d, yyyy} has been published successfully!";
-            return Page();
+            try
+            {
+                // Find all tee times for the week
+                var teeTimes = await _context.ScheduledGolfTimes
+                    .Where(t => t.ScheduledDate.Date >= startDate && 
+                               t.ScheduledDate.Date < startDate.AddDays(7))
+                    .ToListAsync();
+                
+                if (!teeTimes.Any())
+                {
+                    TempData["ErrorMessage"] = "No tee times found for the selected week.";
+                    await LoadPublishedWeeksAsync();
+                    return RedirectToPage();
+                }
+                
+                // Mark all tee times as published
+                foreach (var teeTime in teeTimes)
+                {
+                    teeTime.IsPublished = true;
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Tee sheet for week of {startDate:MMMM d, yyyy} has been published successfully.";
+                await LoadPublishedWeeksAsync();
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error publishing tee sheet: {ex.Message}";
+                await LoadPublishedWeeksAsync();
+                return RedirectToPage();
+            }
         }
 
-        private async Task LoadTeeSheetDataAsync(DateTime startDate)
+        private async Task LoadTeeSheetDataAsync(DateTime weekStartDate)
         {
-            // Clear existing data
-            TeeSheets.Clear();
-            Events.Clear();
-
-            // Load all tee times for the week
-            var endDate = startDate.AddDays(7);
+            // Load tee times for the week
             var teeTimes = await _context.ScheduledGolfTimes
-                .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
-                .OrderBy(t => t.ScheduledDate)
-                .ThenBy(t => t.ScheduledTime)
+                .Where(t => t.ScheduledDate.Date >= weekStartDate && 
+                           t.ScheduledDate.Date < weekStartDate.AddDays(7))
                 .ToListAsync();
-
-            // Group by date
-            foreach (var teeTime in teeTimes)
+            
+            // Group tee times by date
+            TeeSheets = teeTimes
+                .GroupBy(t => t.ScheduledDate.Date)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            
+            // Load events for the week
+            var events = await _context.Events
+                .Where(e => e.EventDate.Date >= weekStartDate && 
+                           e.EventDate.Date < weekStartDate.AddDays(7))
+                .ToListAsync();
+            
+            // Create a mapping of tee time ID to event name
+            Events.Clear();
+            foreach (var evt in events)
             {
-                var date = teeTime.ScheduledDate.Date;
-                if (!TeeSheets.ContainsKey(date))
+                // Find all tee times that overlap with this event
+                var overlappingTeeTimes = teeTimes
+                    .Where(t => t.ScheduledDate.Date == evt.EventDate.Date &&
+                               t.ScheduledTime >= evt.StartTime &&
+                               t.ScheduledTime <= evt.EndTime)
+                    .ToList();
+                
+                foreach (var teeTime in overlappingTeeTimes)
                 {
-                    TeeSheets[date] = new List<ScheduledGolfTime>();
-                }
-                TeeSheets[date].Add(teeTime);
-
-                // In a real app, we'd load events from a separate table
-                // For now, we'll just use a placeholder
-                if (!teeTime.IsAvailable)
-                {
-                    Events[teeTime.ScheduledGolfTimeID] = "Special Event";
+                    Events[teeTime.ScheduledGolfTimeID] = evt.EventName;
                 }
             }
         }
 
         private async Task LoadPublishedWeeksAsync()
         {
-            // In a real application, we would load published weeks from the database
-            // For now, we'll just get weeks that have tee times
-            var teeTimeGroups = await _context.ScheduledGolfTimes
-                .GroupBy(t => EF.Functions.DateDiffDay(new DateTime(1, 1, 1), t.ScheduledDate) / 7)
-                .Select(g => new
-                {
-                    WeekGroup = g.Key,
-                    MinDate = g.Min(t => t.ScheduledDate),
-                    Count = g.Count()
-                })
-                .OrderByDescending(g => g.MinDate)
+            // Get all published tee times
+            var publishedTeeTimes = await _context.ScheduledGolfTimes
+                .Where(t => t.IsPublished)
                 .ToListAsync();
-
-            PublishedWeeks = teeTimeGroups.Select(g => new PublishedWeekInfo
-            {
-                StartDate = g.MinDate.Date,
-                TeeTimeCount = g.Count
-            }).ToList();
+            
+            // Group by week start date (Sunday)
+            PublishedWeeks = publishedTeeTimes
+                .GroupBy(t => t.ScheduledDate.Date.AddDays(-(int)t.ScheduledDate.DayOfWeek)) // Group by week start (Sunday)
+                .Select(g => new PublishedWeekInfo
+                {
+                    StartDate = g.Key,
+                    TeeTimeCount = g.Count()
+                })
+                .ToList();
         }
     }
 }

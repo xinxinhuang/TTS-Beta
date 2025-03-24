@@ -21,6 +21,14 @@
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
+      "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teesheet-calendar.js",
+      "PackagePath": "staticwebassets\\js\\teesheet-calendar.js"
+    },
+    {
+      "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\calendar.js",
+      "PackagePath": "staticwebassets\\js\\teetime\\calendar.js"
+    },
+    {
       "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
       "PackagePath": "staticwebassets\\js\\teetime\\datepicker.js"
     },
@@ -203,6 +211,10 @@
     {
       "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
       "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
+    },
+    {
+      "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\index.global.min.js"
     },
     {
       "Id": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
