@@ -19,6 +19,9 @@
                             <label asp-for="SelectedDate" class="control-label">Date</label>
                             <input asp-for="SelectedDate" type="date" class="form-control" min="@Model.MinDate.ToString("yyyy-MM-dd")" max="@Model.MaxDate.ToString("yyyy-MM-dd")" />
                             <span asp-validation-for="SelectedDate" class="text-danger"></span>
+                            <div class="small text-muted mt-1">
+                                <i class="bi bi-info-circle"></i> Select a date to check tee time availability.
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">Check Available Times</button>
                     </form>
@@ -104,4 +107,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/teetime/datepicker.js"></script>
+    <style>
+        /* Date picker styling */
+        .date-unavailable {
+            background-color: #f8d7da !important;
+            color: #999 !important;
+            text-decoration: line-through !important;
+            pointer-events: none !important;
+        }
+        
+        .date-limited {
+            background-color: #fff3cd !important;
+        }
+    </style>
 }

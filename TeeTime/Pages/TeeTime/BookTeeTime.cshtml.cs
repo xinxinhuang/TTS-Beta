@@ -50,7 +50,7 @@ namespace TeeTime.Pages
 
         public List<ScheduledGolfTime> AvailableTimes { get; set; } = new List<ScheduledGolfTime>();
 
-        private async Task<Member> GetCurrentMemberAsync()
+        private async Task<Member?> GetCurrentMemberAsync()
         {
             // Get the current user ID from claims
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -94,6 +94,14 @@ namespace TeeTime.Pages
             if (SelectedDate < MinDate || SelectedDate > MaxDate)
             {
                 ModelState.AddModelError("SelectedDate", "Date must be between today and 14 days from now");
+                return Page();
+            }
+
+            // Check if the date is fully booked
+            var isFullyBooked = await IsDateFullyBookedAsync(SelectedDate);
+            if (isFullyBooked)
+            {
+                ModelState.AddModelError("SelectedDate", "No tee times are available for the selected date. Please select another date.");
                 return Page();
             }
 
@@ -161,7 +169,7 @@ namespace TeeTime.Pages
             return Page();
         }
 
-        private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member member)
+        private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member? member)
         {
             if (member == null)
             {
@@ -180,7 +188,7 @@ namespace TeeTime.Pages
             return filteredTimes;
         }
 
-        private List<ScheduledGolfTime> FilterTeeTimesByMembershipLevel(List<ScheduledGolfTime> allTimes, MembershipCategory membershipCategory)
+        private List<ScheduledGolfTime> FilterTeeTimesByMembershipLevel(List<ScheduledGolfTime> allTimes, MembershipCategory? membershipCategory)
         {
             // Apply time restrictions based on membership level
             // This is a simplified implementation - modify as needed based on actual business rules
@@ -238,6 +246,24 @@ namespace TeeTime.Pages
 
             // Max players per tee time (e.g., 4 golfers per tee time)
             return bookedPlayers >= 4;
+        }
+
+        private async Task<bool> IsDateFullyBookedAsync(DateTime date)
+        {
+            // Check if all tee times for the given date are booked
+            var teeTimesForDate = await _context.ScheduledGolfTimes
+                .Where(t => t.ScheduledDate.Date == date.Date)
+                .ToListAsync();
+            
+            // If there are no tee times for this date yet, it's not fully booked
+            if (!teeTimesForDate.Any())
+                return false;
+            
+            // Count available tee times
+            int availableTeeTimesCount = teeTimesForDate.Count(t => t.IsAvailable);
+            
+            // If no available tee times, the date is fully booked
+            return availableTeeTimesCount == 0;
         }
     }
 }

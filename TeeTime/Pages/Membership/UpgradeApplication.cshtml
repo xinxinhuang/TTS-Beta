@@ -11,14 +11,14 @@
     {
         <div class="alert alert-info">
             <h4>You have a pending application</h4>
-            <p>You have already submitted an application to upgrade to @Model.PendingApplication.DesiredMembershipCategory.MembershipName.</p>
-            <p>Status: <strong>@Model.PendingApplication.Status</strong></p>
+            <p>You have already submitted an application to upgrade to @Model.PendingApplication.DesiredMembershipCategory?.MembershipName.</p>
+            <p>Status: <strong>@Model.PendingApplication?.Status</strong></p>
             <p>Submitted on: @Model.PendingApplication.ApplicationDate.ToShortDateString()</p>
             <hr />
             <p>Please wait for the committee to review your application.</p>
             
             <form method="post">
-                <input type="hidden" name="applicationId" value="@Model.PendingApplication.ApplicationID" />
+                <input type="hidden" name="applicationId" value="@Model.PendingApplication?.ApplicationID" />
                 <button type="submit" asp-page-handler="Withdraw" class="btn btn-danger mt-2">Withdraw Application</button>
             </form>
         </div>

@@ -18,10 +18,12 @@ namespace TeeTime.Data
         public DbSet<ScheduledGolfTime> ScheduledGolfTimes { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
+        public DbSet<Event> Events { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure entity relationships
+            modelBuilder.HasDefaultSchema("dbo");
+
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
                 .WithMany(r => r.Users)
@@ -99,6 +101,12 @@ namespace TeeTime.Data
                 .WithMany()
                 .HasForeignKey(sttr => sttr.ApprovedByUserID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ScheduledGolfTime>()
+                .HasOne(s => s.Event)
+                .WithMany(e => e.ScheduledGolfTimes)
+                .HasForeignKey(s => s.EventID)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

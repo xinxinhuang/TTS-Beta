@@ -20,6 +20,7 @@ namespace TeeTime.Pages
 
         public string UserFullName { get; set; } = string.Empty;
         public string MembershipLevel { get; set; } = string.Empty;
+        public string UserRole { get; set; } = string.Empty;
         public bool CanBookTeeTime { get; set; }
         public bool CanRequestStandingTeeTime { get; set; }
         public bool CanApplyForUpgrade { get; set; }
@@ -27,7 +28,7 @@ namespace TeeTime.Pages
         
         // Properties for showing the membership upgrade notification
         public bool ShowUpgradeNotification { get; set; }
-        public MemberUpgrade RecentUpgrade { get; set; }
+        public required MemberUpgrade RecentUpgrade { get; set; }
         [TempData]
         public bool DismissUpgradeNotification { get; set; }
 
@@ -57,6 +58,7 @@ namespace TeeTime.Pages
 
             UserFullName = $"{user.FirstName} {user.LastName}";
             MembershipLevel = user.MembershipCategory.MembershipName;
+            UserRole = user.Role?.RoleDescription ?? "Member";
             
             // Check if user is a committee member
             IsCommitteeMember = user.Role?.RoleDescription == "Committee Member";
