@@ -87,6 +87,28 @@ TeeTime/
 - Enhanced user experience with confirmation modals
 - Improved redirection logic to maintain user context
 
+## Test Accounts
+For development and testing purposes, the following accounts are available:
+
+### Staff Accounts
+| Role | Email | Password | Description |
+|------|-------|----------|-------------|
+| Clerk | clerk@teetime.com | Password123! | Access to daily operations and tee sheet management |
+| Pro Shop Staff | proshop@teetime.com | Password123! | Manages tee times and events |
+| Committee Member | committee@teetime.com | Password123! | Reviews and approves membership upgrades |
+
+### Member Accounts
+| Membership Tier | Email | Password | Description |
+|-----------------|-------|----------|-------------|
+| Gold Shareholder | goldshareholder@example.com | Password123! | Premium member with sponsorship and standing tee time privileges |
+| Gold Associate | goldassociate@example.com | Password123! | Premium member with sponsorship and standing tee time privileges |
+| Gold | gold@example.com | Password123! | Basic gold membership |
+| Silver | silver@example.com | Password123! | Standard membership with limited privileges |
+| Bronze | bronze@example.com | Password123! | Basic membership with restricted access |
+| Copper | copper@example.com | Password123! | Entry-level membership with minimal privileges |
+
+*Note: These are test accounts with standardized passwords for development purposes only. In production, secure password policies should be enforced.*
+
 ## Contributing
 1. Fork the repository
 2. Create feature branch
