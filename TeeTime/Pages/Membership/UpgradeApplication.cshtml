@@ -11,9 +11,9 @@
     {
         <div class="alert alert-info">
             <h4>You have a pending application</h4>
-            <p>You have already submitted an application to upgrade to @Model.PendingApplication.DesiredMembershipCategory?.MembershipName.</p>
-            <p>Status: <strong>@Model.PendingApplication?.Status</strong></p>
-            <p>Submitted on: @Model.PendingApplication.ApplicationDate.ToShortDateString()</p>
+            <p>You have already submitted an application to upgrade to @(Model.PendingApplication?.DesiredMembershipCategory?.MembershipName ?? "a new membership level").</p>
+            <p>Status: <strong>@(Model.PendingApplication?.Status ?? "Pending")</strong></p>
+            <p>Submitted on: @(Model.PendingApplication != null ? Model.PendingApplication.ApplicationDate.ToShortDateString() : DateTime.Today.ToShortDateString())</p>
             <hr />
             <p>Please wait for the committee to review your application.</p>
             

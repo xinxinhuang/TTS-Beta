@@ -45,10 +45,14 @@ namespace TeeTime.Pages
         public TimeSpan ConfirmedTime { get; set; }
         public string ConfirmationNumber { get; set; }
 
-        public DateTime MinDate => DateTime.Today;
-        public DateTime MaxDate => DateTime.Today.AddDays(7); // Allow booking up to 7 days in advance
-
-        public List<ScheduledGolfTime> AvailableTimes { get; set; } = new List<ScheduledGolfTime>();
+        public DateTime StartDate { get; set; } = DateTime.Today;
+        public DateTime EndDate => StartDate.AddDays(6);
+        
+        // Dictionary of date -> list of tee times for that date
+        public Dictionary<DateTime, List<ScheduledGolfTime>> TeeSheets { get; set; } = new Dictionary<DateTime, List<ScheduledGolfTime>>();
+        
+        // Dictionary of tee time ID -> event name
+        public Dictionary<int, string> Events { get; set; } = new Dictionary<int, string>();
 
         public List<Reservation> UserReservations { get; set; } = new List<Reservation>();
 
@@ -71,7 +75,7 @@ namespace TeeTime.Pages
                 .FirstOrDefaultAsync(m => m.UserID == userId);
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(DateTime? startDate = null)
         {
             var member = await GetCurrentMemberAsync();
             if (member == null)
@@ -79,24 +83,67 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
 
-            // Initialize with today's date selected
-            SelectedDate = DateTime.Today;
+            // Set the start date to the provided date or today
+            StartDate = startDate?.Date ?? DateTime.Today;
+            
+            // Load tee sheet data for the week
+            await LoadTeeSheetDataAsync(StartDate);
             
             // Load user's existing reservations
             await LoadUserReservationsAsync(member.MemberID);
             
             // Retrieve confirmation data from TempData if it exists
-            if (TempData["BookingConfirmed"] != null && (bool)TempData["BookingConfirmed"])
+            if (TempData["BookingConfirmed"] != null && TempData["BookingConfirmed"] is bool bookingConfirmed && bookingConfirmed)
             {
                 BookingConfirmed = true;
-                ConfirmedTime = (TimeSpan)TempData["ConfirmedTime"];
-                ConfirmationNumber = TempData["ConfirmationNumber"].ToString();
-                NumberOfPlayers = (int)TempData["BookedPlayers"];
-                NumberOfCarts = (int)TempData["BookedCarts"];
-                SelectedDate = (DateTime)TempData["BookedDate"];
+                ConfirmedTime = TempData["ConfirmedTime"] is TimeSpan confirmedTime ? confirmedTime : TimeSpan.Zero;
+                ConfirmationNumber = TempData["ConfirmationNumber"]?.ToString() ?? string.Empty;
+                NumberOfPlayers = TempData["BookedPlayers"] is int bookedPlayers ? bookedPlayers : 1;
+                NumberOfCarts = TempData["BookedCarts"] is int bookedCarts ? bookedCarts : 0;
+                SelectedDate = TempData["BookedDate"] is DateTime bookedDate ? bookedDate : DateTime.Today;
             }
             
             return Page();
+        }
+
+        private async Task LoadTeeSheetDataAsync(DateTime startDate)
+        {
+            // Clear existing data
+            TeeSheets.Clear();
+            Events.Clear();
+
+            // Load all tee times for the week with reservations
+            var endDate = startDate.AddDays(7);
+            var teeTimes = await _context.ScheduledGolfTimes
+                .Include(t => t.Reservations)
+                    .ThenInclude(r => r.Member)
+                        .ThenInclude(m => m.User)
+                .Include(t => t.Event)
+                .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
+                .OrderBy(t => t.ScheduledDate)
+                .ThenBy(t => t.ScheduledTime)
+                .ToListAsync();
+
+            // Group by date
+            foreach (var teeTime in teeTimes)
+            {
+                var date = teeTime.ScheduledDate.Date;
+                if (!TeeSheets.ContainsKey(date))
+                {
+                    TeeSheets[date] = new List<ScheduledGolfTime>();
+                }
+                TeeSheets[date].Add(teeTime);
+
+                // Store event names in the dictionary for easy access
+                if (!teeTime.IsAvailable && teeTime.EventID.HasValue)
+                {
+                    Events[teeTime.ScheduledGolfTimeID] = teeTime.Event?.EventName ?? "Special Event";
+                }
+                else if (!teeTime.IsAvailable && teeTime.Reservations != null && !teeTime.Reservations.Any())
+                {
+                    Events[teeTime.ScheduledGolfTimeID] = "Blocked";
+                }
+            }
         }
 
         private async Task LoadUserReservationsAsync(int memberId)
@@ -109,47 +156,13 @@ namespace TeeTime.Pages
                 .ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostDateSelectedAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            var member = await GetCurrentMemberAsync();
-            if (member == null)
-            {
-                return RedirectToPage("/Account/Login");
-            }
-
-            // Ensure selected date is within allowed range
-            if (SelectedDate < MinDate || SelectedDate > MaxDate)
-            {
-                ModelState.AddModelError("SelectedDate", "Date must be between today and 7 days from now");
-                return Page();
-            }
-
-            // Check if the date is fully booked
-            var isFullyBooked = await IsDateFullyBookedAsync(SelectedDate);
-            if (isFullyBooked)
-            {
-                ModelState.AddModelError("SelectedDate", "No tee times are available for the selected date. Please select another date.");
-                return Page();
-            }
-
-            // Get available tee times for the selected date
-            AvailableTimes = await GetAvailableTeeTimesAsync(SelectedDate, member);
-            DateSelected = true;
-
-            return Page();
-        }
-
         public async Task<IActionResult> OnPostBookTimeAsync()
         {
             if (!ModelState.IsValid)
             {
-                DateSelected = true;
-                AvailableTimes = await GetAvailableTeeTimesAsync(SelectedDate, await GetCurrentMemberAsync());
+                StartDate = SelectedDate.Date;
+                await LoadTeeSheetDataAsync(StartDate);
+                await LoadUserReservationsAsync((await GetCurrentMemberAsync()).MemberID);
                 return Page();
             }
 
@@ -164,8 +177,9 @@ namespace TeeTime.Pages
             if (selectedTime == null || !selectedTime.IsAvailable)
             {
                 ModelState.AddModelError("SelectedTimeId", "This tee time is no longer available");
-                DateSelected = true;
-                AvailableTimes = await GetAvailableTeeTimesAsync(SelectedDate, member);
+                StartDate = SelectedDate.Date;
+                await LoadTeeSheetDataAsync(StartDate);
+                await LoadUserReservationsAsync(member.MemberID);
                 return Page();
             }
 
@@ -180,32 +194,56 @@ namespace TeeTime.Pages
                 NumberOfCarts = NumberOfCarts
             };
 
-            _context.Reservations.Add(reservation);
-            
-            // Update the scheduled time to be unavailable if fully booked
-            if (await IsTimeFullyBookedAsync(selectedTime.ScheduledGolfTimeID))
+            try
             {
-                selectedTime.IsAvailable = false;
-                _context.ScheduledGolfTimes.Update(selectedTime);
+                _context.Reservations.Add(reservation);
+                
+                // Update the scheduled time to be unavailable if fully booked
+                if (await IsTimeFullyBookedAsync(selectedTime.ScheduledGolfTimeID))
+                {
+                    selectedTime.IsAvailable = false;
+                    _context.ScheduledGolfTimes.Update(selectedTime);
+                }
+
+                await _context.SaveChangesAsync();
+                
+                // Store confirmation data in TempData so it persists after redirect
+                TempData["BookingConfirmed"] = true;
+                TempData["ConfirmedTime"] = selectedTime.ScheduledTime;
+                TempData["ConfirmationNumber"] = $"TT{reservation.ReservationID:D6}";
+                TempData["BookedPlayers"] = NumberOfPlayers;
+                TempData["BookedCarts"] = NumberOfCarts;
+                TempData["BookedDate"] = selectedTime.ScheduledDate;
+                TempData["SuccessMessage"] = $"Your tee time has been successfully booked! Confirmation #: TT{reservation.ReservationID:D6}";
+                
+                // Redirect to refresh the page completely, ensuring everything is reloaded
+                return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
             }
-
-            await _context.SaveChangesAsync();
-
-            // Store confirmation data in TempData so it persists after redirect
-            TempData["BookingConfirmed"] = true;
-            TempData["ConfirmedTime"] = selectedTime.ScheduledTime;
-            TempData["ConfirmationNumber"] = $"TT{reservation.ReservationID:D6}";
-            TempData["BookedPlayers"] = NumberOfPlayers;
-            TempData["BookedCarts"] = NumberOfCarts;
-            TempData["BookedDate"] = SelectedDate;
-            TempData["SuccessMessage"] = $"Your tee time has been successfully booked! Confirmation #: TT{reservation.ReservationID:D6}";
-
-            // Redirect to refresh the page completely, ensuring everything is reloaded
-            return RedirectToPage();
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Database error: {ex.Message}");
+                
+                // Add error to TempData
+                TempData["ErrorMessage"] = $"Failed to book tee time: {ex.Message}";
+                
+                // Reload available times on failure
+                StartDate = SelectedDate.Date;
+                await LoadTeeSheetDataAsync(StartDate);
+                await LoadUserReservationsAsync(member.MemberID);
+                
+                return Page();
+            }
         }
 
-        public async Task<IActionResult> OnPostCancelReservationAsync()
+        public async Task<IActionResult> OnPostCancelReservationAsync(string startDate)
         {
+            DateTime startDateTime;
+            if (!DateTime.TryParse(startDate, out startDateTime))
+            {
+                startDateTime = DateTime.Today;
+            }
+            
             var member = await GetCurrentMemberAsync();
             if (member == null)
             {
@@ -220,29 +258,45 @@ namespace TeeTime.Pages
             if (reservation == null)
             {
                 TempData["ErrorMessage"] = "Reservation not found or you don't have permission to cancel it.";
-                return RedirectToPage();
+                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
             }
 
-            // Update reservation status
-            reservation.ReservationStatus = "Cancelled";
-            _context.Reservations.Update(reservation);
-
-            // Update the tee time to be available again
-            var teeTime = reservation.ScheduledGolfTime;
-            if (teeTime != null && !teeTime.IsAvailable)
+            try
             {
-                teeTime.IsAvailable = true;
-                _context.ScheduledGolfTimes.Update(teeTime);
+                // Update reservation status
+                reservation.ReservationStatus = "Cancelled";
+                _context.Reservations.Update(reservation);
+
+                // Update the tee time to be available again
+                var teeTime = reservation.ScheduledGolfTime;
+                if (teeTime != null && !teeTime.IsAvailable)
+                {
+                    teeTime.IsAvailable = true;
+                    _context.ScheduledGolfTimes.Update(teeTime);
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Your reservation has been successfully cancelled.";
+                
+                // Reload user's reservations
+                await LoadUserReservationsAsync(member.MemberID);
+                
+                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
             }
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Your reservation has been successfully cancelled.";
-            
-            // Reload user's reservations
-            await LoadUserReservationsAsync(member.MemberID);
-            
-            return RedirectToPage();
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Database error during cancellation: {ex.Message}");
+                
+                // Add error to TempData
+                TempData["ErrorMessage"] = $"Failed to cancel reservation: {ex.Message}";
+                
+                // Reload user's reservations
+                await LoadUserReservationsAsync(member.MemberID);
+                
+                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
+            }
         }
 
         private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member? member)

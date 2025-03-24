@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {}
+    "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {}
   },
   "projects": {
-    "F:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {
+    "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
+        "projectUniqueName": "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
         "projectName": "TeeTime",
-        "projectPath": "F:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
+        "projectPath": "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
         "packagesPath": "C:\\Users\\hxxis\\.nuget\\packages\\",
-        "outputPath": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\",
+        "outputPath": "f:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "F:\\VCS(x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
