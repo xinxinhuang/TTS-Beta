@@ -100,6 +100,9 @@ namespace TeeTime.Pages.TeeSheet
             ModelState.Remove("EventDate");
             ModelState.Remove("EventStartTime");
             ModelState.Remove("EventEndTime");
+            // Also clear these fields that are causing validation errors
+            ModelState.Remove("SelectedStartTime");
+            ModelState.Remove("SelectedEndTime");
             
             if (!ModelState.IsValid)
             {
@@ -165,8 +168,6 @@ namespace TeeTime.Pages.TeeSheet
                 Console.WriteLine("Saving changes to database");
                 await _context.SaveChangesAsync();
                 
-                TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
-
                 WeekStartDate = weekStartDate;
                 await LoadTeeSheetDataAsync(weekStartDate);
                 await LoadPublishedWeeksAsync();

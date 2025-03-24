@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {}
+    "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\TeeTime\\TeeTime.csproj": {}
   },
   "projects": {
-    "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj": {
+    "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\TeeTime\\TeeTime.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
+        "projectUniqueName": "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\TeeTime\\TeeTime.csproj",
         "projectName": "TeeTime",
-        "projectPath": "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
-        "packagesPath": "C:\\Users\\hxxis\\.nuget\\packages\\",
-        "outputPath": "f:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\",
+        "projectPath": "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\TeeTime\\TeeTime.csproj",
+        "packagesPath": "C:\\Users\\Yellox\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\TeeTime\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "F:\\VCS(x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hxxis\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Yellox\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -42,9 +42,9 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "direct"
+          "auditMode": "all"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -84,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

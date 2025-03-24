@@ -22,7 +22,7 @@ namespace TeeTime.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.HasDefaultSchema("Beta");
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
