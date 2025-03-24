@@ -1,0 +1,5 @@
+@page
+@model TeeTime.Pages.Api.TeeTime.AvailabilityModel
+@{
+    Layout = null;
+}

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Hh6duDzQjDT0s22BNQ3UAQ0CbLCp9VccYvcQSMOJ22g=",
+  "Hash": "aFF4voXIaNqbQ/opV8jJezWg4Re5RiG81nucfXAXUPY=",
   "Source": "TeeTime",
   "BasePath": "_content/TeeTime",
   "Mode": "Default",
@@ -267,6 +267,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\8y7peac339-4iebo1rn2h.gz",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "css/teetime#[.{fingerprint=4iebo1rn2h}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\css\\teetime.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "3u1z1406xq",
+      "Integrity": "9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\css\\teetime.css"
     },
     {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\93cmbitv9z-6cfz1n2cew.gz",
@@ -941,6 +962,27 @@
       "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
     },
     {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\mz5f2v6gr8-igfrk8j61p.gz",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teetime/datepicker#[.{fingerprint=igfrk8j61p}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "nk0rkqbfmk",
+      "Integrity": "p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js"
+    },
+    {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\ns44cg5imu-493y06b0oq.gz",
       "SourceId": "TeeTime",
       "SourceType": "Discovered",
@@ -1424,6 +1466,27 @@
       "OriginalItemSpec": "wwwroot\\css\\site.css"
     },
     {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\css\\teetime.css",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "css/teetime#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4iebo1rn2h",
+      "Integrity": "1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\teetime.css"
+    },
+    {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\favicon.ico",
       "SourceId": "TeeTime",
       "SourceType": "Discovered",
@@ -1464,6 +1527,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
+      "SourceId": "TeeTime",
+      "SourceType": "Discovered",
+      "ContentRoot": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\",
+      "BasePath": "_content/TeeTime",
+      "RelativePath": "js/teetime/datepicker#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "igfrk8j61p",
+      "Integrity": "AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\teetime\\datepicker.js"
     },
     {
       "Identity": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
@@ -3026,6 +3110,304 @@
       ]
     },
     {
+      "Route": "css/teetime.4iebo1rn2h.css",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\8y7peac339-4iebo1rn2h.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.002169197397"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "460"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4iebo1rn2h"
+        },
+        {
+          "Name": "label",
+          "Value": "css/teetime.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg="
+        }
+      ]
+    },
+    {
+      "Route": "css/teetime.4iebo1rn2h.css",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\css\\teetime.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "980"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4iebo1rn2h"
+        },
+        {
+          "Name": "label",
+          "Value": "css/teetime.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg="
+        }
+      ]
+    },
+    {
+      "Route": "css/teetime.4iebo1rn2h.css.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\8y7peac339-4iebo1rn2h.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "460"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4iebo1rn2h"
+        },
+        {
+          "Name": "label",
+          "Value": "css/teetime.css.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw="
+        }
+      ]
+    },
+    {
+      "Route": "css/teetime.css",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\8y7peac339-4iebo1rn2h.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.002169197397"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "460"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg="
+        }
+      ]
+    },
+    {
+      "Route": "css/teetime.css",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\css\\teetime.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "980"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg="
+        }
+      ]
+    },
+    {
+      "Route": "css/teetime.css.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\8y7peac339-4iebo1rn2h.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "460"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 23 Mar 2025 23:57:32 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-9VrELkBXDWSiYV/K+v2hoL/mKj9dJzHm8UXnHuqV5yw="
+        }
+      ]
+    },
+    {
       "Route": "favicon.61n19gt1b8.ico",
       "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\u59d0mw1w9-61n19gt1b8.gz",
       "Selectors": [
@@ -3618,6 +4000,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-Ydq7YvQUzhbo68waLZeQvZnPOvmTeQ+HyDqjkA1whsA="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.igfrk8j61p.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\mz5f2v6gr8-igfrk8j61p.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000572409845"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1746"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "igfrk8j61p"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/datepicker.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.igfrk8j61p.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6525"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "igfrk8j61p"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/datepicker.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.igfrk8j61p.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\mz5f2v6gr8-igfrk8j61p.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1746"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "igfrk8j61p"
+        },
+        {
+          "Name": "label",
+          "Value": "js/teetime/datepicker.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\mz5f2v6gr8-igfrk8j61p.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000572409845"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1746"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.js",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\wwwroot\\js\\teetime\\datepicker.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6525"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM="
+        }
+      ]
+    },
+    {
+      "Route": "js/teetime/datepicker.js.gz",
+      "AssetFile": "F:\\TeeTime\\TTS-Beta\\TeeTime\\obj\\Debug\\net9.0\\compressed\\mz5f2v6gr8-igfrk8j61p.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1746"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Mar 2025 00:02:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-p+fJ8+C2+fRba8n2x1wxpGv8QOzLjLwOxHEGrR9kjqM="
         }
       ]
     },

@@ -97,6 +97,14 @@ namespace TeeTime.Pages
                 return Page();
             }
 
+            // Check if the date is fully booked
+            var isFullyBooked = await IsDateFullyBookedAsync(SelectedDate);
+            if (isFullyBooked)
+            {
+                ModelState.AddModelError("SelectedDate", "No tee times are available for the selected date. Please select another date.");
+                return Page();
+            }
+
             // Get available tee times for the selected date
             AvailableTimes = await GetAvailableTeeTimesAsync(SelectedDate, member);
             DateSelected = true;
@@ -238,6 +246,24 @@ namespace TeeTime.Pages
 
             // Max players per tee time (e.g., 4 golfers per tee time)
             return bookedPlayers >= 4;
+        }
+
+        private async Task<bool> IsDateFullyBookedAsync(DateTime date)
+        {
+            // Check if all tee times for the given date are booked
+            var teeTimesForDate = await _context.ScheduledGolfTimes
+                .Where(t => t.ScheduledDate.Date == date.Date)
+                .ToListAsync();
+            
+            // If there are no tee times for this date yet, it's not fully booked
+            if (!teeTimesForDate.Any())
+                return false;
+            
+            // Count available tee times
+            int availableTeeTimesCount = teeTimesForDate.Count(t => t.IsAvailable);
+            
+            // If no available tee times, the date is fully booked
+            return availableTeeTimesCount == 0;
         }
     }
 }
