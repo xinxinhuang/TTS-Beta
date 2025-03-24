@@ -14,21 +14,16 @@
                     <h5 class="mb-0">Select a Date</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" asp-page-handler="DateSelected" id="date-selection-form">
+                    <form method="post" asp-page-handler="DateSelected">
                         <div class="form-group">
-                            <input asp-for="SelectedDate" type="hidden" min="@Model.MinDate.ToString("yyyy-MM-dd")" max="@Model.MaxDate.ToString("yyyy-MM-dd")" />
+                            <label asp-for="SelectedDate" class="control-label">Date</label>
+                            <input asp-for="SelectedDate" type="date" class="form-control" min="@Model.MinDate.ToString("yyyy-MM-dd")" max="@Model.MaxDate.ToString("yyyy-MM-dd")" />
                             <span asp-validation-for="SelectedDate" class="text-danger"></span>
+                            <div class="small text-muted mt-1">
+                                <i class="bi bi-info-circle"></i> Select a date to check tee time availability.
+                            </div>
                         </div>
-                        <div id="calendar"></div>
-                        <div class="small text-muted mt-3">
-                            <i class="bi bi-info-circle"></i> Click on a date to check tee time availability.
-                        </div>
-                        <div class="mt-2">
-                            <span class="badge bg-success me-2">●</span> Available
-                            <span class="badge bg-warning me-2">●</span> Limited Availability
-                            <span class="badge bg-danger me-2">●</span> Fully Booked
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-3" id="check-times-btn" disabled>Check Available Times</button>
+                        <button type="submit" class="btn btn-primary mt-3">Check Available Times</button>
                     </form>
                 </div>
             </div>
@@ -112,98 +107,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-    
-    <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-    
-    <script src="~/js/teetime/calendar.js"></script>
+    <script src="~/js/teetime/datepicker.js"></script>
     <style>
-        /* FullCalendar custom styling */
-        #calendar {
-            margin-bottom: 10px;
-            height: 350px;
+        /* Date picker styling */
+        .date-unavailable {
+            background-color: #f8d7da !important;
+            color: #999 !important;
+            text-decoration: line-through !important;
+            pointer-events: none !important;
         }
         
-        .fc-day-today {
-            background-color: rgba(0, 123, 255, 0.1) !important;
-        }
-        
-        .date-available {
-            background-color: rgba(40, 167, 69, 0.2) !important;
-            cursor: pointer;
-        }
-        
-        .date-limited-availability {
-            background-color: rgba(255, 193, 7, 0.3) !important;
-            cursor: pointer;
-        }
-        
-        .date-fully-booked {
-            background-color: rgba(220, 53, 69, 0.2) !important;
-            cursor: not-allowed;
-            text-decoration: line-through;
-            color: #777;
-        }
-        
-        .fc .fc-daygrid-day.fc-day-past {
-            background-color: #f8f9fa;
-            opacity: 0.7;
-        }
-        
-        .date-selected {
-            border: 2px solid #007bff !important;
-        }
-        
-        .fc-day-future {
-            cursor: pointer;
-        }
-        
-        /* Tooltip styles */
-        .date-tooltip {
-            position: absolute;
-            z-index: 1000;
-            background: white;
-            border-radius: 4px;
-            padding: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            width: 200px;
-            top: 0;
-            left: 100%;
-            font-size: 0.8rem;
-        }
-        
-        .tooltip-danger strong {
-            color: #dc3545;
-        }
-        
-        .tooltip-warning strong {
-            color: #ffc107;
-        }
-        
-        .tooltip-success strong {
-            color: #28a745;
-        }
-        
-        .tooltip-details {
-            margin-top: 5px;
-        }
-        
-        .progress {
-            height: 10px;
-            margin-top: 5px;
-            background-color: #e9ecef;
-            border-radius: 0.25rem;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            border-radius: 0.25rem;
-            text-align: center;
-            font-size: 8px;
-            line-height: 10px;
-            color: white;
+        .date-limited {
+            background-color: #fff3cd !important;
         }
     </style>
 }

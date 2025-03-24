@@ -18,7 +18,6 @@ namespace TeeTime.Data
         public DbSet<ScheduledGolfTime> ScheduledGolfTimes { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
-        public DbSet<Event> Events { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

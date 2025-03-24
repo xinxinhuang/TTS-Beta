@@ -2,16 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TeeTime.Data;
 using TeeTime.Models;
 
 namespace TeeTime.Pages.TeeSheet
 {
-    [Authorize]
+    [Authorize(Roles = "Clerk")]
     public class ViewModel : PageModel
     {
         private readonly TeeTimeDbContext _context;
@@ -22,57 +18,55 @@ namespace TeeTime.Pages.TeeSheet
         }
 
         public DateTime StartDate { get; set; }
+        
+        // Dictionary of date -> list of tee times for that date
         public Dictionary<DateTime, List<ScheduledGolfTime>> TeeSheets { get; set; } = new Dictionary<DateTime, List<ScheduledGolfTime>>();
+        
+        // Dictionary of tee time ID -> event name
         public Dictionary<int, string> Events { get; set; } = new Dictionary<int, string>();
 
-        public async Task<IActionResult> OnGetAsync(DateTime? date)
+        public async Task<IActionResult> OnGetAsync(DateTime startDate)
         {
-            // Set the start date to the beginning of the current week if not specified
-            StartDate = date.HasValue ? date.Value.Date : DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+            StartDate = startDate.Date;
+            await LoadTeeSheetDataAsync(StartDate);
             
-            // Get the end date (7 days after start date)
-            var endDate = StartDate.AddDays(7);
+            return Page();
+        }
 
-            // Get all scheduled golf times for the week
-            var scheduledTimes = await _context.ScheduledGolfTimes
-                .Include(s => s.Reservations)
+        private async Task LoadTeeSheetDataAsync(DateTime startDate)
+        {
+            // Clear existing data
+            TeeSheets.Clear();
+            Events.Clear();
+
+            // Load all tee times for the week with reservations
+            var endDate = startDate.AddDays(7);
+            var teeTimes = await _context.ScheduledGolfTimes
+                .Include(t => t.Reservations)
                     .ThenInclude(r => r.Member)
                         .ThenInclude(m => m.User)
-                .Where(s => s.ScheduledDate >= StartDate && s.ScheduledDate < endDate)
+                .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
+                .OrderBy(t => t.ScheduledDate)
+                .ThenBy(t => t.ScheduledTime)
                 .ToListAsync();
 
-            // Get all events for the week
-            var events = await _context.Events
-                .Where(e => e.EventDate >= StartDate && e.EventDate < endDate)
-                .ToListAsync();
-
-            // Group scheduled times by date
-            foreach (var time in scheduledTimes)
+            // Group by date
+            foreach (var teeTime in teeTimes)
             {
-                if (!TeeSheets.ContainsKey(time.ScheduledDate.Date))
+                var date = teeTime.ScheduledDate.Date;
+                if (!TeeSheets.ContainsKey(date))
                 {
-                    TeeSheets[time.ScheduledDate.Date] = new List<ScheduledGolfTime>();
+                    TeeSheets[date] = new List<ScheduledGolfTime>();
                 }
-                
-                TeeSheets[time.ScheduledDate.Date].Add(time);
-            }
+                TeeSheets[date].Add(teeTime);
 
-            // Create a dictionary of event names by scheduled golf time ID
-            foreach (var scheduledTime in scheduledTimes.Where(s => !s.IsAvailable && !s.Reservations.Any()))
-            {
-                // Find any events that overlap with this scheduled time
-                var overlappingEvent = events.FirstOrDefault(e => 
-                    e.EventDate.Date == scheduledTime.ScheduledDate.Date &&
-                    e.StartTime <= scheduledTime.ScheduledTime &&
-                    e.EndTime > scheduledTime.ScheduledTime);
-
-                if (overlappingEvent != null)
+                // In a real app, we'd load events from a separate table
+                // For now, we'll just use a placeholder
+                if (!teeTime.IsAvailable && !teeTime.Reservations.Any())
                 {
-                    Events[scheduledTime.ScheduledGolfTimeID] = overlappingEvent.EventName;
+                    Events[teeTime.ScheduledGolfTimeID] = "Special Event";
                 }
             }
-
-            return Page();
         }
     }
 }

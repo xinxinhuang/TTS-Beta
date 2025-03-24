@@ -20,9 +20,6 @@ namespace TeeTime.Models
 
         [Required]
         public bool IsAvailable { get; set; } = true;
-        
-        [Required]
-        public bool IsPublished { get; set; } = false;
 
         // Navigation property
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

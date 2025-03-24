@@ -46,7 +46,7 @@ namespace TeeTime.Pages
         public string ConfirmationNumber { get; set; }
 
         public DateTime MinDate => DateTime.Today;
-        public DateTime MaxDate => DateTime.Today.AddDays(30); // Allow booking up to 30 days in advance for calendar view
+        public DateTime MaxDate => DateTime.Today.AddDays(14); // Allow booking up to 14 days in advance
 
         public List<ScheduledGolfTime> AvailableTimes { get; set; } = new List<ScheduledGolfTime>();
 
@@ -93,7 +93,7 @@ namespace TeeTime.Pages
             // Ensure selected date is within allowed range
             if (SelectedDate < MinDate || SelectedDate > MaxDate)
             {
-                ModelState.AddModelError("SelectedDate", "Date must be between today and 30 days from now");
+                ModelState.AddModelError("SelectedDate", "Date must be between today and 14 days from now");
                 return Page();
             }
 
