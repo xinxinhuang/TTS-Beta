@@ -37,22 +37,16 @@
                 <form method="post">
                     <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                     @Html.AntiForgeryToken()
+                    <div id="selectedDateDisplay" class="alert alert-info mb-3"></div>
                     <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group mb-3">
-                                <label asp-for="EventDate" class="control-label">Event Date</label>
-                                <input asp-for="EventDate" type="date" class="form-control" min="@Model.StartDate.ToString("yyyy-MM-dd")" max="@Model.StartDate.AddDays(6).ToString("yyyy-MM-dd")" id="eventDate" />
-                                <span asp-validation-for="EventDate" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label asp-for="EventName" class="control-label">Event Name</label>
                                 <input asp-for="EventName" type="text" class="form-control" />
                                 <span asp-validation-for="EventName" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label for="SelectedStartTime" class="control-label">Start Time</label>
                                 <select asp-for="SelectedStartTime" class="form-control" id="startTimeDropdown">
@@ -61,7 +55,7 @@
                                 <span asp-validation-for="SelectedStartTime" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label for="SelectedEndTime" class="control-label">End Time</label>
                                 <select asp-for="SelectedEndTime" class="form-control" id="endTimeDropdown">
@@ -71,6 +65,9 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Hidden field for event date that gets set by JavaScript -->
+                    <input asp-for="EventDate" type="hidden" id="eventDate" />
+                    <span asp-validation-for="EventDate" class="text-danger"></span>
                     <button type="submit" asp-page-handler="AddEvent" class="btn btn-success">Add Event</button>
                 </form>
             </div>
@@ -233,13 +230,10 @@
             var token = $('input[name="__RequestVerificationToken"]').val();
             
             // Function to load available times for a selected date
-            function loadAvailableTimes() {
-                const selectedDate = $('#eventDate').val();
-                if (!selectedDate) return;
-                
+            function loadAvailableTimes(date) {
                 $.ajax({
                     url: '?handler=AvailableTimes',
-                    data: { date: selectedDate },
+                    data: { date: date },
                     type: 'GET',
                     headers: {
                         "RequestVerificationToken": token
@@ -295,12 +289,44 @@
             }
             
             // Initialize on page load if date is already selected
-            if ($('#eventDate').val()) {
-                loadAvailableTimes();
+            var selectedDate = $('#teeSheetTabs button.active').data('bs-target').replace('#', '');
+            var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
+            var dayOfWeek = date.getDay();
+            var dayName = date.toLocaleString('en-us', { weekday: 'long' });
+            if (selectedDate === dayName) {
+                date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
+            } else {
+                for (var i = 0; i < 7; i++) {
+                    if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
+                        break;
+                    }
+                    date.setDate(date.getDate() + 1);
+                }
             }
+            $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+            $('#eventDate').val(date.toISOString().split('T')[0]);
+            loadAvailableTimes(date.toISOString().split('T')[0]);
             
             // Load available times when date changes
-            $('#eventDate').on('change', loadAvailableTimes);
+            $('#teeSheetTabs button').on('shown.bs.tab', function (e) {
+                var selectedDate = $(e.target).data('bs-target').replace('#', '');
+                var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
+                var dayOfWeek = date.getDay();
+                var dayName = date.toLocaleString('en-us', { weekday: 'long' });
+                if (selectedDate === dayName) {
+                    date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
+                } else {
+                    for (var i = 0; i < 7; i++) {
+                        if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
+                            break;
+                        }
+                        date.setDate(date.getDate() + 1);
+                    }
+                }
+                $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+                $('#eventDate').val(date.toISOString().split('T')[0]);
+                loadAvailableTimes(date.toISOString().split('T')[0]);
+            });
             
             // Validation for end time after start time
             $('#startTimeDropdown, #endTimeDropdown').on('change', function() {
