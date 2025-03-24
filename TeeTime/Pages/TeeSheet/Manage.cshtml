@@ -14,7 +14,7 @@
                     <h5 class="mb-0">Generate Tee Sheet</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" asp-page-handler="Generate" name="generateForm">
+                    <form method="post" name="generateForm">
                         @if (TempData["SuccessMessage"] != null)
                         {
                             <div class="alert alert-success mb-3">
@@ -28,36 +28,29 @@
                             </div>
                         }
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label asp-for="StartDate" class="control-label">Start Date (Week Beginning)</label>
+                                    <label asp-for="StartDate" class="control-label">Week Start Date (Sunday)</label>
                                     <input asp-for="StartDate" type="date" class="form-control" />
                                     <span asp-validation-for="StartDate" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label asp-for="FirstTeeTime" class="control-label">First Tee Time</label>
-                                    <input asp-for="FirstTeeTime" type="time" class="form-control" value="07:00" />
-                                    <span asp-validation-for="FirstTeeTime" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group mb-3">
-                                    <label asp-for="LastTeeTime" class="control-label">Last Tee Time</label>
-                                    <input asp-for="LastTeeTime" type="time" class="form-control" value="18:00" />
-                                    <span asp-validation-for="LastTeeTime" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group mb-3">
-                                <label asp-for="Interval" class="control-label">Interval (minutes)</label>
-                                <input type="text" asp-for="Interval" class="form-control" value="8" readonly />
-                                <span asp-validation-for="Interval" class="text-danger"></span>
+                                    <label asp-for="Interval" class="control-label">Interval (minutes)</label>
+                                    <input asp-for="Interval" type="number" class="form-control" min="8" max="15" step="1" />
+                                    <span asp-validation-for="Interval" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Generate Tee Sheet</button>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <p class="form-text text-muted">
+                                    Tee times will be generated from 7:00 AM to 6:00 PM for each day of the week starting from the selected date.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="submit" asp-page-handler="Generate" class="btn btn-primary">Generate Tee Sheet</button>
                     </form>
                 </div>
             </div>
@@ -79,7 +72,7 @@
                                 <div class="col-md-3">
                                     <div class="form-group mb-3">
                                         <label asp-for="EventDate" class="control-label">Event Date</label>
-                                        <input asp-for="EventDate" type="date" class="form-control" min="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" max="@Model.WeekStartDate.Value.AddDays(6).ToString("yyyy-MM-dd")" />
+                                        <input asp-for="EventDate" type="date" class="form-control" min="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" max="@Model.WeekStartDate.Value.AddDays(6).ToString("yyyy-MM-dd")" id="eventDate" />
                                         <span asp-validation-for="EventDate" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -92,16 +85,20 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-3">
-                                        <label asp-for="EventStartTime" class="control-label">Start Time</label>
-                                        <input asp-for="EventStartTime" type="time" class="form-control" />
-                                        <span asp-validation-for="EventStartTime" class="text-danger"></span>
+                                        <label for="SelectedStartTime" class="control-label">Start Time</label>
+                                        <select asp-for="SelectedStartTime" class="form-control" id="startTimeDropdown">
+                                            <option value="">-- Select Start Time --</option>
+                                        </select>
+                                        <span asp-validation-for="SelectedStartTime" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-3">
-                                        <label asp-for="EventEndTime" class="control-label">End Time</label>
-                                        <input asp-for="EventEndTime" type="time" class="form-control" />
-                                        <span asp-validation-for="EventEndTime" class="text-danger"></span>
+                                        <label for="SelectedEndTime" class="control-label">End Time</label>
+                                        <select asp-for="SelectedEndTime" class="form-control" id="endTimeDropdown">
+                                            <option value="">-- Select End Time --</option>
+                                        </select>
+                                        <span asp-validation-for="SelectedEndTime" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -254,4 +251,87 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            // Function to load available times for a selected date
+            function loadAvailableTimes() {
+                const selectedDate = $('#eventDate').val();
+                if (!selectedDate) return;
+                
+                $.ajax({
+                    url: '?handler=AvailableTimes',
+                    data: { date: selectedDate },
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function(data) {
+                        const startDropdown = $('#startTimeDropdown');
+                        const endDropdown = $('#endTimeDropdown');
+                        
+                        // Clear existing options
+                        startDropdown.empty();
+                        endDropdown.empty();
+                        
+                        // Add default option
+                        startDropdown.append($('<option>', {
+                            value: '',
+                            text: '-- Select Start Time --'
+                        }));
+                        
+                        endDropdown.append($('<option>', {
+                            value: '',
+                            text: '-- Select End Time --'
+                        }));
+                        
+                        // Add time options
+                        if (data && data.length > 0) {
+                            $.each(data, function(i, time) {
+                                startDropdown.append($('<option>', {
+                                    value: time.time,
+                                    text: time.time
+                                }));
+                                
+                                endDropdown.append($('<option>', {
+                                    value: time.time,
+                                    text: time.time
+                                }));
+                            });
+                        } else {
+                            startDropdown.append($('<option>', {
+                                value: '',
+                                text: 'No available times'
+                            }));
+                            
+                            endDropdown.append($('<option>', {
+                                value: '',
+                                text: 'No available times'
+                            }));
+                        }
+                    },
+                    error: function() {
+                        alert('Error loading available times. Please try again.');
+                    }
+                });
+            }
+            
+            // Initialize on page load if date is already selected
+            if ($('#eventDate').val()) {
+                loadAvailableTimes();
+            }
+            
+            // Load available times when date changes
+            $('#eventDate').on('change', loadAvailableTimes);
+            
+            // Validation for end time after start time
+            $('#startTimeDropdown, #endTimeDropdown').on('change', function() {
+                const startTime = $('#startTimeDropdown').val();
+                const endTime = $('#endTimeDropdown').val();
+                
+                if (startTime && endTime && startTime >= endTime) {
+                    alert('End time must be after start time.');
+                    $('#endTimeDropdown').val('');
+                }
+            });
+        });
+    </script>
 }

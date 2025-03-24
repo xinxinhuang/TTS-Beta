@@ -23,15 +23,9 @@ namespace TeeTime.Pages.TeeSheet
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; } = DateTime.Today.AddDays(7 - (int)DateTime.Today.DayOfWeek); // Default to next week's Sunday
 
-        [BindProperty]
-        [Required(ErrorMessage = "First tee time is required")]
-        [DataType(DataType.Time)]
-        public TimeSpan FirstTeeTime { get; set; } = new TimeSpan(7, 0, 0); // 7:00 AM
-
-        [BindProperty]
-        [Required(ErrorMessage = "Last tee time is required")]
-        [DataType(DataType.Time)]
-        public TimeSpan LastTeeTime { get; set; } = new TimeSpan(18, 0, 0); // 6:00 PM
+        // Fixed tee time values - not editable by user
+        private TimeSpan FirstTeeTime { get; } = new TimeSpan(7, 0, 0); // 7:00 AM
+        private TimeSpan LastTeeTime { get; } = new TimeSpan(18, 0, 0); // 6:00 PM
 
         [BindProperty]
         [Required(ErrorMessage = "Interval is required")]
@@ -53,6 +47,18 @@ namespace TeeTime.Pages.TeeSheet
         [BindProperty]
         [DataType(DataType.Time)]
         public TimeSpan? EventEndTime { get; set; }
+
+        [BindProperty]
+        public List<string> AvailableStartTimes { get; set; } = new List<string>();
+
+        [BindProperty]
+        public List<string> AvailableEndTimes { get; set; } = new List<string>();
+
+        [BindProperty]
+        public string SelectedStartTime { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string SelectedEndTime { get; set; } = string.Empty;
 
         public DateTime? WeekStartDate { get; set; }
         
@@ -185,18 +191,37 @@ namespace TeeTime.Pages.TeeSheet
             WeekStartDate = selectedWeekStart;
 
             if (!EventDate.HasValue || string.IsNullOrWhiteSpace(EventName) || 
-                !EventStartTime.HasValue || !EventEndTime.HasValue)
+                string.IsNullOrWhiteSpace(SelectedStartTime) || string.IsNullOrWhiteSpace(SelectedEndTime))
             {
                 ModelState.AddModelError(string.Empty, "All event fields are required");
                 TempData["ErrorMessage"] = "Please fill in all event fields.";
                 await LoadPublishedWeeksAsync();
                 return Page();
             }
+            
+            // Parse selected times
+            if (!TimeSpan.TryParse(SelectedStartTime, out var startTime) || 
+                !TimeSpan.TryParse(SelectedEndTime, out var endTime))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid time format");
+                TempData["ErrorMessage"] = "Please select valid start and end times.";
+                await LoadPublishedWeeksAsync();
+                return Page();
+            }
+            
+            // Ensure end time is after start time
+            if (endTime <= startTime)
+            {
+                ModelState.AddModelError(string.Empty, "End time must be after start time");
+                TempData["ErrorMessage"] = "End time must be after start time.";
+                await LoadPublishedWeeksAsync();
+                return Page();
+            }
 
             var teeTimes = await _context.ScheduledGolfTimes
                 .Where(t => t.ScheduledDate.Date == EventDate.Value.Date &&
-                           t.ScheduledTime >= EventStartTime.Value &&
-                           t.ScheduledTime <= EventEndTime.Value)
+                           t.ScheduledTime >= startTime &&
+                           t.ScheduledTime <= endTime)
                 .ToListAsync();
 
             if (!teeTimes.Any())
@@ -205,11 +230,24 @@ namespace TeeTime.Pages.TeeSheet
                 await LoadPublishedWeeksAsync();
                 return Page();
             }
+            
+            // Create the event
+            var newEvent = new Event
+            {
+                EventName = EventName,
+                EventDate = EventDate.Value.Date,
+                StartTime = startTime,
+                EndTime = endTime
+            };
+            
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
 
-            // Block all the tee times and record the event name
+            // Block all the tee times and assign them to the event
             foreach (var teeTime in teeTimes)
             {
                 teeTime.IsAvailable = false;
+                teeTime.EventID = newEvent.EventID;
                 _context.ScheduledGolfTimes.Update(teeTime);
             }
 
@@ -221,6 +259,8 @@ namespace TeeTime.Pages.TeeSheet
             {
                 weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
             }
+            
+            TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
 
             WeekStartDate = weekStartDate;
             await LoadTeeSheetDataAsync(weekStartDate);
@@ -287,6 +327,17 @@ namespace TeeTime.Pages.TeeSheet
 
             TempData["SuccessMessage"] = $"Tee sheet for week of {startDate:MMMM d, yyyy} has been published successfully!";
             return Page();
+        }
+
+        public async Task<IActionResult> OnGetAvailableTimesAsync(DateTime date)
+        {
+            var teeTimes = await _context.ScheduledGolfTimes
+                .Where(t => t.ScheduledDate.Date == date.Date && t.IsAvailable)
+                .OrderBy(t => t.ScheduledTime)
+                .Select(t => new { Time = t.ScheduledTime.ToString(@"hh\:mm") })
+                .ToListAsync();
+                
+            return new JsonResult(teeTimes);
         }
 
         private async Task LoadTeeSheetDataAsync(DateTime startDate)
