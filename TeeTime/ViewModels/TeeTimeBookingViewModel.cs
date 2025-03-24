@@ -26,10 +26,10 @@ namespace TeeTime.ViewModels
         public int NumberOfCarts { get; set; } = 0;
 
         // Navigation property
-        public ScheduledGolfTime ScheduledGolfTime { get; set; }
+        public required ScheduledGolfTime ScheduledGolfTime { get; set; }
         
         // Confirmation details
-        public string ConfirmationNumber { get; set; }
+        public required string ConfirmationNumber { get; set; }
         public bool IsConfirmed { get; set; }
     }
 }

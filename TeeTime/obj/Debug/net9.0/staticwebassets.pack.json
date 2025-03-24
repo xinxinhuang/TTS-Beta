@@ -9,12 +9,20 @@
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
+      "Id": "F:\\TeeTime\\TTS-Beta\\teetime\\wwwroot\\css\\teetime.css",
+      "PackagePath": "staticwebassets\\css\\teetime.css"
+    },
+    {
       "Id": "F:\\TeeTime\\TTS-Beta\\teetime\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
       "Id": "F:\\TeeTime\\TTS-Beta\\teetime\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "F:\\TeeTime\\TTS-Beta\\teetime\\wwwroot\\js\\teetime\\datepicker.js",
+      "PackagePath": "staticwebassets\\js\\teetime\\datepicker.js"
     },
     {
       "Id": "F:\\TeeTime\\TTS-Beta\\teetime\\wwwroot\\lib\\bootstrap\\LICENSE",

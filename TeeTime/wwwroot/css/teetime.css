@@ -1,0 +1,42 @@
+/* TeeTime Custom CSS */
+
+/* Date picker specific styles */
+.date-unavailable {
+    background-color: #f8d7da !important;
+    color: #999 !important;
+    text-decoration: line-through !important;
+    pointer-events: none !important;
+}
+
+.date-limited {
+    background-color: #fff3cd !important;
+}
+
+/* Override native date picker styles (browser specific) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+/* Style for date warning messages */
+#date-warning-message {
+    font-size: 0.875rem;
+    color: #ffc107;
+    margin-top: 0.25rem;
+}
+
+#date-error-message {
+    font-size: 0.875rem;
+    color: #dc3545;
+    margin-top: 0.25rem;
+}
+
+/* Visual indication of date availability on the input */
+input[type="date"].has-unavailable-date {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+input[type="date"].has-limited-availability {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}

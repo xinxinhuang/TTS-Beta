@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TeeTime.Models
 {
@@ -20,6 +21,12 @@ namespace TeeTime.Models
 
         [Required]
         public bool IsAvailable { get; set; } = true;
+        
+        // Reference to Event
+        public int? EventID { get; set; }
+        
+        [ForeignKey("EventID")]
+        public Event? Event { get; set; }
 
         // Navigation property
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

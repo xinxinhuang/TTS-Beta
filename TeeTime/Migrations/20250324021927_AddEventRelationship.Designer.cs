@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeeTime.Data;
 
@@ -11,9 +12,11 @@ using TeeTime.Data;
 namespace TeeTime.Migrations
 {
     [DbContext(typeof(TeeTimeDbContext))]
-    partial class TeeTimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250324021927_AddEventRelationship")]
+    partial class AddEventRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,11 +36,6 @@ namespace TeeTime.Migrations
 
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
-
-                    b.Property<string>("EventColor")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");

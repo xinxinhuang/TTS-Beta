@@ -235,3 +235,5 @@ F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\TeeTime.pdb
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\TeeTime.genruntimeconfig.cache
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\ref\TeeTime.dll
 F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\TeeTime.sourcelink.json
+F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\8y7peac339-4iebo1rn2h.gz
+F:\TeeTime\TTS-Beta\TeeTime\obj\Debug\net9.0\compressed\mz5f2v6gr8-igfrk8j61p.gz

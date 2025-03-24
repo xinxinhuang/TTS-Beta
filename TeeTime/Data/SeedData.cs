@@ -211,6 +211,45 @@ namespace TeeTime.Data
                     }
                 }
 
+                // Add a Clerk user if one doesn't exist
+                if (!context.Users.Any(u => u.Email == "clerk@t.t"))
+                {
+                    // Get the clerk role
+                    var clerkRole = context.Roles
+                        .FirstOrDefault(r => r.RoleDescription == "Clerk");
+
+                    if (clerkRole == null)
+                    {
+                        // Log error or throw exception
+                        throw new InvalidOperationException("Clerk role not found in database");
+                    }
+
+                    var clerkRoleId = clerkRole.RoleID;
+
+                    try
+                    {
+                        // Create Clerk user
+                        var clerkUser = new User
+                        {
+                            FirstName = "Tee",
+                            LastName = "Clerk",
+                            Email = "clerk@t.t",
+                            PasswordHash = HashPassword("123123"),
+                            RoleID = clerkRoleId,
+                            // Clerks don't need a specific membership category, but the field is required
+                            MembershipCategoryID = context.MembershipCategories
+                                .FirstOrDefault()?.MembershipCategoryID ?? throw new InvalidOperationException("No membership category found")
+                        };
+                        context.Users.Add(clerkUser);
+                        context.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        // This provides more detailed error information
+                        throw new InvalidOperationException($"Error seeding clerk data: {ex.Message}", ex);
+                    }
+                }
+
                 // Add a Golf Committee member if one doesn't exist
                 if (!context.Users.Any(u => u.Email.Contains("committee")))
                 {
