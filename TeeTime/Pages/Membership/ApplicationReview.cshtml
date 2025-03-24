@@ -32,19 +32,19 @@
                     {
                         <tr>
                             <td>
-                                <strong>@application.User.FirstName @application.User.LastName</strong><br />
-                                <small>@application.User.Email</small>
+                                <strong>@application.User?.FirstName @application.User?.LastName</strong><br />
+                                <small>@application.User?.Email</small>
                             </td>
-                            <td>@application.User.MembershipCategory.MembershipName</td>
-                            <td>@application.DesiredMembershipCategory.MembershipName</td>
+                            <td>@application.User?.MembershipCategory?.MembershipName</td>
+                            <td>@application.DesiredMembershipCategory?.MembershipName</td>
                             <td>
                                 @if (application.Sponsor1 != null)
                                 {
-                                    <div>1. @application.Sponsor1.User.FirstName @application.Sponsor1.User.LastName</div>
+                                    <div>1. @application.Sponsor1.User?.FirstName @application.Sponsor1.User?.LastName</div>
                                 }
                                 @if (application.Sponsor2 != null)
                                 {
-                                    <div>2. @application.Sponsor2.User.FirstName @application.Sponsor2.User.LastName</div>
+                                    <div>2. @application.Sponsor2.User?.FirstName @application.Sponsor2.User?.LastName</div>
                                 }
                             </td>
                             <td>@application.DateOfBirth.ToShortDateString()</td>
@@ -66,7 +66,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="applicationModalLabel-@application.ApplicationID">
-                                Application Details: @application.User.FirstName @application.User.LastName
+                                Application Details: @application.User?.FirstName @application.User?.LastName
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -77,11 +77,11 @@
                                     <table class="table table-sm">
                                         <tr>
                                             <th>Name:</th>
-                                            <td>@application.User.FirstName @application.User.LastName</td>
+                                            <td>@application.User?.FirstName @application.User?.LastName</td>
                                         </tr>
                                         <tr>
                                             <th>Email:</th>
-                                            <td>@application.User.Email</td>
+                                            <td>@application.User?.Email</td>
                                         </tr>
                                         <tr>
                                             <th>Address:</th>
@@ -137,18 +137,18 @@
                                     <table class="table table-sm">
                                         <tr>
                                             <th>Current Membership:</th>
-                                            <td>@application.User.MembershipCategory.MembershipName</td>
+                                            <td>@application.User?.MembershipCategory?.MembershipName</td>
                                         </tr>
                                         <tr>
                                             <th>Desired Membership:</th>
-                                            <td>@application.DesiredMembershipCategory.MembershipName</td>
+                                            <td>@application.DesiredMembershipCategory?.MembershipName</td>
                                         </tr>
                                         <tr>
                                             <th>Sponsor 1:</th>
                                             <td>
                                                 @if (application.Sponsor1 != null)
                                                 {
-                                                    @application.Sponsor1.User.FirstName @application.Sponsor1.User.LastName
+                                                    @application.Sponsor1.User?.FirstName @application.Sponsor1.User?.LastName
                                                 }
                                                 else
                                                 {
@@ -161,7 +161,7 @@
                                             <td>
                                                 @if (application.Sponsor2 != null)
                                                 {
-                                                    @application.Sponsor2.User.FirstName @application.Sponsor2.User.LastName
+                                                    @application.Sponsor2.User?.FirstName @application.Sponsor2.User?.LastName
                                                 }
                                                 else
                                                 {

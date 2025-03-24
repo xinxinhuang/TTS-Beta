@@ -15,15 +15,15 @@
                             <div>
                                 <h3 class="mb-3">
                                     <i class="bi bi-trophy-fill me-2"></i>
-                                    Congratulations, you are now a @Model.RecentUpgrade.DesiredMembershipCategory.MembershipName!
+                                    Congratulations, you are now a @(Model.RecentUpgrade.DesiredMembershipCategory?.MembershipName ?? "Member")!
                                 </h3>
                                 <p class="mb-0">Your membership has been upgraded, giving you access to new privileges:</p>
                                 <ul class="mt-2">
-                                    @if (Model.RecentUpgrade.DesiredMembershipCategory.CanMakeStandingTeeTime)
+                                    @if (Model.RecentUpgrade.DesiredMembershipCategory?.CanMakeStandingTeeTime == true)
                                     {
                                         <li>Access to standing tee time requests</li>
                                     }
-                                    @if (Model.RecentUpgrade.DesiredMembershipCategory.CanSponsor)
+                                    @if (Model.RecentUpgrade.DesiredMembershipCategory?.CanSponsor == true)
                                     {
                                         <li>Ability to sponsor new members</li>
                                     }

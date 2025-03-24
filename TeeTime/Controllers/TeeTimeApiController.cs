@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace TeeTime.Controllers
     public class TeeTimeApiController : ControllerBase
     {
         private readonly TeeTimeDbContext _context;
+        private readonly ILogger<TeeTimeApiController> _logger;
 
-        public TeeTimeApiController(TeeTimeDbContext context)
+        public TeeTimeApiController(TeeTimeDbContext context, ILogger<TeeTimeApiController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet("availability")]
@@ -49,7 +52,7 @@ namespace TeeTime.Controllers
                     .Where(r => r.ScheduledGolfTime != null && 
                                r.ScheduledGolfTime.ScheduledDate >= startDate && 
                                r.ScheduledGolfTime.ScheduledDate <= endDate)
-                    .GroupBy(r => r.ScheduledGolfTime.ScheduledDate.Date)
+                    .GroupBy(r => r.ScheduledGolfTime!.ScheduledDate.Date)
                     .Select(g => new
                     {
                         Date = g.Key,
@@ -103,11 +106,12 @@ namespace TeeTime.Controllers
             catch (Exception ex)
             {
                 // Log the exception and return a 500 error
+                _logger.LogError(ex, "Error retrieving tee time availability");
                 return StatusCode(500, new { error = "An error occurred while processing your request." });
             }
         }
 
-        private async Task<Member> GetCurrentMemberAsync()
+        private async Task<Member?> GetCurrentMemberAsync()
         {
             // Get the current user ID from claims
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -24,6 +24,9 @@ namespace TeeTime.Models
         [DataType(DataType.Time)]
         public TimeSpan EndTime { get; set; }
         
+        [MaxLength(20)]
+        public string EventColor { get; set; } = "blue";
+        
         // Navigation property for related tee times
         public ICollection<ScheduledGolfTime> ScheduledGolfTimes { get; set; } = new List<ScheduledGolfTime>();
     }

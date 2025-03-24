@@ -50,7 +50,7 @@ namespace TeeTime.Pages
 
         public List<ScheduledGolfTime> AvailableTimes { get; set; } = new List<ScheduledGolfTime>();
 
-        private async Task<Member> GetCurrentMemberAsync()
+        private async Task<Member?> GetCurrentMemberAsync()
         {
             // Get the current user ID from claims
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -169,7 +169,7 @@ namespace TeeTime.Pages
             return Page();
         }
 
-        private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member member)
+        private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member? member)
         {
             if (member == null)
             {
@@ -188,7 +188,7 @@ namespace TeeTime.Pages
             return filteredTimes;
         }
 
-        private List<ScheduledGolfTime> FilterTeeTimesByMembershipLevel(List<ScheduledGolfTime> allTimes, MembershipCategory membershipCategory)
+        private List<ScheduledGolfTime> FilterTeeTimesByMembershipLevel(List<ScheduledGolfTime> allTimes, MembershipCategory? membershipCategory)
         {
             // Apply time restrictions based on membership level
             // This is a simplified implementation - modify as needed based on actual business rules

@@ -28,7 +28,7 @@ namespace TeeTime.Pages
         
         // Properties for showing the membership upgrade notification
         public bool ShowUpgradeNotification { get; set; }
-        public MemberUpgrade RecentUpgrade { get; set; }
+        public required MemberUpgrade RecentUpgrade { get; set; }
         [TempData]
         public bool DismissUpgradeNotification { get; set; }
 

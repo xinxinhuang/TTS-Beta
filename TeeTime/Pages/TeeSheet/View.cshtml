@@ -4,6 +4,82 @@
     ViewData["Title"] = "View Tee Sheet";
 }
 
+<style>
+    /* Styling for tab that's selected for creating an event */
+    .nav-link.event-selected {
+        border-color: #ffc107 !important;
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    /* Event color indicators */
+    .event-color {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    
+    .event-color-red { background-color: #dc3545; }
+    .event-color-green { background-color: #198754; }
+    .event-color-blue { background-color: #0d6efd; }
+    .event-color-yellow { background-color: #ffc107; }
+    .event-color-purple { background-color: #6f42c1; }
+</style>
+
+<!-- Event Confirmation Modal -->
+<div class="modal fade" id="eventConfirmationModal" tabindex="-1" aria-labelledby="eventConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventConfirmationModalLabel">Confirm Event Creation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to create the following event?</p>
+        <div class="mb-3"><strong>Event Name:</strong> <span id="confirmEventName"></span></div>
+        <div class="mb-3"><strong>Date:</strong> <span id="confirmEventDate"></span></div>
+        <div class="mb-3"><strong>Time:</strong> <span id="confirmEventTime"></span></div>
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i> This will block all tee times during this period.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmEventCreation">Create Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Event Confirmation Modal -->
+<div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEventModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the event "<span id="deleteEventName"></span>"?</p>
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i> This will make all affected tee times available again.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" id="deleteEventId" name="eventId" />
+          <input type="hidden" id="deleteStartDate" name="startDate" />
+          <button type="submit" class="btn btn-danger" asp-page-handler="DeleteEvent">Delete Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Tee Sheet - Week of @Model.StartDate.ToString("MMMM d, yyyy")</h2>
@@ -35,18 +111,18 @@
             </div>
             <div class="card-body">
                 <form method="post">
-                    <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                     <div id="selectedDateDisplay" class="alert alert-info mb-3"></div>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label asp-for="EventName" class="control-label">Event Name</label>
                                 <input asp-for="EventName" type="text" class="form-control" />
                                 <span asp-validation-for="EventName" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label for="SelectedStartTime" class="control-label">Start Time</label>
                                 <select asp-for="SelectedStartTime" class="form-control" id="startTimeDropdown">
@@ -55,7 +131,7 @@
                                 <span asp-validation-for="SelectedStartTime" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label for="SelectedEndTime" class="control-label">End Time</label>
                                 <select asp-for="SelectedEndTime" class="form-control" id="endTimeDropdown">
@@ -64,11 +140,24 @@
                                 <span asp-validation-for="SelectedEndTime" class="text-danger"></span>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label asp-for="EventColor" class="control-label">Event Color</label>
+                                <select asp-for="EventColor" class="form-control" id="eventColor">
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="red">Red</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="purple">Purple</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <!-- Hidden field for event date that gets set by JavaScript -->
                     <input asp-for="EventDate" type="hidden" id="eventDate" />
                     <span asp-validation-for="EventDate" class="text-danger"></span>
-                    <button type="submit" asp-page-handler="AddEvent" class="btn btn-success">Add Event</button>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#eventConfirmationModal">Add Event</button>
+                    <button type="submit" asp-page-handler="CreateEvent" class="d-none" id="addEventSubmitBtn">Submit</button>
                 </form>
             </div>
         </div>
@@ -90,6 +179,7 @@
                                 <th>Event Name</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -100,6 +190,11 @@
                                     <td>@ev.EventName</td>
                                     <td>@string.Format("{0:hh\\:mm}", ev.StartTime)</td>
                                     <td>@string.Format("{0:hh\\:mm}", ev.EndTime)</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal" 
+                                               data-event-id="@ev.EventID" data-event-name="@ev.EventName" 
+                                               data-start-date="@Model.StartDate.ToString("yyyy-MM-dd")">Delete</button>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -147,9 +242,16 @@
                                         <tr>
                                             <th>Time</th>
                                             <th>Status</th>
-                                            <th>Members</th>
-                                            <th>Players</th>
-                                            <th>Carts</th>
+                                            @if (User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin"))
+                                            {
+                                                <th>Event</th>
+                                            }
+                                            else
+                                            {
+                                                <th>Members</th>
+                                                <th>Players</th>
+                                                <th>Carts</th>
+                                            }
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -162,7 +264,7 @@
                                                     {
                                                         <span class="badge bg-success">Available</span>
                                                     }
-                                                    else if (teeTime.Reservations.Any())
+                                                    else if (teeTime.Reservations != null && teeTime.Reservations.Any())
                                                     {
                                                         <span class="badge bg-primary">Booked</span>
                                                     }
@@ -171,35 +273,48 @@
                                                         <span class="badge bg-danger">Blocked</span>
                                                     }
                                                 </td>
-                                                <td>
-                                                    @if (teeTime.Reservations != null && teeTime.Reservations.Any())
-                                                    {
-                                                        @foreach (var reservation in teeTime.Reservations)
+                                                @if (User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin"))
+                                                {
+                                                    <td>
+                                                        @if (teeTime.EventID.HasValue && teeTime.Event != null)
                                                         {
-                                                            if (reservation.Member?.User != null)
+                                                            <span class="event-color event-color-@(string.IsNullOrEmpty(teeTime.Event.EventColor) ? "blue" : teeTime.Event.EventColor)"></span>
+                                                            @teeTime.Event.EventName
+                                                        }
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        @if (teeTime.Reservations != null && teeTime.Reservations.Any())
+                                                        {
+                                                            @foreach (var reservation in teeTime.Reservations)
                                                             {
-                                                                <div>@reservation.Member.User.FirstName @reservation.Member.User.LastName</div>
+                                                                if (reservation.Member?.User != null)
+                                                                {
+                                                                    <div>@reservation.Member.User.FirstName @reservation.Member.User.LastName</div>
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    else if (!teeTime.IsAvailable)
-                                                    {
-                                                        @if (teeTime.EventID.HasValue)
+                                                        else if (!teeTime.IsAvailable)
                                                         {
-                                                            <span class="badge bg-warning text-dark">@(teeTime.Event?.EventName ?? "Event")</span>
+                                                            @if (teeTime.EventID.HasValue)
+                                                            {
+                                                                <span class="badge bg-warning text-dark">@(teeTime.Event?.EventName ?? "Event")</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>@(Model.Events.TryGetValue(teeTime.ScheduledGolfTimeID, out var eventName) ? eventName : "Blocked")</span>
+                                                            }
                                                         }
-                                                        else
-                                                        {
-                                                            <span>@(Model.Events.TryGetValue(teeTime.ScheduledGolfTimeID, out var eventName) ? eventName : "Blocked")</span>
-                                                        }
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @(teeTime.Reservations?.Sum(r => r.NumberOfPlayers) ?? 0)
-                                                </td>
-                                                <td>
-                                                    @(teeTime.Reservations?.Sum(r => r.NumberOfCarts) ?? 0)
-                                                </td>
+                                                    </td>
+                                                    <td>
+                                                        @(teeTime.Reservations?.Sum(r => r.NumberOfPlayers) ?? 0)
+                                                    </td>
+                                                    <td>
+                                                        @(teeTime.Reservations?.Sum(r => r.NumberOfCarts) ?? 0)
+                                                    </td>
+                                                }
                                             </tr>
                                         }
                                     </tbody>
@@ -228,6 +343,13 @@
         $(document).ready(function() {
             // Get the anti-forgery token
             var token = $('input[name="__RequestVerificationToken"]').val();
+            
+            // Ensure startDate is set from URL parameter if available
+            var currentUrl = new URL(window.location.href);
+            var startDateParam = currentUrl.searchParams.get('startDate');
+            if (startDateParam) {
+                $('input[name="startDate"]').val(startDateParam);
+            }
             
             // Function to load available times for a selected date
             function loadAvailableTimes(date) {
@@ -291,7 +413,7 @@
             // Initialize on page load if date is already selected
             var selectedDate = $('#teeSheetTabs button.active').data('bs-target').replace('#', '');
             var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-            var dayOfWeek = date.getDay();
+            var dayOfWeek = date.getUTCDay();
             var dayName = date.toLocaleString('en-us', { weekday: 'long' });
             if (selectedDate === dayName) {
                 date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
@@ -300,18 +422,25 @@
                     if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
                         break;
                     }
-                    date.setDate(date.getDate() + 1);
+                    date.setUTCDate(date.getUTCDate() + 1);
                 }
             }
             $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-            $('#eventDate').val(date.toISOString().split('T')[0]);
-            loadAvailableTimes(date.toISOString().split('T')[0]);
+            
+            // Format the date to avoid timezone issues (YYYY-MM-DD format)
+            var year = date.getUTCFullYear();
+            var month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+            var day = date.getUTCDate().toString().padStart(2, '0');
+            var formattedDate = year + '-' + month + '-' + day;
+            $('#eventDate').val(formattedDate);
+            
+            loadAvailableTimes(formattedDate);
             
             // Load available times when date changes
             $('#teeSheetTabs button').on('shown.bs.tab', function (e) {
                 var selectedDate = $(e.target).data('bs-target').replace('#', '');
                 var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-                var dayOfWeek = date.getDay();
+                var dayOfWeek = date.getUTCDay();
                 var dayName = date.toLocaleString('en-us', { weekday: 'long' });
                 if (selectedDate === dayName) {
                     date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
@@ -320,12 +449,19 @@
                         if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
                             break;
                         }
-                        date.setDate(date.getDate() + 1);
+                        date.setUTCDate(date.getUTCDate() + 1);
                     }
                 }
                 $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-                $('#eventDate').val(date.toISOString().split('T')[0]);
-                loadAvailableTimes(date.toISOString().split('T')[0]);
+                
+                // Format the date to avoid timezone issues (YYYY-MM-DD format)
+                var year = date.getUTCFullYear();
+                var month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+                var day = date.getUTCDate().toString().padStart(2, '0');
+                var formattedDate = year + '-' + month + '-' + day;
+                $('#eventDate').val(formattedDate);
+                
+                loadAvailableTimes(formattedDate);
             });
             
             // Validation for end time after start time
@@ -336,6 +472,47 @@
                 if (startTime && endTime && startTime >= endTime) {
                     alert('End time must be after start time.');
                     $('#endTimeDropdown').val('');
+                }
+            });
+            
+            // Event creation confirmation modal
+            $('#eventConfirmationModal').on('show.bs.modal', function(event) {
+                var modal = $(this);
+                modal.find('#confirmEventName').text($('#EventName').val());
+                modal.find('#confirmEventDate').text($('#eventDate').val());
+                modal.find('#confirmEventTime').text($('#startTimeDropdown').val() + ' - ' + $('#endTimeDropdown').val());
+            });
+            
+            // Event creation confirmation
+            $('#confirmEventCreation').on('click', function() {
+                $('#eventConfirmationModal').modal('hide');
+                // Make sure the form includes the current startDate
+                var currentUrl = new URL(window.location.href);
+                var startDateParam = currentUrl.searchParams.get('startDate');
+                if (startDateParam) {
+                    $('input[name="startDate"]').val(startDateParam);
+                }
+                $('#addEventSubmitBtn').click();
+            });
+            
+            // Delete event confirmation modal
+            $('#deleteEventModal').on('show.bs.modal', function(event) {
+                var modal = $(this);
+                var button = $(event.relatedTarget);
+                var eventId = button.data('event-id');
+                var eventName = button.data('event-name');
+                var startDate = button.data('start-date');
+                modal.find('#deleteEventName').text(eventName);
+                modal.find('#deleteEventId').val(eventId);
+                modal.find('#deleteStartDate').val(startDate);
+                
+                // Fall back to URL parameter only if button data is not available
+                if (!startDate) {
+                    var currentUrl = new URL(window.location.href);
+                    var startDateParam = currentUrl.searchParams.get('startDate');
+                    if (startDateParam) {
+                        modal.find('#deleteStartDate').val(startDateParam);
+                    }
                 }
             });
         });

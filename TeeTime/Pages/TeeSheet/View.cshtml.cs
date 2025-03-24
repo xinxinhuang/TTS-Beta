@@ -48,6 +48,9 @@ namespace TeeTime.Pages.TeeSheet
         [BindProperty]
         public string SelectedEndTime { get; set; } = string.Empty;
 
+        [BindProperty]
+        public string EventColor { get; set; } = "blue";
+
         public async Task<IActionResult> OnGetAsync(DateTime startDate)
         {
             StartDate = startDate.Date;
@@ -89,7 +92,7 @@ namespace TeeTime.Pages.TeeSheet
                 {
                     Events[teeTime.ScheduledGolfTimeID] = teeTime.Event?.EventName ?? "Special Event";
                 }
-                else if (!teeTime.IsAvailable && !teeTime.Reservations.Any())
+                else if (!teeTime.IsAvailable && teeTime.Reservations != null && !teeTime.Reservations.Any())
                 {
                     Events[teeTime.ScheduledGolfTimeID] = "Blocked";
                 }
@@ -103,15 +106,22 @@ namespace TeeTime.Pages.TeeSheet
                 .ToListAsync();
         }
         
-        public async Task<IActionResult> OnPostAddEventAsync(DateTime startDate)
+        public async Task<IActionResult> OnPostAddEventAsync(string startDate)
         {
-            StartDate = startDate.Date;
-            
-            if (!EventDate.HasValue || string.IsNullOrWhiteSpace(EventName) || 
-                string.IsNullOrWhiteSpace(SelectedStartTime) || string.IsNullOrWhiteSpace(SelectedEndTime))
+            // Parse the start date parameter
+            DateTime startDateTime;
+            if (!DateTime.TryParse(startDate, out startDateTime))
             {
-                ModelState.AddModelError(string.Empty, "All event fields are required");
-                TempData["ErrorMessage"] = "Please fill in all event fields.";
+                // Default to today if parsing fails
+                startDateTime = DateTime.Today;
+            }
+            
+            // Set the StartDate for page rendering
+            StartDate = startDateTime.Date;
+            
+            if (!ModelState.IsValid || !EventDate.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please select a valid date and provide an event name.";
                 await LoadTeeSheetDataAsync(StartDate);
                 return Page();
             }
@@ -135,8 +145,11 @@ namespace TeeTime.Pages.TeeSheet
                 return Page();
             }
 
+            // Use the date part only to avoid any time zone issues
+            DateTime eventDateValue = EventDate.Value.Date;
+
             var teeTimes = await _context.ScheduledGolfTimes
-                .Where(t => t.ScheduledDate.Date == EventDate.Value.Date &&
+                .Where(t => t.ScheduledDate.Date == eventDateValue &&
                            t.ScheduledTime >= startTime &&
                            t.ScheduledTime <= endTime)
                 .ToListAsync();
@@ -152,9 +165,10 @@ namespace TeeTime.Pages.TeeSheet
             var newEvent = new Event
             {
                 EventName = EventName,
-                EventDate = EventDate.Value.Date,
+                EventDate = eventDateValue,
                 StartTime = startTime,
-                EndTime = endTime
+                EndTime = endTime,
+                EventColor = EventColor
             };
             
             _context.Events.Add(newEvent);
@@ -172,12 +186,139 @@ namespace TeeTime.Pages.TeeSheet
             
             TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
             
-            await LoadTeeSheetDataAsync(StartDate);
-            return Page();
+            // Redirect back to the same view with the original startDate
+            return RedirectToPage("./View", new { startDate = startDate });
+        }
+        
+        public async Task<IActionResult> OnPostCreateEventAsync(string startDate)
+        {
+            // Parse the start date parameter
+            DateTime startDateTime;
+            if (!DateTime.TryParse(startDate, out startDateTime))
+            {
+                // Default to today if parsing fails
+                startDateTime = DateTime.Today;
+            }
+            
+            // Set the StartDate for page rendering
+            StartDate = startDateTime.Date;
+            
+            if (!ModelState.IsValid || !EventDate.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please select a valid date and provide an event name.";
+                await LoadTeeSheetDataAsync(StartDate);
+                return Page();
+            }
+            
+            // Parse selected times
+            if (!TimeSpan.TryParse(SelectedStartTime, out var startTime) || 
+                !TimeSpan.TryParse(SelectedEndTime, out var endTime))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid time format");
+                TempData["ErrorMessage"] = "Please select valid start and end times.";
+                await LoadTeeSheetDataAsync(StartDate);
+                return Page();
+            }
+            
+            // Ensure end time is after start time
+            if (endTime <= startTime)
+            {
+                ModelState.AddModelError(string.Empty, "End time must be after start time");
+                TempData["ErrorMessage"] = "End time must be after start time.";
+                await LoadTeeSheetDataAsync(StartDate);
+                return Page();
+            }
+
+            // Use the date part only to avoid any time zone issues
+            DateTime eventDateValue = EventDate.Value.Date;
+
+            var teeTimes = await _context.ScheduledGolfTimes
+                .Where(t => t.ScheduledDate.Date == eventDateValue &&
+                           t.ScheduledTime >= startTime &&
+                           t.ScheduledTime <= endTime)
+                .ToListAsync();
+
+            if (!teeTimes.Any())
+            {
+                ModelState.AddModelError(string.Empty, "No tee times found in the specified time range");
+                await LoadTeeSheetDataAsync(StartDate);
+                return Page();
+            }
+            
+            // Create the event
+            var newEvent = new Event
+            {
+                EventName = EventName,
+                EventDate = eventDateValue,
+                StartTime = startTime,
+                EndTime = endTime,
+                EventColor = EventColor
+            };
+            
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
+
+            // Block all the tee times and assign them to the event
+            foreach (var teeTime in teeTimes)
+            {
+                teeTime.IsAvailable = false;
+                teeTime.EventID = newEvent.EventID;
+                _context.ScheduledGolfTimes.Update(teeTime);
+            }
+
+            await _context.SaveChangesAsync();
+            
+            TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
+            
+            // Redirect back to the same view with the original startDate
+            return RedirectToPage("./View", new { startDate = startDate });
+        }
+        
+        public async Task<IActionResult> OnPostDeleteEventAsync(int eventId, string startDate)
+        {
+            // Parse the start date from the string parameter
+            DateTime startDateTime;
+            if (!DateTime.TryParse(startDate, out startDateTime))
+            {
+                // Default to today if parsing fails
+                startDateTime = DateTime.Today;
+            }
+            
+            var eventToDelete = await _context.Events
+                .Include(e => e.ScheduledGolfTimes)
+                .FirstOrDefaultAsync(e => e.EventID == eventId);
+                
+            if (eventToDelete == null)
+            {
+                TempData["ErrorMessage"] = "Event not found.";
+                return RedirectToPage("./View", new { startDate = startDate });
+            }
+            
+            try
+            {
+                // Make the associated tee times available again
+                foreach (var teeTime in eventToDelete.ScheduledGolfTimes)
+                {
+                    teeTime.IsAvailable = true;
+                    teeTime.EventID = null;
+                }
+                
+                // Remove the event
+                _context.Events.Remove(eventToDelete);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Event '{eventToDelete.EventName}' deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting event: {ex.Message}";
+            }
+            
+            // Redirect back to the same page with the original startDate string
+            return RedirectToPage("./View", new { startDate = startDate });
         }
         
         // Method to get available tee times for a specific date
-        [Authorize(Roles = "Clerk,Pro Shop Staff,Admin")]
         public async Task<IActionResult> OnGetAvailableTimesAsync(DateTime date)
         {
             // Ensure user has proper permissions (already handled by Authorize attribute)
