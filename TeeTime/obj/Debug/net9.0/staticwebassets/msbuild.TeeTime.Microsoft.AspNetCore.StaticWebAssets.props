@@ -30,8 +30,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>4iebo1rn2h</Fingerprint>
-      <Integrity>1LXBQenQZS3ZaNZ9ccCJ4jKlQMjLHVUgznvmiw0iDwg=</Integrity>
+      <Fingerprint>caomtsl0ro</Fingerprint>
+      <Integrity>dKH4OPDamgFI0P/lE3DaukIg4VG0JiWu4uqHcLW1OSg=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\teetime.css'))</OriginalItemSpec>
@@ -84,8 +84,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>igfrk8j61p</Fingerprint>
-      <Integrity>AuvR4Krf/PBQaF8KA5fqBvZTaUOq/PooR5YEuccuSYM=</Integrity>
+      <Fingerprint>3qza4ut5zw</Fingerprint>
+      <Integrity>pWCTpnHmDnfEjxCj5TmzFw3JJunXNQ1kFYJRznfDSPg=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\teetime\datepicker.js'))</OriginalItemSpec>

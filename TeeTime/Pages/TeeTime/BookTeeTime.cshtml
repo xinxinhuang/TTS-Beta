@@ -7,6 +7,22 @@
 <div class="container">
     <h2 class="mb-4">Book a Tee Time</h2>
     
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card">
@@ -45,16 +61,17 @@
                         }
                         else
                         {
-                            <form method="post" asp-page-handler="BookTimeAsync">
+                            <form method="post" asp-page-handler="BookTimeAsync" id="bookTeeTimeForm">
                                 <input type="hidden" asp-for="SelectedDate" />
                                 
                                 <div class="form-group mb-3">
                                     <label asp-for="SelectedTimeId" class="control-label">Tee Time</label>
-                                    <select asp-for="SelectedTimeId" class="form-control">
+                                    <select asp-for="SelectedTimeId" class="form-control" id="teeTimeSelect">
                                         <option value="">Select a time...</option>
                                         @foreach (var time in Model.AvailableTimes)
                                         {
-                                            <option value="@time.ScheduledGolfTimeID">@time.ScheduledTime.ToString(@"hh\:mm tt")</option>
+                                            var displayHour = time.ScheduledTime.Hours > 12 ? time.ScheduledTime.Hours - 12 : (time.ScheduledTime.Hours == 0 ? 12 : time.ScheduledTime.Hours);
+                                            <option value="@time.ScheduledGolfTimeID">@(displayHour.ToString("00")):@(time.ScheduledTime.Minutes.ToString("00")) @(time.ScheduledTime.Hours >= 12 ? "PM" : "AM")</option>
                                         }
                                     </select>
                                     <span asp-validation-for="SelectedTimeId" class="text-danger"></span>
@@ -62,7 +79,7 @@
                                 
                                 <div class="form-group mb-3">
                                     <label asp-for="NumberOfPlayers" class="control-label">Number of Players</label>
-                                    <select asp-for="NumberOfPlayers" class="form-control">
+                                    <select asp-for="NumberOfPlayers" class="form-control" id="numberOfPlayers">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
@@ -73,7 +90,7 @@
                                 
                                 <div class="form-group mb-3">
                                     <label asp-for="NumberOfCarts" class="control-label">Number of Carts</label>
-                                    <select asp-for="NumberOfCarts" class="form-control">
+                                    <select asp-for="NumberOfCarts" class="form-control" id="numberOfCarts">
                                         <option value="0">None</option>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
@@ -96,18 +113,137 @@
             <div class="col-12">
                 <div class="alert alert-success">
                     <h4>Booking Confirmed!</h4>
-                    <p>Your tee time has been booked for @Model.SelectedDate.ToShortDateString() at @Model.ConfirmedTime.ToString("hh:mm tt").</p>
+                    <p>Your tee time has been booked for @Model.SelectedDate.ToShortDateString() at 
+                        @{
+                            var displayHour = Model.ConfirmedTime.Hours > 12 ? Model.ConfirmedTime.Hours - 12 : (Model.ConfirmedTime.Hours == 0 ? 12 : Model.ConfirmedTime.Hours);
+                            @Html.Raw($"{displayHour:D2}:{Model.ConfirmedTime.Minutes:D2} {(Model.ConfirmedTime.Hours >= 12 ? "PM" : "AM")}");
+                        }
+                    </p>
                     <p>Confirmation #: @Model.ConfirmationNumber</p>
                     <p>Players: @Model.NumberOfPlayers | Carts: @Model.NumberOfCarts</p>
                 </div>
             </div>
         </div>
     }
+    
+    <!-- Your Reservations Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Your Upcoming Tee Times</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.UserReservations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Players</th>
+                                        <th>Carts</th>
+                                        <th>Confirmation #</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reservation in Model.UserReservations)
+                                    {
+                                        <tr>
+                                            <td>@reservation.ScheduledGolfTime.ScheduledDate.ToShortDateString()</td>
+                                            <td>
+                                                @{
+                                                    var time = reservation.ScheduledGolfTime.ScheduledTime;
+                                                    var displayHour = time.Hours > 12 ? time.Hours - 12 : (time.Hours == 0 ? 12 : time.Hours);
+                                                    @Html.Raw($"{displayHour:D2}:{time.Minutes:D2} {(time.Hours >= 12 ? "PM" : "AM")}");
+                                                }
+                                            </td>
+                                            <td>@reservation.NumberOfPlayers</td>
+                                            <td>@reservation.NumberOfCarts</td>
+                                            <td>TT@(reservation.ReservationID.ToString("D6"))</td>
+                                            <td>@reservation.ReservationStatus</td>
+                                            <td>
+                                                @if (reservation.ReservationStatus == "Confirmed" && 
+                                                    reservation.ScheduledGolfTime.ScheduledDate > DateTime.Today)
+                                                {
+                                                    <form method="post" asp-page-handler="CancelReservation" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                                                        <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
+                                                        <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No actions available</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            You don't have any upcoming tee times. Use the form above to book one!
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/teetime/datepicker.js"></script>
+    <script>
+        // Handle cart logic based on number of players
+        $(document).ready(function() {
+            // Update cart options when number of players changes
+            $('#numberOfPlayers').change(function() {
+                updateCartOptions();
+            });
+            
+            // Initial setup
+            updateCartOptions();
+            
+            function updateCartOptions() {
+                var players = parseInt($('#numberOfPlayers').val());
+                var cartSelect = $('#numberOfCarts');
+                var currentCarts = parseInt(cartSelect.val());
+                
+                // Clear existing options
+                cartSelect.empty();
+                
+                // Add "None" option
+                cartSelect.append($('<option>', {
+                    value: 0,
+                    text: 'None'
+                }));
+                
+                // Calculate max carts (1 cart per 2 players, rounding up)
+                var maxCarts = Math.ceil(players / 2);
+                
+                // Add options for each possible cart
+                for (var i = 1; i <= maxCarts; i++) {
+                    cartSelect.append($('<option>', {
+                        value: i,
+                        text: i.toString()
+                    }));
+                }
+                
+                // Set current value if possible, otherwise set to max
+                if (currentCarts <= maxCarts) {
+                    cartSelect.val(currentCarts);
+                } else {
+                    cartSelect.val(maxCarts);
+                }
+            }
+        });
+    </script>
     <style>
         /* Date picker styling */
         .date-unavailable {
