@@ -11,7 +11,7 @@ namespace TeeTime.Services
     public interface ITeeTimeService
     {
         Task<Dictionary<DateTime, List<ScheduledGolfTime>>> GetTeeSheetDataAsync(DateTime startDate, DateTime endDate);
-        Task<Dictionary<int, string>> GetEventsForTeeTimesAsync(IEnumerable<ScheduledGolfTime> teeTimes);
+        Dictionary<int, string> GetEventsForTeeTimesAsync(IEnumerable<ScheduledGolfTime> teeTimes);
         Task<List<Reservation>> GetUserReservationsAsync(int memberId);
         Task<ScheduledGolfTime?> GetTeeTimeByIdAsync(int teeTimeId);
         Task<bool> IsTimeFullyBookedAsync(int scheduledGolfTimeId);
@@ -58,7 +58,7 @@ namespace TeeTime.Services
             return teeSheets;
         }
 
-        public async Task<Dictionary<int, string>> GetEventsForTeeTimesAsync(IEnumerable<ScheduledGolfTime> teeTimes)
+        public Dictionary<int, string> GetEventsForTeeTimesAsync(IEnumerable<ScheduledGolfTime> teeTimes)
         {
             var events = new Dictionary<int, string>();
 

@@ -119,7 +119,7 @@ namespace TeeTime.Pages
             
             // Get events for all tee times
             var allTeeTimes = TeeSheets.Values.SelectMany(list => list).ToList();
-            Events = await _teeTimeService.GetEventsForTeeTimesAsync(allTeeTimes);
+            Events = _teeTimeService.GetEventsForTeeTimesAsync(allTeeTimes);
         }
 
         private async Task LoadUserReservationsAsync(int memberId)
@@ -158,6 +158,11 @@ namespace TeeTime.Pages
                 
                 // Get the tee time details for confirmation
                 var selectedTime = await _teeTimeService.GetTeeTimeByIdAsync(SelectedTimeId);
+                if (selectedTime == null)
+                {
+                    TempData["ErrorMessage"] = "Could not retrieve tee time details.";
+                    return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
                 
                 // Store confirmation data in TempData so it persists after redirect
                 TempData["BookingConfirmed"] = true;

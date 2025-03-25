@@ -70,7 +70,7 @@ namespace TeeTime.Pages.TeeSheet
             var teeTimes = await _context.ScheduledGolfTimes
                 .Include(t => t.Reservations)
                     .ThenInclude(r => r.Member)
-                        .ThenInclude(m => m.User!)
+                        .ThenInclude(m => m!.User)
                 .Include(t => t.Event)
                 .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
                 .OrderBy(t => t.ScheduledDate)
