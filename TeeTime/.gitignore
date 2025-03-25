@@ -1,7 +1,74 @@
-# Build results
+# .NET build outputs
+bin/
+obj/
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
 [Bb]in/
 [Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.vsidx
+*.vsix
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.cache
+*.dtbcache
+*.dtbcache.v2
+*.futdcache.v2
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# Environment files
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+*.local.json
+.env
+.env.local
+
+# Project-specific files
+*.bin
+*.vsidx
+**/FileContentIndex/*.vsidx
+*.v2
+*.v1
+*.backup.json
+
+# Temporary files
+*.swp
+*.tmp
+*.temp

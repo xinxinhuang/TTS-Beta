@@ -1,12 +1,41 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Yellox\\Documents\\GitHub\\TTS-Beta\\",
-  "Documents": [],
+  "WorkspaceRootPath": "F:\\TeeTime\\TTS-Beta\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BB736407-2016-C263-10A1-4915B66C7713}|TeeTime\\TeeTime.csproj|f:\\teetime\\tts-beta\\teetime\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BB736407-2016-C263-10A1-4915B66C7713}|TeeTime\\TeeTime.csproj|solutionrelative:teetime\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "F:\\TeeTime\\TTS-Beta\\TeeTime\\appsettings.json",
+              "RelativeDocumentMoniker": "TeeTime\\appsettings.json",
+              "ToolTip": "F:\\TeeTime\\TTS-Beta\\TeeTime\\appsettings.json",
+              "RelativeToolTip": "TeeTime\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-25T02:19:31.523Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
