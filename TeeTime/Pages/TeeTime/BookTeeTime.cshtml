@@ -266,7 +266,7 @@
                                                     else if (isYourBooking)
                                                     {
                                                         <form method="post" asp-page-handler="CancelReservation" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
-                                                            <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
+                                                            <input type="hidden" name="ReservationToCancel" value="@(reservation?.ReservationID)" />
                                                             <input type="hidden" name="startDate" value="@(Model.StartDate.ToString("yyyy-MM-dd"))" />
                                                             <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
                                                         </form>

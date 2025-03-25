@@ -77,17 +77,10 @@ namespace TeeTime.Pages.TeeSheet
             public int TeeTimeCount { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync(DateTime? startDate = null)
+        public IActionResult OnGetAsync(DateTime? startDate = null)
         {
-            if (startDate.HasValue)
-            {
-                WeekStartDate = startDate.Value.Date;
-                await LoadTeeSheetDataAsync(WeekStartDate.Value);
-            }
-
-            await LoadPublishedWeeksAsync();
-            
-            return Page();
+            TempData["InfoMessage"] = "The tee sheet management page has been redesigned. You've been redirected to the new interface.";
+            return RedirectToPage("./Index");
         }
 
         public async Task<IActionResult> OnPostGenerateAsync()
@@ -119,19 +112,24 @@ namespace TeeTime.Pages.TeeSheet
             // Round start date to Sunday (beginning of week)
             try
             {
-                DateTime weekStartDate = StartDate.Date;
-                Console.WriteLine($"StartDate: {weekStartDate}");
+                // Ensure we're working with just the date part, no time component
+                DateTime inputDate = StartDate.Date;
+                Console.WriteLine($"Original StartDate: {inputDate}");
 
-                if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
-                {
-                    weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
-                    Console.WriteLine($"Adjusted to Sunday: {weekStartDate}");
-                }
+                // Find the Monday of the week (StartDate might be any day of the week)
+                DateTime weekStartDate = inputDate.DayOfWeek == DayOfWeek.Sunday
+                    ? inputDate.AddDays(1) // If Sunday, get the next day (Monday)
+                    : inputDate.AddDays(-(((int)inputDate.DayOfWeek - 1 + 7) % 7)); // Get the Monday of current week
+
+                // The end date is Sunday (inclusive)
+                DateTime weekEndDate = weekStartDate.AddDays(6);
+
+                Console.WriteLine($"Week range: {weekStartDate:yyyy-MM-dd} (Monday) to {weekEndDate:yyyy-MM-dd} (Sunday)");
 
                 // Check if tee times already exist for this week
                 bool teesExist = await _context.ScheduledGolfTimes
                     .AnyAsync(t => t.ScheduledDate.Date >= weekStartDate && 
-                                   t.ScheduledDate.Date < weekStartDate.AddDays(7));
+                                   t.ScheduledDate.Date <= weekEndDate);
 
                 Console.WriteLine($"Tee times exist for this week: {teesExist}");
 
@@ -142,13 +140,14 @@ namespace TeeTime.Pages.TeeSheet
                     return Page();
                 }
 
-                // Generate tee times for each day of the week
+                // Generate tee times for each day of the week (Monday to Sunday, 7 days)
                 for (int day = 0; day < 7; day++)
                 {
-                    DateTime currentDate = weekStartDate.AddDays(day);
+                    // Create a new date object for each day to avoid time component issues
+                    DateTime currentDate = weekStartDate.Date.AddDays(day);
                     TimeSpan currentTime = FirstTeeTime;
 
-                    Console.WriteLine($"Generating tee times for {currentDate.ToShortDateString()}");
+                    Console.WriteLine($"Generating tee times for {currentDate.ToShortDateString()} (Day of week: {currentDate.DayOfWeek})");
 
                     while (currentTime <= LastTeeTime)
                     {
@@ -173,15 +172,14 @@ namespace TeeTime.Pages.TeeSheet
                 await LoadPublishedWeeksAsync();
 
                 Console.WriteLine("Tee sheet generation completed successfully");
-                TempData["SuccessMessage"] = $"Tee sheet for week of {weekStartDate:MMMM d, yyyy} has been successfully generated.";
+                TempData["SuccessMessage"] = $"Tee sheet for week of {weekStartDate:MMMM d, yyyy} (Monday) to {weekEndDate:MMMM d, yyyy} (Sunday) has been successfully generated.";
 
                 return Page();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error generating tee sheet: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                ModelState.AddModelError(string.Empty, $"Error generating tee sheet: {ex.Message}");
+                Console.WriteLine($"Error in tee sheet generation: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error generating tee sheet: {ex.Message}";
                 await LoadPublishedWeeksAsync();
                 return Page();
             }
@@ -254,17 +252,28 @@ namespace TeeTime.Pages.TeeSheet
 
             await _context.SaveChangesAsync();
             
-            // Get the week that contains this event
-            DateTime weekStartDate = EventDate.Value.Date;
-            if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
+            // Get the week that contains this event (using Monday-to-Sunday format)
+            DateTime mondayOfEventWeek = EventDate.Value.Date;
+            
+            // Calculate the Monday of the week containing this event
+            if (mondayOfEventWeek.DayOfWeek == DayOfWeek.Sunday)
             {
-                weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
+                // If it's Sunday, get the previous Monday (6 days back)
+                mondayOfEventWeek = mondayOfEventWeek.AddDays(-6);
             }
+            else
+            {
+                // For all other days, calculate days back to Monday
+                mondayOfEventWeek = mondayOfEventWeek.AddDays(-(((int)mondayOfEventWeek.DayOfWeek - 1 + 7) % 7));
+            }
+            
+            // Set WeekStartDate to the Monday of the event week
+            WeekStartDate = mondayOfEventWeek;
             
             TempData["SuccessMessage"] = $"Event '{EventName}' has been added successfully.";
 
-            WeekStartDate = weekStartDate;
-            await LoadTeeSheetDataAsync(weekStartDate);
+            // Load tee sheet data for the week containing the event
+            await LoadTeeSheetDataAsync(mondayOfEventWeek);
             await LoadPublishedWeeksAsync();
 
             return Page();
@@ -376,24 +385,122 @@ namespace TeeTime.Pages.TeeSheet
 
         private async Task LoadPublishedWeeksAsync()
         {
-            // In a real application, we would load published weeks from the database
-            // For now, we'll just get weeks that have tee times
-            var teeTimeGroups = await _context.ScheduledGolfTimes
-                .GroupBy(t => EF.Functions.DateDiffDay(new DateTime(1, 1, 1), t.ScheduledDate) / 7)
-                .Select(g => new
-                {
-                    WeekGroup = g.Key,
-                    MinDate = g.Min(t => t.ScheduledDate),
-                    Count = g.Count()
-                })
-                .OrderByDescending(g => g.MinDate)
+            // Clear the current list
+            PublishedWeeks.Clear();
+            
+            // Get all distinct dates that have tee times
+            var distinctDates = await _context.ScheduledGolfTimes
+                .Select(t => t.ScheduledDate.Date)
+                .Distinct()
+                .OrderBy(d => d)
                 .ToListAsync();
-
-            PublishedWeeks = teeTimeGroups.Select(g => new PublishedWeekInfo
+                
+            // Group them by week (Monday to Sunday)
+            var weekGroups = new Dictionary<DateTime, List<ScheduledGolfTime>>();
+            
+            foreach (var date in distinctDates)
             {
-                StartDate = g.MinDate.Date,
-                TeeTimeCount = g.Count
-            }).ToList();
+                // Get the Monday of the week for this date
+                DateTime weekStart = date.DayOfWeek == DayOfWeek.Sunday
+                    ? date.AddDays(-6) // If Sunday, go back to previous Monday
+                    : date.AddDays(-(((int)date.DayOfWeek - 1 + 7) % 7)); // Get the Monday of current week
+                
+                // If we don't have this week start in our dictionary yet, add it
+                if (!weekGroups.ContainsKey(weekStart))
+                {
+                    // Get all tee times for this week
+                    var teeTimes = await _context.ScheduledGolfTimes
+                        .Where(t => t.ScheduledDate >= weekStart && 
+                                   t.ScheduledDate <= weekStart.AddDays(6))
+                        .ToListAsync();
+                    
+                    if (teeTimes.Any())
+                    {
+                        weekGroups[weekStart] = teeTimes;
+                    }
+                }
+            }
+            
+            // Convert the dictionary to our PublishedWeekInfo list
+            PublishedWeeks = weekGroups
+                .Select(g => new PublishedWeekInfo
+                {
+                    StartDate = g.Key, // Monday of the week
+                    TeeTimeCount = g.Value.Count
+                })
+                .OrderByDescending(w => w.StartDate)
+                .ToList();
+        }
+
+        public async Task<IActionResult> OnPostDeleteTeeSheetAsync(DateTime startDate)
+        {
+            // Ensure user is authorized (Clerk role)
+            if (!User.IsInRole("Clerk"))
+            {
+                TempData["ErrorMessage"] = "You are not authorized to delete tee sheets.";
+                return RedirectToPage();
+            }
+
+            // Ensure we have a valid start date
+            if (startDate == default)
+            {
+                TempData["ErrorMessage"] = "Invalid date specified.";
+                return RedirectToPage();
+            }
+
+            // Calculate the week's date range (Sunday to Saturday)
+            DateTime weekStartDate = startDate.Date;
+            if (weekStartDate.DayOfWeek != DayOfWeek.Sunday)
+            {
+                weekStartDate = weekStartDate.AddDays(-(int)weekStartDate.DayOfWeek);
+            }
+            DateTime weekEndDate = weekStartDate.AddDays(7);
+
+            try
+            {
+                // First, find all reservations for tee times in this week and delete them
+                var reservationsToDelete = await _context.Reservations
+                    .Include(r => r.ScheduledGolfTime)
+                    .Where(r => r.ScheduledGolfTime != null && 
+                                r.ScheduledGolfTime.ScheduledDate >= weekStartDate && 
+                                r.ScheduledGolfTime.ScheduledDate < weekEndDate)
+                    .ToListAsync();
+
+                if (reservationsToDelete.Any())
+                {
+                    _context.Reservations.RemoveRange(reservationsToDelete);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Then, find all tee times in this week and delete them
+                var teeTimesToDelete = await _context.ScheduledGolfTimes
+                    .Where(t => t.ScheduledDate >= weekStartDate && t.ScheduledDate < weekEndDate)
+                    .ToListAsync();
+
+                if (teeTimesToDelete.Any())
+                {
+                    _context.ScheduledGolfTimes.RemoveRange(teeTimesToDelete);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = $"Successfully deleted {teeTimesToDelete.Count} tee times for the week of {weekStartDate:MMMM d, yyyy}.";
+                }
+                else
+                {
+                    TempData["WarningMessage"] = $"No tee times found for the week of {weekStartDate:MMMM d, yyyy}.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred while deleting the tee sheet: {ex.Message}";
+            }
+
+            // Reload the data
+            DateTime todayDate = DateTime.Today; 
+            WeekStartDate = todayDate;
+            await LoadTeeSheetDataAsync(todayDate);
+            await LoadPublishedWeeksAsync();
+
+            return RedirectToPage();
         }
     }
 }

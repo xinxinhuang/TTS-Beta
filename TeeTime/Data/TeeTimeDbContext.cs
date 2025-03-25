@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 using TeeTime.Models;
+using TeeTime.Models.TeeSheet;
 
 namespace TeeTime.Data
 {
@@ -22,6 +23,8 @@ namespace TeeTime.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Models.TeeSheet.TeeSheet> TeeSheets { get; set; }
+        public DbSet<Models.TeeSheet.TeeTime> TeeTimes { get; set; }
 
         // Configuration is handled in Program.cs
 
@@ -112,6 +115,12 @@ namespace TeeTime.Data
                 .WithMany(e => e.ScheduledGolfTimes)
                 .HasForeignKey(s => s.EventID)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Models.TeeSheet.TeeTime>()
+                .HasOne(tt => tt.TeeSheet)
+                .WithMany(ts => ts.TeeTimes)
+                .HasForeignKey(tt => tt.TeeSheetId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

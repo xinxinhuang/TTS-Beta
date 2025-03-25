@@ -32,8 +32,15 @@
                             
                             @if (User.IsInRole("Clerk"))
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link text-light" asp-area="" asp-page="/TeeSheet/Manage">Tee Sheet Management</a>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-light" href="#" id="teesheetDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Tee Sheet Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="teesheetDropdown">
+                                        <li><a class="dropdown-item" asp-area="" asp-page="/TeeSheet/ScheduleTeeSheet">Schedule TeeSheets</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-page="/TeeSheet/ViewTeeSheets">View TeeSheets</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-page="/TeeSheet/ManageEvents">Manage Events</a></li>
+                                    </ul>
                                 </li>
                             }
                             else
@@ -58,7 +65,9 @@
                                     <li><a class="dropdown-item" asp-page="/Dashboard">Dashboard</a></li>
                                     @if (User.IsInRole("Clerk"))
                                     {
-                                        <li><a class="dropdown-item" asp-page="/TeeSheet/Manage">Tee Sheet Management</a></li>
+                                        <li><a class="dropdown-item" asp-page="/TeeSheet/ScheduleTeeSheet">Schedule TeeSheets</a></li>
+                                        <li><a class="dropdown-item" asp-page="/TeeSheet/ViewTeeSheets">View TeeSheets</a></li>
+                                        <li><a class="dropdown-item" asp-page="/TeeSheet/ManageEvents">Manage Events</a></li>
                                     }
                                     else
                                     {

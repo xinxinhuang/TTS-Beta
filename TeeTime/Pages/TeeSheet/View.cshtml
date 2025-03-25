@@ -345,21 +345,70 @@
             var token = $('input[name="__RequestVerificationToken"]').val();
             
             // Ensure startDate is set from URL parameter if available
-            var currentUrl = new URL(window.location.href);
-            var startDateParam = currentUrl.searchParams.get('startDate');
-            if (startDateParam) {
-                $('input[name="startDate"]').val(startDateParam);
+            var urlParams = new URLSearchParams(window.location.search);
+            var startDateParam = urlParams.get('startDate');
+            
+            // Function to safely parse dates to ensure consistent timezone handling
+            function parseLocalDate(dateString) {
+                if (!dateString) return null;
+                
+                // Split the date string into components
+                var parts = dateString.split('-');
+                if (parts.length !== 3) return null;
+                
+                // Create a new date using local timezone (year, month-1, day)
+                // Month is 0-indexed in JavaScript Date
+                return new Date(parts[0], parts[1] - 1, parts[2]);
             }
             
+            // Function to format date as yyyy-MM-dd for API calls
+            function formatDateForApi(date) {
+                return date.getFullYear() + '-' + 
+                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(date.getDate()).padStart(2, '0');
+            }
+            
+            // Initialize tab selection for event creation
+            $('#teeSheetTabs button').click(function() {
+                // Remove selected class from all tabs
+                $('#teeSheetTabs button').removeClass('event-selected');
+                
+                // Get the day name from the tab
+                var targetId = $(this).data('bs-target').replace('#', '');
+                
+                // Get the date for this tab
+                var baseDate = parseLocalDate('@Model.StartDate.ToString("yyyy-MM-dd")');
+                var dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(targetId);
+                
+                if (baseDate && dayIndex >= 0) {
+                    // Calculate the correct date for this tab
+                    var tabDate = new Date(baseDate);
+                    tabDate.setDate(baseDate.getDate() + dayIndex);
+                    
+                    // Set the event date in the hidden field
+                    $('#eventDate').val(formatDateForApi(tabDate));
+                    
+                    // Update the display
+                    $('#selectedDateDisplay').text('Creating event for: ' + targetId + ', ' + 
+                        tabDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+                    
+                    // Add selected class to this tab
+                    $(this).addClass('event-selected');
+                    
+                    // Load available times for this date
+                    loadAvailableTimes(formatDateForApi(tabDate));
+                }
+            });
+            
             // Function to load available times for a selected date
-            function loadAvailableTimes(date) {
+            function loadAvailableTimes(dateString) {
+                if (!dateString) return;
+                
                 $.ajax({
                     url: '?handler=AvailableTimes',
-                    data: { date: date },
+                    data: { date: dateString },
                     type: 'GET',
-                    headers: {
-                        "RequestVerificationToken": token
-                    },
+                    contentType: 'application/json',
                     success: function(data) {
                         const startDropdown = $('#startTimeDropdown');
                         const endDropdown = $('#endTimeDropdown');
@@ -409,60 +458,6 @@
                     }
                 });
             }
-            
-            // Initialize on page load if date is already selected
-            var selectedDate = $('#teeSheetTabs button.active').data('bs-target').replace('#', '');
-            var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-            var dayOfWeek = date.getUTCDay();
-            var dayName = date.toLocaleString('en-us', { weekday: 'long' });
-            if (selectedDate === dayName) {
-                date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-            } else {
-                for (var i = 0; i < 7; i++) {
-                    if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
-                        break;
-                    }
-                    date.setUTCDate(date.getUTCDate() + 1);
-                }
-            }
-            $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-            
-            // Format the date to avoid timezone issues (YYYY-MM-DD format)
-            var year = date.getUTCFullYear();
-            var month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-            var day = date.getUTCDate().toString().padStart(2, '0');
-            var formattedDate = year + '-' + month + '-' + day;
-            $('#eventDate').val(formattedDate);
-            
-            loadAvailableTimes(formattedDate);
-            
-            // Load available times when date changes
-            $('#teeSheetTabs button').on('shown.bs.tab', function (e) {
-                var selectedDate = $(e.target).data('bs-target').replace('#', '');
-                var date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-                var dayOfWeek = date.getUTCDay();
-                var dayName = date.toLocaleString('en-us', { weekday: 'long' });
-                if (selectedDate === dayName) {
-                    date = new Date('@Model.StartDate.ToString("yyyy-MM-dd")');
-                } else {
-                    for (var i = 0; i < 7; i++) {
-                        if (selectedDate === date.toLocaleString('en-us', { weekday: 'long' })) {
-                            break;
-                        }
-                        date.setUTCDate(date.getUTCDate() + 1);
-                    }
-                }
-                $('#selectedDateDisplay').text('Selected Date: ' + date.toLocaleString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-                
-                // Format the date to avoid timezone issues (YYYY-MM-DD format)
-                var year = date.getUTCFullYear();
-                var month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-                var day = date.getUTCDate().toString().padStart(2, '0');
-                var formattedDate = year + '-' + month + '-' + day;
-                $('#eventDate').val(formattedDate);
-                
-                loadAvailableTimes(formattedDate);
-            });
             
             // Validation for end time after start time
             $('#startTimeDropdown, #endTimeDropdown').on('change', function() {
