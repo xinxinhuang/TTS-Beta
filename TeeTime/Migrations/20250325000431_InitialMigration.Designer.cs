@@ -12,7 +12,7 @@ using TeeTime.Data;
 namespace TeeTime.Migrations
 {
     [DbContext(typeof(TeeTimeDbContext))]
-    [Migration("20250324204153_InitialMigration")]
+    [Migration("20250325000431_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
