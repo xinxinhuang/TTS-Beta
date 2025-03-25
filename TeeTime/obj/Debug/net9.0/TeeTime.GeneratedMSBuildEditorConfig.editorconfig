@@ -17,93 +17,93 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = TeeTime
 build_property.RootNamespace = TeeTime
-build_property.ProjectDir = f:\TeeTime\TTS-Beta\TeeTime\
+build_property.ProjectDir = F:\TeeTime\TTS-Beta\teetime\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = f:\TeeTime\TTS-Beta\TeeTime
+build_property.MSBuildProjectDirectory = F:\TeeTime\TTS-Beta\teetime
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Account/AccessDenied.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Account/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Account/Login.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Account/Logout.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Account/Logout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Account/Register.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Dashboard.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Error.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Index.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Membership/ApplicationReview.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Membership/ApplicationReview.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVtYmVyc2hpcFxBcHBsaWNhdGlvblJldmlldy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Membership/ApplicationSubmitted.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Membership/ApplicationSubmitted.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVtYmVyc2hpcFxBcHBsaWNhdGlvblN1Ym1pdHRlZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Membership/UpgradeApplication.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Membership/UpgradeApplication.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWVtYmVyc2hpcFxVcGdyYWRlQXBwbGljYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Privacy.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Shared/_ValidationScriptsPartial.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/TeeSheet/Manage.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/TeeSheet/Manage.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVlU2hlZXRcTWFuYWdlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/TeeSheet/View.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/TeeSheet/View.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVlU2hlZXRcVmlldy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/TeeSheet/_ViewImports.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/TeeSheet/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVlU2hlZXRcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/TeeTime/BookTeeTime.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/TeeTime/BookTeeTime.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVlVGltZVxCb29rVGVlVGltZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/TeeTime/_ViewImports.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/TeeTime/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVlVGltZVxfVmlld0ltcG9ydHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/_ViewImports.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/_ViewStart.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[f:/TeeTime/TTS-Beta/TeeTime/Pages/Shared/_Layout.cshtml]
+[F:/TeeTime/TTS-Beta/teetime/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-yjmmdr51x4

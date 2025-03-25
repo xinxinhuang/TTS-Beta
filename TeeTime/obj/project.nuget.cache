@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RC5n0xd7oYw=",
+  "dgSpecHash": "JDgfBv5KSOA=",
   "success": true,
-  "projectFilePath": "f:\\TeeTime\\TTS-Beta\\TeeTime\\TeeTime.csproj",
+  "projectFilePath": "F:\\TeeTime\\TTS-Beta\\teetime\\TeeTime.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\hxxis\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\hxxis\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

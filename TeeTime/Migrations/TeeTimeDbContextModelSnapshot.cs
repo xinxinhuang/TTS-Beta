@@ -17,7 +17,7 @@ namespace TeeTime.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("dbo")
+                .HasDefaultSchema("Beta")
                 .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -52,7 +52,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("EventID");
 
-                    b.ToTable("Events", "dbo");
+                    b.ToTable("Events", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.Member", b =>
@@ -91,7 +91,7 @@ namespace TeeTime.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Members", "dbo");
+                    b.ToTable("Members", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.MemberUpgrade", b =>
@@ -182,7 +182,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("MemberUpgrades", "dbo");
+                    b.ToTable("MemberUpgrades", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.MembershipCategory", b =>
@@ -206,7 +206,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("MembershipCategoryID");
 
-                    b.ToTable("MembershipCategories", "dbo");
+                    b.ToTable("MembershipCategories", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.Reservation", b =>
@@ -243,7 +243,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("ScheduledGolfTimeID");
 
-                    b.ToTable("Reservations", "dbo");
+                    b.ToTable("Reservations", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.Role", b =>
@@ -261,7 +261,7 @@ namespace TeeTime.Migrations
 
                     b.HasKey("RoleID");
 
-                    b.ToTable("Roles", "dbo");
+                    b.ToTable("Roles", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.ScheduledGolfTime", b =>
@@ -291,7 +291,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("EventID");
 
-                    b.ToTable("ScheduledGolfTimes", "dbo");
+                    b.ToTable("ScheduledGolfTimes", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.StandingTeeTimeRequest", b =>
@@ -337,7 +337,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("StandingTeeTimeRequests", "dbo");
+                    b.ToTable("StandingTeeTimeRequests", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.User", b =>
@@ -380,7 +380,7 @@ namespace TeeTime.Migrations
 
                     b.HasIndex("RoleID");
 
-                    b.ToTable("Users", "dbo");
+                    b.ToTable("Users", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.Member", b =>

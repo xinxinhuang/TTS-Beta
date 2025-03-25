@@ -4,13 +4,20 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Debug connection string
+Console.WriteLine($"CONNECTION STRING: {builder.Configuration.GetConnectionString("TeeTimeDatabase")}");
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
 // Add database context
-builder.Services.AddDbContext<TeeTimeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TeeTimeDatabase")));
+builder.Services.AddDbContext<TeeTimeDbContext>(options => {
+    var connStr = builder.Configuration.GetConnectionString("TeeTimeDatabase");
+    Console.WriteLine($"EF USING: {connStr}");
+    options.UseSqlServer(connStr,
+        sqlOptions => sqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "Beta"));
+});
 
 // Add cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -48,6 +55,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.Use((context, next) =>
+{
+    context.Request.Scheme = "https";
+    return next();
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

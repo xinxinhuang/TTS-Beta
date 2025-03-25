@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Migrations;
 using TeeTime.Models;
 
 namespace TeeTime.Data
@@ -8,6 +10,7 @@ namespace TeeTime.Data
         public TeeTimeDbContext(DbContextOptions<TeeTimeDbContext> options)
             : base(options)
         {
+            // Configure migration history table in the constructor if needed
         }
 
         public DbSet<Role> Roles { get; set; }
@@ -20,9 +23,11 @@ namespace TeeTime.Data
         public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
         public DbSet<Event> Events { get; set; }
 
+        // Configuration is handled in Program.cs
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.HasDefaultSchema("Beta");
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)

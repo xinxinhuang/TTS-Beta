@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "TeeTime.Controllers.TeeTimeApiController",
+    "Method": "GetAvailability",
+    "RelativePath": "api/teetime/availability",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
