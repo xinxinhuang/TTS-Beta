@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TeeTime.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using TeeTime.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddDbContext<TeeTimeDbContext>(options => {
     options.UseSqlServer(connStr,
         sqlOptions => sqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "Beta"));
 });
+
+// Register services
+builder.Services.AddScoped<ITeeTimeService, TeeTimeService>();
 
 // Add cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

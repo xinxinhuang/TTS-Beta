@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TeeTime.Data;
 using TeeTime.Models;
+using TeeTime.Services;
 
 namespace TeeTime.Pages
 {
@@ -17,10 +18,12 @@ namespace TeeTime.Pages
     public class TeeTimeBookTeeTimeModel : PageModel
     {
         private readonly TeeTimeDbContext _context;
+        private readonly ITeeTimeService _teeTimeService;
 
-        public TeeTimeBookTeeTimeModel(TeeTimeDbContext context)
+        public TeeTimeBookTeeTimeModel(TeeTimeDbContext context, ITeeTimeService teeTimeService)
         {
             _context = context;
+            _teeTimeService = teeTimeService;
             ConfirmationNumber = string.Empty; // Initialize to empty string
         }
 
@@ -70,9 +73,7 @@ namespace TeeTime.Pages
             }
 
             // Find the member associated with this user
-            return await _context.Members
-                .Include(m => m.MembershipCategory)
-                .FirstOrDefaultAsync(m => m.UserID == userId);
+            return await _teeTimeService.GetMemberByUserIdAsync(userId);
         }
 
         public async Task<IActionResult> OnGetAsync(DateTime? startDate = null)
@@ -114,46 +115,16 @@ namespace TeeTime.Pages
 
             // Load all tee times for the week with reservations
             var endDate = startDate.AddDays(7);
-            var teeTimes = await _context.ScheduledGolfTimes
-                .Include(t => t.Reservations)
-                    .ThenInclude(r => r.Member)
-                        .ThenInclude(m => m.User)
-                .Include(t => t.Event)
-                .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
-                .OrderBy(t => t.ScheduledDate)
-                .ThenBy(t => t.ScheduledTime)
-                .ToListAsync();
-
-            // Group by date
-            foreach (var teeTime in teeTimes)
-            {
-                var date = teeTime.ScheduledDate.Date;
-                if (!TeeSheets.ContainsKey(date))
-                {
-                    TeeSheets[date] = new List<ScheduledGolfTime>();
-                }
-                TeeSheets[date].Add(teeTime);
-
-                // Store event names in the dictionary for easy access
-                if (!teeTime.IsAvailable && teeTime.EventID.HasValue)
-                {
-                    Events[teeTime.ScheduledGolfTimeID] = teeTime.Event?.EventName ?? "Special Event";
-                }
-                else if (!teeTime.IsAvailable && teeTime.Reservations != null && !teeTime.Reservations.Any())
-                {
-                    Events[teeTime.ScheduledGolfTimeID] = "Blocked";
-                }
-            }
+            TeeSheets = await _teeTimeService.GetTeeSheetDataAsync(startDate, endDate);
+            
+            // Get events for all tee times
+            var allTeeTimes = TeeSheets.Values.SelectMany(list => list).ToList();
+            Events = await _teeTimeService.GetEventsForTeeTimesAsync(allTeeTimes);
         }
 
         private async Task LoadUserReservationsAsync(int memberId)
         {
-            UserReservations = await _context.Reservations
-                .Where(r => r.MemberID == memberId && r.ReservationStatus != "Cancelled")
-                .Include(r => r.ScheduledGolfTime)
-                .OrderBy(r => r.ScheduledGolfTime.ScheduledDate)
-                .ThenBy(r => r.ScheduledGolfTime.ScheduledTime)
-                .ToListAsync();
+            UserReservations = await _teeTimeService.GetUserReservationsAsync(memberId);
         }
 
         public async Task<IActionResult> OnPostBookTimeAsync()
@@ -172,40 +143,17 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
 
-            // Verify the selected time is still available
-            var selectedTime = await _context.ScheduledGolfTimes.FindAsync(SelectedTimeId);
-            if (selectedTime == null || !selectedTime.IsAvailable)
-            {
-                ModelState.AddModelError("SelectedTimeId", "This tee time is no longer available");
-                StartDate = SelectedDate.Date;
-                await LoadTeeSheetDataAsync(StartDate);
-                await LoadUserReservationsAsync(member.MemberID);
-                return Page();
-            }
-
-            // Create the reservation
-            var reservation = new Reservation
-            {
-                MemberID = member.MemberID,
-                ScheduledGolfTimeID = SelectedTimeId,
-                ReservationMadeDate = DateTime.Now,
-                ReservationStatus = "Confirmed",
-                NumberOfPlayers = NumberOfPlayers,
-                NumberOfCarts = NumberOfCarts
-            };
-
             try
             {
-                _context.Reservations.Add(reservation);
+                // Use the service to create the reservation
+                var reservation = await _teeTimeService.CreateReservationAsync(
+                    member.MemberID, 
+                    SelectedTimeId, 
+                    NumberOfPlayers, 
+                    NumberOfCarts);
                 
-                // Update the scheduled time to be unavailable if fully booked
-                if (await IsTimeFullyBookedAsync(selectedTime.ScheduledGolfTimeID))
-                {
-                    selectedTime.IsAvailable = false;
-                    _context.ScheduledGolfTimes.Update(selectedTime);
-                }
-
-                await _context.SaveChangesAsync();
+                // Get the tee time details for confirmation
+                var selectedTime = await _teeTimeService.GetTeeTimeByIdAsync(SelectedTimeId);
                 
                 // Store confirmation data in TempData so it persists after redirect
                 TempData["BookingConfirmed"] = true;
@@ -250,33 +198,11 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
 
-            // Find the reservation
-            var reservation = await _context.Reservations
-                .Include(r => r.ScheduledGolfTime)
-                .FirstOrDefaultAsync(r => r.ReservationID == ReservationToCancel && r.MemberID == member.MemberID);
-
-            if (reservation == null)
-            {
-                TempData["ErrorMessage"] = "Reservation not found or you don't have permission to cancel it.";
-                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
-            }
-
             try
             {
-                // Update reservation status
-                reservation.ReservationStatus = "Cancelled";
-                _context.Reservations.Update(reservation);
-
-                // Update the tee time to be available again
-                var teeTime = reservation.ScheduledGolfTime;
-                if (teeTime != null && !teeTime.IsAvailable)
-                {
-                    teeTime.IsAvailable = true;
-                    _context.ScheduledGolfTimes.Update(teeTime);
-                }
-
-                await _context.SaveChangesAsync();
-
+                // Use the service to cancel the reservation
+                await _teeTimeService.CancelReservationAsync(ReservationToCancel, member.MemberID);
+                
                 TempData["SuccessMessage"] = "Your reservation has been successfully cancelled.";
                 
                 // Reload user's reservations
@@ -306,94 +232,17 @@ namespace TeeTime.Pages
                 return new List<ScheduledGolfTime>();
             }
 
-            // Get all available tee times for the selected date
-            var allTimes = await _context.ScheduledGolfTimes
-                .Where(t => t.ScheduledDate.Date == date.Date && t.IsAvailable)
-                .OrderBy(t => t.ScheduledTime)
-                .ToListAsync();
-
-            // Filter times based on membership level
-            var filteredTimes = FilterTeeTimesByMembershipLevel(allTimes, member.MembershipCategory);
-
-            return filteredTimes;
-        }
-
-        private List<ScheduledGolfTime> FilterTeeTimesByMembershipLevel(List<ScheduledGolfTime> allTimes, MembershipCategory? membershipCategory)
-        {
-            // Apply time restrictions based on membership level
-            // This is a simplified implementation - modify as needed based on actual business rules
-            
-            if (membershipCategory == null)
-            {
-                return new List<ScheduledGolfTime>();
-            }
-
-            // For example, if membership name is "Gold", show all times
-            if (membershipCategory.MembershipName == "Gold")
-            {
-                return allTimes;
-            }
-            
-            // For "Silver", filter out prime time slots on weekends
-            else if (membershipCategory.MembershipName == "Silver")
-            {
-                bool isWeekend = SelectedDate.DayOfWeek == DayOfWeek.Saturday || SelectedDate.DayOfWeek == DayOfWeek.Sunday;
-                
-                if (isWeekend)
-                {
-                    // Restrict weekend morning tee times (before noon)
-                    return allTimes.Where(t => t.ScheduledTime.Hours >= 12).ToList();
-                }
-                
-                return allTimes;
-            }
-            
-            // For "Bronze", more restrictions
-            else if (membershipCategory.MembershipName == "Bronze")
-            {
-                bool isWeekend = SelectedDate.DayOfWeek == DayOfWeek.Saturday || SelectedDate.DayOfWeek == DayOfWeek.Sunday;
-                
-                if (isWeekend)
-                {
-                    // Only allow afternoon tee times on weekends (after 2pm)
-                    return allTimes.Where(t => t.ScheduledTime.Hours >= 14).ToList();
-                }
-                
-                // Restrict weekday morning tee times (before 10am)
-                return allTimes.Where(t => t.ScheduledTime.Hours >= 10).ToList();
-            }
-            
-            // Default case - if membership doesn't match known categories
-            return allTimes;
+            return await _teeTimeService.GetAvailableTeeTimesAsync(date, member);
         }
 
         private async Task<bool> IsTimeFullyBookedAsync(int scheduledGolfTimeId)
         {
-            // This is a simplified check - you may need to consider GolfSessionInterval and other factors
-            int bookedPlayers = await _context.Reservations
-                .Where(r => r.ScheduledGolfTimeID == scheduledGolfTimeId)
-                .SumAsync(r => r.NumberOfPlayers);
-
-            // Max players per tee time (e.g., 4 golfers per tee time)
-            return bookedPlayers >= 4;
+            return await _teeTimeService.IsTimeFullyBookedAsync(scheduledGolfTimeId);
         }
 
         private async Task<bool> IsDateFullyBookedAsync(DateTime date)
         {
-            // Check if all tee times for the given date are booked
-            var teeTimesForDate = await _context.ScheduledGolfTimes
-                .Where(t => t.ScheduledDate.Date == date.Date)
-                .ToListAsync();
-            
-            // If there are no tee times for this date yet, it's not fully booked
-            if (!teeTimesForDate.Any())
-                return false;
-            
-            // Count available tee times
-            int availableTeeTimesCount = teeTimesForDate.Count(t => t.IsAvailable);
-            
-            // If no available tee times, the date is fully booked
-            return availableTeeTimesCount == 0;
+            return await _teeTimeService.IsDateFullyBookedAsync(date);
         }
     }
 }
