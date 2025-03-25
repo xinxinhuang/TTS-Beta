@@ -237,7 +237,14 @@
                                     <td>@week.StartDate.ToString("MMMM d, yyyy")</td>
                                     <td>@week.TeeTimeCount</td>
                                     <td>
-                                        <a asp-page="./View" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")" class="btn btn-sm btn-primary">View</a>
+                                        <div class="d-flex">
+                                            <a class="btn btn-sm btn-primary me-2" asp-page="./View" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">View</a>
+                                            <a class="btn btn-sm btn-danger delete-teesheet" href="#" 
+                                               data-bs-toggle="modal" 
+                                               data-bs-target="#deleteTeesheetModal" 
+                                               data-start-date="@week.StartDate.ToString("yyyy-MM-dd")"
+                                               data-week-display="@week.StartDate.ToString("MMMM d, yyyy")">Delete</a>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -247,6 +254,31 @@
             </div>
         </div>
     }
+</div>
+
+<!-- Delete Teesheet Confirmation Modal -->
+<div class="modal fade" id="deleteTeesheetModal" tabindex="-1" aria-labelledby="deleteTeesheetModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTeesheetModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the tee sheet for the week of <span id="deleteWeekDisplay"></span>?</p>
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i> This will permanently delete all tee times and reservations for this week. This action cannot be undone.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post">
+          <input type="hidden" id="deleteStartDate" name="startDate" />
+          <button type="submit" class="btn btn-danger" asp-page-handler="DeleteTeeSheet">Delete Tee Sheet</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 @section Scripts {
@@ -331,6 +363,15 @@
                     alert('End time must be after start time.');
                     $('#endTimeDropdown').val('');
                 }
+            });
+            
+            // Set up delete teesheet modal
+            $('.delete-teesheet').click(function() {
+                var startDate = $(this).data('start-date');
+                var weekDisplay = $(this).data('week-display');
+                
+                $('#deleteStartDate').val(startDate);
+                $('#deleteWeekDisplay').text(weekDisplay);
             });
         });
     </script>
