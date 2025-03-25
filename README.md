@@ -28,28 +28,32 @@ A comprehensive golf course management system for handling tee times, member res
 - **Backend**: ASP.NET Core with Razor Pages
 - **Database**: SQL Server with Entity Framework Core
 - **Frontend**: Bootstrap 5, jQuery, JavaScript
-- **Authentication**: ASP.NET Core Identity
+- **Authentication**: Custom authentication system
 
-## Installation
+## Installation and Setup
 1. Clone repository:
    ```bash
    git clone https://github.com/xinxinhuang/TTS-Beta.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd TTS-Beta/teetime
+   cd TeeTime
    ```
-3. Database setup:
+3. Build the project:
+   ```bash
+   dotnet build
+   ```
+4. Update the database:
    ```bash
    dotnet ef database update
    ```
-4. Run application:
+5. Run application:
    ```bash
    dotnet run
    ```
 
 ## Usage
-1. Access the application at `https://localhost:5001`
+1. Access the application at the URL shown in the console after running `dotnet run` (typically something like `http://localhost:5000` or `https://localhost:5001`)
 2. Login with appropriate credentials based on role:
    - Clerk: Access to manage daily operations
    - Pro Shop Staff: Manage tee sheet and events
@@ -81,33 +85,30 @@ TeeTime/
 └── wwwroot/            # Static assets
 ```
 
-## Recent Improvements
-- Fixed event handling to maintain page context after adding/deleting events
-- Corrected timezone issues in event date handling
-- Enhanced user experience with confirmation modals
-- Improved redirection logic to maintain user context
-
 ## Test Accounts
 For development and testing purposes, the following accounts are available:
 
 ### Staff Accounts
 | Role | Email | Password | Description |
 |------|-------|----------|-------------|
-| Clerk | clerk@teetime.com | Password123! | Access to daily operations and tee sheet management |
-| Pro Shop Staff | proshop@teetime.com | Password123! | Manages tee times and events |
-| Committee Member | committee@teetime.com | Password123! | Reviews and approves membership upgrades |
+| Clerk | clerk@t.t | 123123 | Access to daily operations and tee sheet management |
+| Committee Member | committee@teetimeclub.com | Password123! | Reviews and approves membership upgrades |
 
-### Member Accounts
+### Member Accounts (Sponsors)
 | Membership Tier | Email | Password | Description |
 |-----------------|-------|----------|-------------|
-| Gold Shareholder | goldshareholder@example.com | Password123! | Premium member with sponsorship and standing tee time privileges |
-| Gold Associate | goldassociate@example.com | Password123! | Premium member with sponsorship and standing tee time privileges |
-| Gold | gold@example.com | Password123! | Basic gold membership |
-| Silver | silver@example.com | Password123! | Standard membership with limited privileges |
-| Bronze | bronze@example.com | Password123! | Basic membership with restricted access |
-| Copper | copper@example.com | Password123! | Entry-level membership with minimal privileges |
+| Gold Shareholder | sponsor1@teetimeclub.com | Password123! | Premium member with sponsorship and standing tee time privileges |
+| Gold Shareholder | sponsor2@teetimeclub.com | Password123! | Premium member with sponsorship and standing tee time privileges |
+| Gold Associate | sponsor3@teetimeclub.com | Password123! | Premium member with sponsorship and standing tee time privileges |
+| Gold Associate | sponsor4@teetimeclub.com | Password123! | Premium member with sponsorship and standing tee time privileges |
 
 *Note: These are test accounts with standardized passwords for development purposes only. In production, secure password policies should be enforced.*
+
+## Troubleshooting
+- If you see warnings about "Failed to determine the https port for redirect" in development, you can either:
+  - Configure the HTTPS port explicitly in Program.cs
+  - Remove the `app.UseHttpsRedirection()` line if not using HTTPS in development
+- Build warnings about "Dereference of a possibly null reference" can be addressed by adding proper null checks in the code
 
 ## Contributing
 1. Fork the repository
