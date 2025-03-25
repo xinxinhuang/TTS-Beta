@@ -13,13 +13,13 @@ namespace TeeTime.Services
         Task<Dictionary<DateTime, List<ScheduledGolfTime>>> GetTeeSheetDataAsync(DateTime startDate, DateTime endDate);
         Task<Dictionary<int, string>> GetEventsForTeeTimesAsync(IEnumerable<ScheduledGolfTime> teeTimes);
         Task<List<Reservation>> GetUserReservationsAsync(int memberId);
-        Task<ScheduledGolfTime> GetTeeTimeByIdAsync(int teeTimeId);
+        Task<ScheduledGolfTime?> GetTeeTimeByIdAsync(int teeTimeId);
         Task<bool> IsTimeFullyBookedAsync(int scheduledGolfTimeId);
         Task<bool> IsDateFullyBookedAsync(DateTime date);
         Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member member);
         Task<Reservation> CreateReservationAsync(int memberId, int teeTimeId, int numberOfPlayers, int numberOfCarts);
         Task<bool> CancelReservationAsync(int reservationId, int memberId);
-        Task<Member> GetMemberByUserIdAsync(int userId);
+        Task<Member?> GetMemberByUserIdAsync(int userId);
     }
 
     public class TeeTimeService : ITeeTimeService
@@ -36,7 +36,7 @@ namespace TeeTime.Services
             var teeTimes = await _context.ScheduledGolfTimes
                 .Include(t => t.Reservations)
                     .ThenInclude(r => r.Member)
-                        .ThenInclude(m => m.User)
+                        .ThenInclude(m => m!.User)
                 .Include(t => t.Event)
                 .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate < endDate)
                 .OrderBy(t => t.ScheduledDate)
@@ -82,12 +82,12 @@ namespace TeeTime.Services
             return await _context.Reservations
                 .Where(r => r.MemberID == memberId && r.ReservationStatus != "Cancelled")
                 .Include(r => r.ScheduledGolfTime)
-                .OrderBy(r => r.ScheduledGolfTime.ScheduledDate)
-                .ThenBy(r => r.ScheduledGolfTime.ScheduledTime)
+                .OrderBy(r => r.ScheduledGolfTime!.ScheduledDate)
+                .ThenBy(r => r.ScheduledGolfTime!.ScheduledTime)
                 .ToListAsync();
         }
 
-        public async Task<ScheduledGolfTime> GetTeeTimeByIdAsync(int teeTimeId)
+        public async Task<ScheduledGolfTime?> GetTeeTimeByIdAsync(int teeTimeId)
         {
             return await _context.ScheduledGolfTimes.FindAsync(teeTimeId);
         }
@@ -135,6 +135,11 @@ namespace TeeTime.Services
                 .ToListAsync();
 
             // Filter times based on membership level
+            if (member.MembershipCategory == null)
+            {
+                return new List<ScheduledGolfTime>();
+            }
+            
             return FilterTeeTimesByMembershipLevel(allTimes, member.MembershipCategory);
         }
 
@@ -247,7 +252,7 @@ namespace TeeTime.Services
             return true;
         }
 
-        public async Task<Member> GetMemberByUserIdAsync(int userId)
+        public async Task<Member?> GetMemberByUserIdAsync(int userId)
         {
             return await _context.Members
                 .Include(m => m.MembershipCategory)

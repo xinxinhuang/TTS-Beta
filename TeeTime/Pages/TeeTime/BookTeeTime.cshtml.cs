@@ -133,7 +133,11 @@ namespace TeeTime.Pages
             {
                 StartDate = SelectedDate.Date;
                 await LoadTeeSheetDataAsync(StartDate);
-                await LoadUserReservationsAsync((await GetCurrentMemberAsync()).MemberID);
+                var currentMember = await GetCurrentMemberAsync();
+                if (currentMember != null)
+                {
+                    await LoadUserReservationsAsync(currentMember.MemberID);
+                }
                 return Page();
             }
 
@@ -178,7 +182,11 @@ namespace TeeTime.Pages
                 // Reload available times on failure
                 StartDate = SelectedDate.Date;
                 await LoadTeeSheetDataAsync(StartDate);
-                await LoadUserReservationsAsync(member.MemberID);
+                var currentMember = await GetCurrentMemberAsync();
+                if (currentMember != null)
+                {
+                    await LoadUserReservationsAsync(currentMember.MemberID);
+                }
                 
                 return Page();
             }
