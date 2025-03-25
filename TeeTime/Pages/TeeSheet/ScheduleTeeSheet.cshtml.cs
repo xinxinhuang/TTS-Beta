@@ -28,10 +28,8 @@ namespace TeeTime.Pages.TeeSheet
         private TimeSpan FirstTeeTime { get; } = new TimeSpan(7, 0, 0); // 7:00 AM
         private TimeSpan LastTeeTime { get; } = new TimeSpan(18, 0, 0); // 6:00 PM
 
-        [BindProperty]
-        [Required(ErrorMessage = "Interval is required")]
-        [Range(8, 15, ErrorMessage = "Interval must be between 8 and 15 minutes")]
-        public int Interval { get; set; } = 8;
+        // Fixed intervals at: 00, 07, 15, 22, 30, 37, 45, 52 minutes
+        private readonly int[] _fixedIntervals = { 0, 7, 15, 22, 30, 37, 45, 52 };
 
         public DateTime? WeekStartDate { get; set; }
         
@@ -107,26 +105,33 @@ namespace TeeTime.Pages.TeeSheet
         Date = currentDate,
         StartTime = morningStart,
         EndTime = eveningEnd,
-        IntervalMinutes = Interval,
+        IntervalMinutes = 7, // We're using fixed intervals, but setting a nominal value
         IsActive = true
                 };
 
         _context.TeeSheets.Add(teeSheet);
         await _context.SaveChangesAsync(); // Save to get the TeeSheet ID
 
-                // Now create tee times
-            DateTime currentTime = morningStart;
-            while (currentTime <= eveningEnd)
+                // Now create tee times using fixed intervals
+            for (int hour = morningStart.Hour; hour <= eveningEnd.Hour; hour++) 
             {
-                var teeTime = new Models.TeeSheet.TeeTime
+                foreach (int minutes in _fixedIntervals)
                 {
-                        StartTime = currentTime,
-                    TeeSheetId = teeSheet.Id,
+                    var teeTime = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, hour, minutes, 0);
+                    
+                    // Skip times before morning start or after evening end
+                    if (teeTime < morningStart || teeTime > eveningEnd)
+                        continue;
+                        
+                    var teeTimeEntry = new Models.TeeSheet.TeeTime
+                    {
+                        StartTime = teeTime,
+                        TeeSheetId = teeSheet.Id,
                         IsAvailable = true
-                };
+                    };
 
-                    _context.TeeTimes.Add(teeTime);
-                    currentTime = currentTime.AddMinutes(Interval);
+                    _context.TeeTimes.Add(teeTimeEntry);
+                }
             }
         }
 

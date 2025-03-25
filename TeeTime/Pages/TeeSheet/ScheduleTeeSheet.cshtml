@@ -40,16 +40,15 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label asp-for="Interval" class="control-label">Interval (minutes)</label>
-                                    <input asp-for="Interval" type="number" class="form-control" min="8" max="15" step="1" />
-                                    <span asp-validation-for="Interval" class="text-danger"></span>
+                                    <label class="control-label">Time Intervals</label>
+                                    <p class="form-text text-primary">Fixed at: 00, 07, 15, 22, 30, 37, 45, 52 minutes</p>
                                 </div>
                             </div>
                         </div>
                         <div class="row mt-2">
                             <div class="col-12">
                                 <p class="form-text text-muted">
-                                    Tee times will be generated from 7:00 AM to 6:00 PM for each day of the week starting from the selected date.
+                                    Tee times will be generated from 7:00 AM to 6:00 PM for each day of the week starting from the selected date, at fixed intervals (00, 07, 15, 22, 30, 37, 45, 52 minutes of each hour).
                                 </p>
                             </div>
                         </div>
