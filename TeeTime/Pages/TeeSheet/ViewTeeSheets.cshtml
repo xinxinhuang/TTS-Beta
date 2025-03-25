@@ -1,0 +1,224 @@
+@page
+@model TeeTime.Pages.TeeSheet.ViewTeeSheetsModel
+@{
+    ViewData["Title"] = "View Tee Sheets";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>View & Manage Tee Sheets</h2>
+        <a asp-page="./Index" class="btn btn-secondary">Back to Tee Sheet Management</a>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.PublishedWeeks.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Published Tee Sheets</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Week Starting</th>
+                                <th>Number of Tee Times</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var week in Model.PublishedWeeks)
+                            {
+                                <tr class="@(Model.WeekStartDate.HasValue && week.StartDate == Model.WeekStartDate.Value ? "table-active" : "")">
+                                    <td>@week.StartDate.ToString("MMMM d, yyyy")</td>
+                                    <td>@week.TeeTimeCount</td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <a class="btn btn-sm btn-primary me-2" asp-page="./ViewTeeSheets" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">View</a>
+                                            <a class="btn btn-sm btn-success me-2" asp-page="./ManageEvents" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">Events</a>
+                                            <button type="button" class="btn btn-sm btn-danger delete-teesheet" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteTeesheetModal" 
+                                                data-start-date="@week.StartDate.ToString("yyyy-MM-dd")"
+                                                data-week-display="@week.StartDate.ToString("MMMM d, yyyy")">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mb-4">
+            No tee sheets have been published yet. <a asp-page="./ScheduleTeeSheet" class="alert-link">Create a new tee sheet</a>.
+        </div>
+    }
+    
+    @if (Model.WeekStartDate.HasValue)
+    {
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Tee Sheet - Week of @Model.WeekStartDate.Value.ToString("MMMM d, yyyy")</h5>
+                </div>
+                <ul class="nav nav-tabs card-header-tabs mt-2" id="teeSheetTabs" role="tablist">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.WeekStartDate.Value.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @isActive" id="@dayName-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#@dayName" type="button" role="tab" 
+                                    aria-controls="@dayName" aria-selected="@(i == 0 ? "true" : "false")">
+                                @dayName<br/>@date.ToString("MM/dd")
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="teeSheetTabContent">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.WeekStartDate.Value.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <div class="tab-pane fade show @isActive" id="@dayName" role="tabpanel" aria-labelledby="@dayName-tab">
+                            <h4>@dayName - @date.ToString("MMMM d, yyyy")</h4>
+                            
+                            @if (Model.TeeSheets.TryGetValue(date.Date, out var teeTimesForDay))
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                                <th>Special Event/Tournament</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.StartTime))
+                                            {
+                                                <tr>
+                                                    <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
+                                                    <td>
+                                                        @if (teeTime.IsAvailable)
+                                                        {
+                                                            <span class="badge bg-success">Available</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">Blocked</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (!teeTime.IsAvailable)
+                                                        {
+                                                            <span>@(Model.Events.TryGetValue(teeTime.Id, out var eventName) ? eventName : "Blocked")</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" class="d-inline">
+                                                            <input type="hidden" name="TeeTimeId" value="@teeTime.Id" />
+                                                            <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />
+                                                            @if (teeTime.IsAvailable)
+                                                            {
+                                                                <button type="submit" asp-page-handler="Block" class="btn btn-sm btn-warning">Block</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button type="submit" asp-page-handler="Unblock" class="btn btn-sm btn-success">Unblock</button>
+                                                            }
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    No tee times have been generated for this day.
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <a asp-page="./ManageEvents" asp-route-startDate="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" class="btn btn-success">Manage Events</a>
+                <a asp-page="./ScheduleTeeSheet" class="btn btn-primary ml-2">Schedule New Tee Sheet</a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Delete Teesheet Confirmation Modal -->
+<div class="modal fade" id="deleteTeesheetModal" tabindex="-1" aria-labelledby="deleteTeesheetModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTeesheetModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the tee sheet for the week of <span id="deleteWeekDisplay"></span>?</p>
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i> This will permanently delete all tee times and reservations for this week. This action cannot be undone.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post">
+          <input type="hidden" id="deleteStartDate" name="startDate" />
+          <button type="submit" class="btn btn-danger" asp-page-handler="DeleteTeeSheet">Delete Tee Sheet</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Set up delete teesheet modal
+            $('.delete-teesheet').click(function() {
+                var startDate = $(this).data('start-date');
+                var weekDisplay = $(this).data('week-display');
+                
+                $('#deleteStartDate').val(startDate);
+                $('#deleteWeekDisplay').text(weekDisplay);
+            });
+        });
+    </script>
+}

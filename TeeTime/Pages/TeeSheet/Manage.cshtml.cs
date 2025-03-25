@@ -77,17 +77,10 @@ namespace TeeTime.Pages.TeeSheet
             public int TeeTimeCount { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync(DateTime? startDate = null)
+        public IActionResult OnGetAsync(DateTime? startDate = null)
         {
-            if (startDate.HasValue)
-            {
-                WeekStartDate = startDate.Value.Date;
-                await LoadTeeSheetDataAsync(WeekStartDate.Value);
-            }
-
-            await LoadPublishedWeeksAsync();
-            
-            return Page();
+            TempData["InfoMessage"] = "The tee sheet management page has been redesigned. You've been redirected to the new interface.";
+            return RedirectToPage("./Index");
         }
 
         public async Task<IActionResult> OnPostGenerateAsync()

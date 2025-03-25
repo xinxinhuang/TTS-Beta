@@ -1,0 +1,402 @@
+@page
+@model TeeTime.Pages.TeeSheet.ManageEventsModel
+@{
+    ViewData["Title"] = "Manage Special Events";
+}
+
+<style>
+    /* Styling for tab that's selected for creating an event */
+    .nav-link.event-selected {
+        border-color: #ffc107 !important;
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    /* Event color indicators */
+    .event-color {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    
+    .event-color-red { background-color: #dc3545; }
+    .event-color-green { background-color: #198754; }
+    .event-color-blue { background-color: #0d6efd; }
+    .event-color-yellow { background-color: #ffc107; }
+    .event-color-purple { background-color: #6f42c1; }
+</style>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Special Events - Week of @Model.StartDate.ToString("MMMM d, yyyy")</h2>
+        <div>
+            <a asp-page="./ViewTeeSheets" asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")" class="btn btn-primary me-2">View Tee Sheet</a>
+            <a asp-page="./Index" class="btn btn-secondary">Back to Tee Sheet Management</a>
+        </div>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Create Special Event</h5>
+        </div>
+        <div class="card-body">
+            <div id="selectedDateDisplay" class="alert alert-info mb-3">
+                Select a day tab below to create an event
+            </div>
+            
+            <form method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="EventName" class="control-label">Event Name</label>
+                            <input asp-for="EventName" type="text" class="form-control" />
+                            <span asp-validation-for="EventName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label for="SelectedStartTime" class="control-label">Start Time</label>
+                            <select asp-for="SelectedStartTime" class="form-control" id="startTimeDropdown">
+                                <option value="">-- Select Start Time --</option>
+                            </select>
+                            <span asp-validation-for="SelectedStartTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label for="SelectedEndTime" class="control-label">End Time</label>
+                            <select asp-for="SelectedEndTime" class="form-control" id="endTimeDropdown">
+                                <option value="">-- Select End Time --</option>
+                            </select>
+                            <span asp-validation-for="SelectedEndTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="EventColor" class="control-label">Event Color</label>
+                            <select asp-for="EventColor" class="form-control" id="eventColor">
+                                <option value="blue">Blue</option>
+                                <option value="green">Green</option>
+                                <option value="red">Red</option>
+                                <option value="yellow">Yellow</option>
+                                <option value="purple">Purple</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <!-- Hidden field for event date that gets set by JavaScript -->
+                <input asp-for="EventDate" type="hidden" id="eventDate" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+                <button type="submit" asp-page-handler="CreateEvent" class="btn btn-success" id="createEventBtn" disabled>
+                    Create Event
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Existing Events Section -->
+    @if (Model.AllEvents.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">Scheduled Events This Week</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Event Name</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Color</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ev in Model.AllEvents.OrderBy(e => e.EventDate).ThenBy(e => e.StartTime))
+                            {
+                                <tr>
+                                    <td>@ev.EventDate.ToString("ddd, MMM d, yyyy")</td>
+                                    <td>@ev.EventName</td>
+                                    <td>@string.Format("{0:hh\\:mm}", ev.StartTime)</td>
+                                    <td>@string.Format("{0:hh\\:mm}", ev.EndTime)</td>
+                                    <td>
+                                        <span class="event-color event-color-@(string.IsNullOrEmpty(ev.EventColor) ? "blue" : ev.EventColor)"></span>
+                                        @(string.IsNullOrEmpty(ev.EventColor) ? "Blue" : char.ToUpper(ev.EventColor[0]) + ev.EventColor.Substring(1))
+                                    </td>
+                                    <td>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="eventId" value="@ev.EventID" />
+                                            <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                                            <button type="submit" asp-page-handler="DeleteEvent" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this event? All blocked tee times will be made available again.')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mb-4">
+            No events have been scheduled for this week yet.
+        </div>
+    }
+    
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="teeSheetTabs" role="tablist">
+                @for (int i = 0; i < 7; i++)
+                {
+                    var date = Model.StartDate.AddDays(i);
+                    var dayName = date.DayOfWeek.ToString();
+                    var isActive = i == 0 ? "active" : "";
+                    
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @isActive" id="@dayName-tab" data-bs-toggle="tab" 
+                                data-bs-target="#@dayName" type="button" role="tab" 
+                                data-date="@date.ToString("yyyy-MM-dd")"
+                                aria-controls="@dayName" aria-selected="@(i == 0 ? "true" : "false")">
+                            @dayName<br/>@date.ToString("MM/dd")
+                        </button>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="teeSheetTabContent">
+                @for (int i = 0; i < 7; i++)
+                {
+                    var date = Model.StartDate.AddDays(i);
+                    var dayName = date.DayOfWeek.ToString();
+                    var isActive = i == 0 ? "active" : "";
+                    
+                    <div class="tab-pane fade show @isActive" id="@dayName" role="tabpanel" aria-labelledby="@dayName-tab">
+                        <h4>@dayName - @date.ToString("MMMM d, yyyy")</h4>
+                        
+                        @if (Model.TeeSheets.TryGetValue(date.Date, out var teeTimesForDay))
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Status</th>
+                                            <th>Event</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.StartTime))
+                                        {
+                                            <tr>
+                                                <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
+                                                <td>
+                                                    @if (teeTime.IsAvailable)
+                                                    {
+                                                        <span class="badge bg-success">Available</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger">Blocked</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (!teeTime.IsAvailable && !string.IsNullOrEmpty(teeTime.Notes))
+                                                    {
+                                                        string color = "blue";
+                                                        string eventName = teeTime.Notes;
+                                                        
+                                                        int parenIndex = teeTime.Notes.LastIndexOf('(');
+                                                        int parenEndIndex = teeTime.Notes.LastIndexOf(')');
+                                                        
+                                                        if (parenIndex > 0 && parenEndIndex > parenIndex)
+                                                        {
+                                                            eventName = teeTime.Notes.Substring(0, parenIndex).Trim();
+                                                            color = teeTime.Notes.Substring(parenIndex + 1, parenEndIndex - parenIndex - 1);
+                                                        }
+                                                        
+                                                        <span class="event-color event-color-@color"></span>
+                                                        @eventName
+                                                    }
+                                                    else if (!teeTime.IsAvailable)
+                                                    {
+                                                        <span>Blocked</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                No tee times have been generated for this day.
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            // Get the anti-forgery token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            
+            // Function to safely parse dates to ensure consistent timezone handling
+            function parseLocalDate(dateString) {
+                if (!dateString) return null;
+                
+                // Split the date string into components
+                var parts = dateString.split('-');
+                if (parts.length !== 3) return null;
+                
+                // Create a new date using local timezone (year, month-1, day)
+                // Month is 0-indexed in JavaScript Date
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            
+            // Function to format date as yyyy-MM-dd for API calls
+            function formatDateForApi(date) {
+                return date.getFullYear() + '-' + 
+                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(date.getDate()).padStart(2, '0');
+            }
+            
+            // Initialize tab selection for event creation
+            $('#teeSheetTabs button').click(function() {
+                // Remove selected class from all tabs
+                $('#teeSheetTabs button').removeClass('event-selected');
+                
+                // Add selected class to this tab
+                $(this).addClass('event-selected');
+                
+                // Get the date from the tab's data attribute
+                var selectedDate = $(this).data('date');
+                
+                // Set the event date in the hidden field
+                $('#eventDate').val(selectedDate);
+                
+                // Update the display
+                $('#selectedDateDisplay').text('Creating event for: ' + $(this).text().trim());
+                
+                // Enable the create event button
+                $('#createEventBtn').prop('disabled', false);
+                
+                // Load available times for this date
+                loadAvailableTimes(selectedDate);
+            });
+            
+            // Function to load available times for a selected date
+            function loadAvailableTimes(dateString) {
+                if (!dateString) return;
+                
+                $.ajax({
+                    url: '?handler=AvailableTimes',
+                    data: { date: dateString },
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function(data) {
+                        const startDropdown = $('#startTimeDropdown');
+                        const endDropdown = $('#endTimeDropdown');
+                        
+                        // Clear existing options
+                        startDropdown.empty();
+                        endDropdown.empty();
+                        
+                        // Add default option
+                        startDropdown.append($('<option>', {
+                            value: '',
+                            text: '-- Select Start Time --'
+                        }));
+                        
+                        endDropdown.append($('<option>', {
+                            value: '',
+                            text: '-- Select End Time --'
+                        }));
+                        
+                        // Add time options
+                        if (data && data.length > 0) {
+                            $.each(data, function(i, time) {
+                                startDropdown.append($('<option>', {
+                                    value: time.time,
+                                    text: time.time
+                                }));
+                                
+                                endDropdown.append($('<option>', {
+                                    value: time.time,
+                                    text: time.time
+                                }));
+                            });
+                        } else {
+                            startDropdown.append($('<option>', {
+                                value: '',
+                                text: 'No available times'
+                            }));
+                            
+                            endDropdown.append($('<option>', {
+                                value: '',
+                                text: 'No available times'
+                            }));
+                        }
+                    },
+                    error: function() {
+                        alert('Error loading available times. Please try again.');
+                    }
+                });
+            }
+            
+            // Validation for end time after start time
+            $('#startTimeDropdown, #endTimeDropdown').on('change', function() {
+                const startTime = $('#startTimeDropdown').val();
+                const endTime = $('#endTimeDropdown').val();
+                
+                if (startTime && endTime && startTime >= endTime) {
+                    alert('End time must be after start time.');
+                    $('#endTimeDropdown').val('');
+                }
+            });
+            
+            // Initialize first tab as selected if no tab is already selected
+            if (!$('#teeSheetTabs button.event-selected').length) {
+                // Automatically click the first tab to set up the date
+                $('#teeSheetTabs button.active').click();
+            }
+        });
+    </script>
+}
