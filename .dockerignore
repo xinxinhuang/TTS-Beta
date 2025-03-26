@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# VS and VS Code
+.vs/
+.vscode/
+**/*.user
+**/*.suo
+
+# Build results
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
+**/[Ll]ogs/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NuGet Packages
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+# Publish Web Output
+**/[Pp]ublish/
+**/[Pp]ublished/
+**/wwwroot/[Ss]tats/
+
+# Node.js Tools
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Local development files
+*.env
+*.local
+appsettings.Development.json
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Editor backups
+*~
+*.swp
+*.swo
+
+# Others
+.DS_Store
+*.zip
+*.tar.gz
+*.rar
