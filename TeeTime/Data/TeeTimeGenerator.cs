@@ -73,9 +73,64 @@ namespace TeeTime.Data
                     continue;
                 }
 
+                // Get applicable standing tee time requests for this day
+                var dayOfWeek = date.DayOfWeek.ToString();
+                var standingRequests = await context.StandingTeeTimeRequests
+                    .Where(r => r.DayOfWeek == dayOfWeek &&
+                               r.StartDate <= date &&
+                               r.EndDate >= date &&
+                               r.ApprovedTeeTime != null &&
+                               r.ApprovedByUserID != null)
+                    .OrderBy(r => r.PriorityNumber)
+                    .ToListAsync();
+
+                Console.WriteLine($"Found {standingRequests.Count} standing tee time requests for {date.ToShortDateString()}");
+
                 // Calculate number of tee times to generate for this day
                 var currentTime = dailyStartTime;
                 var timeIncrement = TimeSpan.FromMinutes(intervalMinutes);
+
+                // Create a dictionary to keep track of which times are reserved for standing requests
+                var reservedTimes = new Dictionary<TimeSpan, StandingTeeTimeRequest>();
+
+                // Pre-reserve times for standing requests based on their priority
+                foreach (var request in standingRequests)
+                {
+                    if (request.ApprovedTeeTime.HasValue)
+                    {
+                        // Round to nearest interval
+                        var approvedTime = request.ApprovedTeeTime.Value;
+                        var minutesRemainder = approvedTime.Minutes % intervalMinutes;
+                        var roundedTime = approvedTime;
+                        
+                        if (minutesRemainder > 0)
+                        {
+                            if (minutesRemainder >= intervalMinutes / 2)
+                            {
+                                // Round up
+                                roundedTime = new TimeSpan(
+                                    approvedTime.Hours,
+                                    approvedTime.Minutes + (intervalMinutes - minutesRemainder),
+                                    0);
+                            }
+                            else
+                            {
+                                // Round down
+                                roundedTime = new TimeSpan(
+                                    approvedTime.Hours,
+                                    approvedTime.Minutes - minutesRemainder,
+                                    0);
+                            }
+                        }
+                        
+                        // Check if this time is within the allowed range
+                        if (roundedTime >= dailyStartTime && roundedTime <= dailyEndTime)
+                        {
+                            reservedTimes[roundedTime] = request;
+                            Console.WriteLine($"Reserved {roundedTime} for standing request ID {request.RequestID}");
+                        }
+                    }
+                }
 
                 while (currentTime <= dailyEndTime)
                 {
@@ -89,6 +144,17 @@ namespace TeeTime.Data
                         TotalPlayersBooked = 0,
                         Notes = string.Empty
                     };
+                    
+                    // Check if this time is reserved for a standing request
+                    if (reservedTimes.TryGetValue(currentTime, out var standingRequest))
+                    {
+                        // Mark this tee time as reserved for the standing request
+                        teeTime.TotalPlayersBooked = 4; // Foursome
+                        teeTime.Notes = $"Standing tee time for {standingRequest.Member?.User?.FirstName} {standingRequest.Member?.User?.LastName}";
+                        
+                        // Create reservations for this standing tee time
+                        await CreateStandingTeeTimeReservationAsync(context, standingRequest, teeTime);
+                    }
                     
                     // Add to the context
                     context.TeeTimes.Add(teeTime);
@@ -105,6 +171,29 @@ namespace TeeTime.Data
                 
                 Console.WriteLine($"Created {createdCount} tee times for {date.ToShortDateString()}");
             }
+        }
+
+        private static async Task CreateStandingTeeTimeReservationAsync(
+            TeeTimeDbContext context,
+            StandingTeeTimeRequest standingRequest,
+            Models.TeeSheet.TeeTime teeTime)
+        {
+            // Create a reservation record for this standing tee time
+            var reservation = new Reservation
+            {
+                MemberID = standingRequest.MemberID,
+                TeeTimeId = teeTime.Id,
+                NumberOfPlayers = 4,
+                ReservationMadeDate = DateTime.Now,
+                Notes = $"Standing tee time (ID: {standingRequest.RequestID})",
+                IsStandingTeeTime = true,
+                StandingRequestID = standingRequest.RequestID
+            };
+            
+            context.Reservations.Add(reservation);
+            await context.SaveChangesAsync();
+            
+            Console.WriteLine($"Created reservation for standing tee time request {standingRequest.RequestID}");
         }
     }
 }

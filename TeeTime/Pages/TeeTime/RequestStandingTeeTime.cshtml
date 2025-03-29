@@ -1,0 +1,207 @@
+@page
+@model TeeTime.Pages.TeeTimeRequestStandingTeeTimeModel
+@{
+    ViewData["Title"] = "Request Standing Tee Time";
+}
+
+<div class="container mt-4">
+    <h2>Request Standing Tee Time</h2>
+    
+    @if (!Model.IsEligible)
+    {
+        <div class="alert alert-warning">
+            <strong>Notice:</strong> Only Shareholder members are eligible to request standing tee times.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Standing Tee Time Request Form</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Important:</strong> Standing tee times must be for a foursome (4 players total).
+                </div>
+                
+                <form method="post" id="standingTeeTimeForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestData.DayOfWeek" class="form-label">Day of Week</label>
+                                <select asp-for="RequestData.DayOfWeek" class="form-select" required>
+                                    <option value="">Select Day...</option>
+                                    <option value="Sunday">Sunday</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                </select>
+                                <span asp-validation-for="RequestData.DayOfWeek" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestData.DesiredTeeTime" class="form-label">Desired Tee Time</label>
+                                <input asp-for="RequestData.DesiredTeeTime" type="time" class="form-control" required />
+                                <span asp-validation-for="RequestData.DesiredTeeTime" class="text-danger"></span>
+                                <small class="form-text text-muted">We'll try to accommodate within 30 minutes of your requested time.</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestData.StartDate" class="form-label">Start Date</label>
+                                <input asp-for="RequestData.StartDate" type="date" class="form-control" required />
+                                <span asp-validation-for="RequestData.StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestData.EndDate" class="form-label">End Date</label>
+                                <input asp-for="RequestData.EndDate" type="date" class="form-control" required />
+                                <span asp-validation-for="RequestData.EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr />
+                    <h5>Players in Foursome</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Player 1 (Shareholder)</label>
+                        <input type="text" class="form-control" value="@Model.CurrentMemberName" readonly />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="RequestData.Player2ID" class="form-label">Player 2</label>
+                        <select asp-for="RequestData.Player2ID" class="form-select" required asp-items="Model.MemberList">
+                            <option value="">Select Player 2...</option>
+                        </select>
+                        <span asp-validation-for="RequestData.Player2ID" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="RequestData.Player3ID" class="form-label">Player 3</label>
+                        <select asp-for="RequestData.Player3ID" class="form-select" required asp-items="Model.MemberList">
+                            <option value="">Select Player 3...</option>
+                        </select>
+                        <span asp-validation-for="RequestData.Player3ID" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="RequestData.Player4ID" class="form-label">Player 4</label>
+                        <select asp-for="RequestData.Player4ID" class="form-select" required asp-items="Model.MemberList">
+                            <option value="">Select Player 4...</option>
+                        </select>
+                        <span asp-validation-for="RequestData.Player4ID" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <hr />
+        
+        <div class="card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">My Standing Tee Time Requests</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.ExistingRequests.Count == 0)
+                {
+                    <div class="alert alert-info">
+                        You don't have any standing tee time requests yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Requested Time</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Date Range</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in Model.ExistingRequests)
+                                {
+                                    <tr>
+                                        <td>@request.DayOfWeek</td>
+                                        <td>@request.DesiredTeeTime.ToString(@"hh\:mm")</td>
+                                        <td>
+                                            @if (request.ApprovedTeeTime.HasValue)
+                                            {
+                                                <span class="badge bg-success">Approved for @request.ApprovedTeeTime.Value.ToString(@"hh\:mm")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            }
+                                        </td>
+                                        <td>@(request.PriorityNumber?.ToString() ?? "N/A")</td>
+                                        <td>@request.StartDate.ToShortDateString() - @request.EndDate.ToShortDateString()</td>
+                                        <td>
+                                            @if (!request.ApprovedTeeTime.HasValue)
+                                            {
+                                                <form method="post" asp-page-handler="CancelRequest" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                                    <input type="hidden" name="requestId" value="@request.RequestID" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Validate that the three selected players are different
+            $('#standingTeeTimeForm').submit(function(e) {
+                var player2 = $('#RequestData_Player2ID').val();
+                var player3 = $('#RequestData_Player3ID').val();
+                var player4 = $('#RequestData_Player4ID').val();
+                
+                if (player2 === player3 || player2 === player4 || player3 === player4) {
+                    alert('Please select different members for each player position');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Validate that end date is after start date
+                var startDate = new Date($('#RequestData_StartDate').val());
+                var endDate = new Date($('#RequestData_EndDate').val());
+                
+                if (endDate < startDate) {
+                    alert('End date must be after start date');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}
