@@ -28,6 +28,6 @@ namespace TeeTime.Models
         public string EventColor { get; set; } = "blue";
         
         // Navigation property for related tee times
-        public ICollection<ScheduledGolfTime> ScheduledGolfTimes { get; set; } = new List<ScheduledGolfTime>();
+        public ICollection<TeeSheet.TeeTime> TeeTimes { get; set; } = new List<TeeSheet.TeeTime>();
     }
 }

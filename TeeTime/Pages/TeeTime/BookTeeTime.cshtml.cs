@@ -45,14 +45,14 @@ namespace TeeTime.Pages
 
         public bool DateSelected { get; set; } = false;
         public bool BookingConfirmed { get; set; } = false;
-        public TimeSpan ConfirmedTime { get; set; }
+        public DateTime ConfirmedTime { get; set; }
         public string ConfirmationNumber { get; set; }
 
         public DateTime StartDate { get; set; } = DateTime.Today;
         public DateTime EndDate => StartDate.AddDays(6);
         
         // Dictionary of date -> list of tee times for that date
-        public Dictionary<DateTime, List<ScheduledGolfTime>> TeeSheets { get; set; } = new Dictionary<DateTime, List<ScheduledGolfTime>>();
+        public Dictionary<DateTime, List<Models.TeeSheet.TeeTime>> TeeSheets { get; set; } = new Dictionary<DateTime, List<Models.TeeSheet.TeeTime>>();
         
         // Dictionary of tee time ID -> event name
         public Dictionary<int, string> Events { get; set; } = new Dictionary<int, string>();
@@ -97,7 +97,7 @@ namespace TeeTime.Pages
             if (TempData["BookingConfirmed"] != null && TempData["BookingConfirmed"] is bool bookingConfirmed && bookingConfirmed)
             {
                 BookingConfirmed = true;
-                ConfirmedTime = TempData["ConfirmedTime"] is TimeSpan confirmedTime ? confirmedTime : TimeSpan.Zero;
+                ConfirmedTime = TempData["ConfirmedTime"] is DateTime confirmedTime ? confirmedTime : DateTime.MinValue;
                 ConfirmationNumber = TempData["ConfirmationNumber"]?.ToString() ?? string.Empty;
                 NumberOfPlayers = TempData["BookedPlayers"] is int bookedPlayers ? bookedPlayers : 1;
                 NumberOfCarts = TempData["BookedCarts"] is int bookedCarts ? bookedCarts : 0;
@@ -129,8 +129,16 @@ namespace TeeTime.Pages
 
         public async Task<IActionResult> OnPostBookTimeAsync()
         {
+            Console.WriteLine($"OnPostBookTimeAsync called. SelectedTimeId={SelectedTimeId}, NumberOfPlayers={NumberOfPlayers}");
+            
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("Model state is invalid. Errors:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"- {error.ErrorMessage}");
+                }
+                
                 StartDate = SelectedDate.Date;
                 await LoadTeeSheetDataAsync(StartDate);
                 var currentMember = await GetCurrentMemberAsync();
@@ -144,17 +152,23 @@ namespace TeeTime.Pages
             var member = await GetCurrentMemberAsync();
             if (member == null)
             {
+                Console.WriteLine("Member not found. Redirecting to login.");
                 return RedirectToPage("/Account/Login");
             }
+
+            Console.WriteLine($"Member found: MemberID={member.MemberID}");
 
             try
             {
                 // Use the service to create the reservation
+                Console.WriteLine($"Creating reservation: MemberID={member.MemberID}, TeeTimeId={SelectedTimeId}, Players={NumberOfPlayers}, Carts={NumberOfCarts}");
                 var reservation = await _teeTimeService.CreateReservationAsync(
                     member.MemberID, 
                     SelectedTimeId, 
                     NumberOfPlayers, 
                     NumberOfCarts);
+                
+                Console.WriteLine($"Reservation created successfully: ReservationID={reservation.ReservationID}");
                 
                 // Get the tee time details for confirmation
                 var selectedTime = await _teeTimeService.GetTeeTimeByIdAsync(SelectedTimeId);
@@ -164,22 +178,19 @@ namespace TeeTime.Pages
                     return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
                 }
                 
-                // Store confirmation data in TempData so it persists after redirect
-                TempData["BookingConfirmed"] = true;
-                TempData["ConfirmedTime"] = selectedTime.ScheduledTime;
-                TempData["ConfirmationNumber"] = $"TT{reservation.ReservationID:D6}";
-                TempData["BookedPlayers"] = NumberOfPlayers;
-                TempData["BookedCarts"] = NumberOfCarts;
-                TempData["BookedDate"] = selectedTime.ScheduledDate;
+                // Store success message in TempData
                 TempData["SuccessMessage"] = $"Your tee time has been successfully booked! Confirmation #: TT{reservation.ReservationID:D6}";
                 
-                // Redirect to refresh the page completely, ensuring everything is reloaded
-                return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                Console.WriteLine($"Redirecting to ViewReservation page with id={reservation.ReservationID}");
+                
+                // Redirect to the ViewReservation page with the reservation ID
+                return RedirectToPage("./ViewReservation", new { id = reservation.ReservationID });
             }
             catch (Exception ex)
             {
                 // Log the exception
-                Console.WriteLine($"Database error: {ex.Message}");
+                Console.WriteLine($"Error booking tee time: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 
                 // Add error to TempData
                 TempData["ErrorMessage"] = $"Failed to book tee time: {ex.Message}";
@@ -199,12 +210,12 @@ namespace TeeTime.Pages
 
         public async Task<IActionResult> OnPostCancelReservationAsync(string startDate)
         {
-            DateTime startDateTime;
-            if (!DateTime.TryParse(startDate, out startDateTime))
+            if (ReservationToCancel <= 0)
             {
-                startDateTime = DateTime.Today;
+                TempData["ErrorMessage"] = "Invalid reservation ID.";
+                return RedirectToPage(new { startDate = startDate });
             }
-            
+
             var member = await GetCurrentMemberAsync();
             if (member == null)
             {
@@ -213,49 +224,24 @@ namespace TeeTime.Pages
 
             try
             {
-                // Use the service to cancel the reservation
-                await _teeTimeService.CancelReservationAsync(ReservationToCancel, member.MemberID);
+                bool success = await _teeTimeService.CancelReservationAsync(ReservationToCancel, member.MemberID);
                 
-                TempData["SuccessMessage"] = "Your reservation has been successfully cancelled.";
-                
-                // Reload user's reservations
-                await LoadUserReservationsAsync(member.MemberID);
-                
-                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Your tee time has been successfully cancelled.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to cancel the tee time. It may have already been cancelled.";
+                }
             }
             catch (Exception ex)
             {
-                // Log the exception
-                Console.WriteLine($"Database error during cancellation: {ex.Message}");
-                
-                // Add error to TempData
-                TempData["ErrorMessage"] = $"Failed to cancel reservation: {ex.Message}";
-                
-                // Reload user's reservations
-                await LoadUserReservationsAsync(member.MemberID);
-                
-                return RedirectToPage(new { startDate = startDateTime.ToString("yyyy-MM-dd") });
-            }
-        }
-
-        private async Task<List<ScheduledGolfTime>> GetAvailableTeeTimesAsync(DateTime date, Member? member)
-        {
-            if (member == null)
-            {
-                return new List<ScheduledGolfTime>();
+                TempData["ErrorMessage"] = $"Error cancelling reservation: {ex.Message}";
             }
 
-            return await _teeTimeService.GetAvailableTeeTimesAsync(date, member);
-        }
-
-        private async Task<bool> IsTimeFullyBookedAsync(int scheduledGolfTimeId)
-        {
-            return await _teeTimeService.IsTimeFullyBookedAsync(scheduledGolfTimeId);
-        }
-
-        private async Task<bool> IsDateFullyBookedAsync(DateTime date)
-        {
-            return await _teeTimeService.IsDateFullyBookedAsync(date);
+            // Redirect back to the page with the selected date
+            return RedirectToPage(new { startDate = startDate });
         }
     }
 }

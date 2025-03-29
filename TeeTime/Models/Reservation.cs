@@ -12,7 +12,7 @@ namespace TeeTime.Models
         public int MemberID { get; set; }
 
         [Required]
-        public int ScheduledGolfTimeID { get; set; }
+        public int TeeTimeId { get; set; }
 
         [Required]
         public DateTime ReservationMadeDate { get; set; } = DateTime.Now;
@@ -33,7 +33,7 @@ namespace TeeTime.Models
         [ForeignKey("MemberID")]
         public Member? Member { get; set; }
 
-        [ForeignKey("ScheduledGolfTimeID")]
-        public ScheduledGolfTime? ScheduledGolfTime { get; set; }
+        [ForeignKey("TeeTimeId")]
+        public TeeSheet.TeeTime? TeeTime { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,9 +18,23 @@ namespace TeeTime.Models.TeeSheet
         [ForeignKey("TeeSheetId")]
         public virtual TeeSheet TeeSheet { get; set; } = null!;
         
-        public int? ReservationId { get; set; }
+        public int? EventID { get; set; }
         
-        public bool IsAvailable { get; set; } = true;
+        [ForeignKey("EventID")]
+        public virtual Models.Event? Event { get; set; }
+        
+        public virtual ICollection<Models.Reservation> Reservations { get; set; } = new List<Models.Reservation>();
+        
+        public int TotalPlayersBooked { get; set; } = 0;
+        
+        [NotMapped]
+        public int MaxPlayers { get; } = 4;
+        
+        public bool IsAvailable 
+        { 
+            get => TotalPlayersBooked < MaxPlayers;
+            set { /* Setter kept for EF compatibility */ }
+        }
         
         public string Notes { get; set; } = string.Empty;
     }

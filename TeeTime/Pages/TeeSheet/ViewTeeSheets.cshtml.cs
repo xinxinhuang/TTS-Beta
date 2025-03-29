@@ -71,11 +71,14 @@ namespace TeeTime.Pages.TeeSheet
 
         public async Task<IActionResult> OnPostUnblockAsync(int teeTimeId, DateTime startDate)
         {
-            var teeTime = await _context.TeeTimes.FindAsync(teeTimeId);
+            var teeTime = await _context.TeeTimes
+                .Include(t => t.Reservations)
+                .FirstOrDefaultAsync(t => t.Id == teeTimeId);
+                
             if (teeTime != null)
             {
                 // Check if this tee time has a reservation
-                if (teeTime.ReservationId.HasValue)
+                if (teeTime.Reservations.Any())
                 {
                     TempData["ErrorMessage"] = "Cannot unblock a tee time that has a reservation.";
                     return RedirectToPage(new { startDate = startDate.ToString("yyyy-MM-dd") });

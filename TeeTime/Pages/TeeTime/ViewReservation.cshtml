@@ -1,0 +1,116 @@
+@page
+@model TeeTime.Pages.TeeTimeViewReservationModel
+@{
+    ViewData["Title"] = "View Reservation";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-page="./BookTeeTime">Tee Times</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Reservation Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.ErrorMessage
+        </div>
+        <div class="text-center mt-4">
+            <a asp-page="./BookTeeTime" class="btn btn-primary">Return to Tee Times</a>
+        </div>
+    }
+    else if (Model.Reservation != null && Model.TeeTime != null)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Reservation Confirmation</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="mb-3">Reservation Details</h4>
+                        <div class="mb-3">
+                            <strong>Confirmation Number:</strong> 
+                            <span class="badge bg-success">TT@(Model.Reservation.ReservationID.ToString("D6"))</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Status:</strong>
+                            @if (Model.Reservation.ReservationStatus == "Confirmed")
+                            {
+                                <span class="badge bg-success">@Model.Reservation.ReservationStatus</span>
+                            }
+                            else if (Model.Reservation.ReservationStatus == "Cancelled")
+                            {
+                                <span class="badge bg-danger">@Model.Reservation.ReservationStatus</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.Reservation.ReservationStatus</span>
+                            }
+                        </div>
+                        <div class="mb-3">
+                            <strong>Reservation Made:</strong> @Model.Reservation.ReservationMadeDate.ToString("MMM d, yyyy h:mm tt")
+                        </div>
+                        <div class="mb-3">
+                            <strong>Number of Players:</strong> @Model.Reservation.NumberOfPlayers
+                        </div>
+                        <div class="mb-3">
+                            <strong>Number of Carts:</strong> @Model.Reservation.NumberOfCarts
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="mb-3">Tee Time Details</h4>
+                        <div class="mb-3">
+                            <strong>Date:</strong> @Model.TeeTime.StartTime.ToString("dddd, MMMM d, yyyy")
+                        </div>
+                        <div class="mb-3">
+                            <strong>Time:</strong>
+                            @{
+                                var displayHour = Model.TeeTime.StartTime.Hour > 12 ? Model.TeeTime.StartTime.Hour - 12 : (Model.TeeTime.StartTime.Hour == 0 ? 12 : Model.TeeTime.StartTime.Hour);
+                                @Html.Raw($"{displayHour:D2}:{Model.TeeTime.StartTime.Minute:D2} {(Model.TeeTime.StartTime.Hour >= 12 ? "PM" : "AM")}");
+                            }
+                        </div>
+                        <div class="mb-3">
+                            <strong>Players Booked:</strong> @Model.TeeTime.TotalPlayersBooked / @Model.TeeTime.MaxPlayers
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a asp-page="./BookTeeTime" class="btn btn-primary">Return to Tee Times</a>
+                    
+                    @if (Model.Reservation.ReservationStatus == "Confirmed" && Model.TeeTime.StartTime > DateTime.Now)
+                    {
+                        <form method="post" asp-page-handler="CancelReservation" asp-route-id="@Model.Reservation.ReservationID" asp-route-returnUrl="@Url.Page("./BookTeeTime")">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                Cancel Reservation
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Important Information</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Please arrive at least 15 minutes before your tee time.</li>
+                    <li class="list-group-item">Cancellations must be made at least 24 hours in advance to avoid penalties.</li>
+                    <li class="list-group-item">In case of inclement weather, please check with the Pro Shop for course status.</li>
+                    <li class="list-group-item">Pro Shop Phone: (555) 123-4567</li>
+                </ul>
+            </div>
+        </div>
+    }
+</div>

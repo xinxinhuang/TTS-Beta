@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeeTime.Data;
 
@@ -11,9 +12,11 @@ using TeeTime.Data;
 namespace TeeTime.Migrations
 {
     [DbContext(typeof(TeeTimeDbContext))]
-    partial class TeeTimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250329180841_RemoveScheduledGolfTimeAndUpdateTeeTimeRelationship")]
+    partial class RemoveScheduledGolfTimeAndUpdateTeeTimeRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,12 +237,17 @@ namespace TeeTime.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int?>("ScheduledGolfTimeID")
+                        .HasColumnType("int");
+
                     b.Property<int>("TeeTimeId")
                         .HasColumnType("int");
 
                     b.HasKey("ReservationID");
 
                     b.HasIndex("MemberID");
+
+                    b.HasIndex("ScheduledGolfTimeID");
 
                     b.HasIndex("TeeTimeId");
 
@@ -262,6 +270,36 @@ namespace TeeTime.Migrations
                     b.HasKey("RoleID");
 
                     b.ToTable("Roles", "Beta");
+                });
+
+            modelBuilder.Entity("TeeTime.Models.ScheduledGolfTime", b =>
+                {
+                    b.Property<int>("ScheduledGolfTimeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduledGolfTimeID"));
+
+                    b.Property<int?>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GolfSessionInterval")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("ScheduledTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("ScheduledGolfTimeID");
+
+                    b.HasIndex("EventID");
+
+                    b.ToTable("ScheduledGolfTime", "Beta");
                 });
 
             modelBuilder.Entity("TeeTime.Models.StandingTeeTimeRequest", b =>
@@ -346,9 +384,6 @@ namespace TeeTime.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("EventID")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
@@ -366,8 +401,6 @@ namespace TeeTime.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EventID");
 
                     b.HasIndex("TeeSheetId");
 
@@ -484,6 +517,10 @@ namespace TeeTime.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TeeTime.Models.ScheduledGolfTime", null)
+                        .WithMany("Reservations")
+                        .HasForeignKey("ScheduledGolfTimeID");
+
                     b.HasOne("TeeTime.Models.TeeSheet.TeeTime", "TeeTime")
                         .WithMany("Reservations")
                         .HasForeignKey("TeeTimeId")
@@ -493,6 +530,15 @@ namespace TeeTime.Migrations
                     b.Navigation("Member");
 
                     b.Navigation("TeeTime");
+                });
+
+            modelBuilder.Entity("TeeTime.Models.ScheduledGolfTime", b =>
+                {
+                    b.HasOne("TeeTime.Models.Event", "Event")
+                        .WithMany("ScheduledGolfTimes")
+                        .HasForeignKey("EventID");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("TeeTime.Models.StandingTeeTimeRequest", b =>
@@ -515,17 +561,11 @@ namespace TeeTime.Migrations
 
             modelBuilder.Entity("TeeTime.Models.TeeSheet.TeeTime", b =>
                 {
-                    b.HasOne("TeeTime.Models.Event", "Event")
-                        .WithMany("TeeTimes")
-                        .HasForeignKey("EventID");
-
                     b.HasOne("TeeTime.Models.TeeSheet.TeeSheet", "TeeSheet")
                         .WithMany("TeeTimes")
                         .HasForeignKey("TeeSheetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Event");
 
                     b.Navigation("TeeSheet");
                 });
@@ -551,7 +591,7 @@ namespace TeeTime.Migrations
 
             modelBuilder.Entity("TeeTime.Models.Event", b =>
                 {
-                    b.Navigation("TeeTimes");
+                    b.Navigation("ScheduledGolfTimes");
                 });
 
             modelBuilder.Entity("TeeTime.Models.Member", b =>
@@ -577,6 +617,11 @@ namespace TeeTime.Migrations
             modelBuilder.Entity("TeeTime.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("TeeTime.Models.ScheduledGolfTime", b =>
+                {
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("TeeTime.Models.TeeSheet.TeeSheet", b =>

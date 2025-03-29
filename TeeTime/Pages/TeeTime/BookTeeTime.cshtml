@@ -66,8 +66,8 @@
             <h4>Booking Confirmed!</h4>
             <p>Your tee time has been booked for @Model.SelectedDate.ToShortDateString() at 
                 @{
-                    var displayHour = Model.ConfirmedTime.Hours > 12 ? Model.ConfirmedTime.Hours - 12 : (Model.ConfirmedTime.Hours == 0 ? 12 : Model.ConfirmedTime.Hours);
-                    @Html.Raw($"{displayHour:D2}:{Model.ConfirmedTime.Minutes:D2} {(Model.ConfirmedTime.Hours >= 12 ? "PM" : "AM")}");
+                    var displayHour = Model.ConfirmedTime.Hour > 12 ? Model.ConfirmedTime.Hour - 12 : (Model.ConfirmedTime.Hour == 0 ? 12 : Model.ConfirmedTime.Hour);
+                    @Html.Raw($"{displayHour:D2}:{Model.ConfirmedTime.Minute:D2} {(Model.ConfirmedTime.Hour >= 12 ? "PM" : "AM")}");
                 }
             </p>
             <p>Confirmation #: @Model.ConfirmationNumber</p>
@@ -168,21 +168,20 @@
                                                 <th>Member</th>
                                             }
                                             <th>Players</th>
-                                            <th>Carts</th>
+                                            <th>Available</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.ScheduledTime))
+                                        @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.StartTime.TimeOfDay))
                                         {
-                                            var displayHour = teeTime.ScheduledTime.Hours > 12 ? teeTime.ScheduledTime.Hours - 12 : (teeTime.ScheduledTime.Hours == 0 ? 12 : teeTime.ScheduledTime.Hours);
-                                            var timeDisplay = $"{displayHour:D2}:{teeTime.ScheduledTime.Minutes:D2} {(teeTime.ScheduledTime.Hours >= 12 ? "PM" : "AM")}";
+                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
                                             
-                                            var reservation = teeTime.Reservations.FirstOrDefault();
-                                            var isYourBooking = reservation != null && Model.UserReservations.Any(r => r.ReservationID == reservation.ReservationID);
+                                            var isYourBooking = teeTime.Reservations.Any(r => Model.UserReservations.Any(ur => ur.ReservationID == r.ReservationID));
                                             var rowClass = "";
                                             
-                                            if (teeTime.EventID.HasValue)
+                                            if (!string.IsNullOrEmpty(teeTime.Notes))
                                             {
                                                 rowClass = "tee-time-event";
                                             }
@@ -194,7 +193,7 @@
                                             {
                                                 rowClass = "tee-time-booked";
                                             }
-                                            else if (teeTime.IsAvailable)
+                                            else
                                             {
                                                 rowClass = "tee-time-available";
                                             }
@@ -202,9 +201,9 @@
                                             <tr class="@rowClass">
                                                 <td>@timeDisplay</td>
                                                 <td>
-                                                    @if (teeTime.EventID.HasValue && Model.Events.TryGetValue(teeTime.ScheduledGolfTimeID, out var eventName))
+                                                    @if (!string.IsNullOrEmpty(teeTime.Notes))
                                                     {
-                                                        <span class="badge bg-warning">@eventName</span>
+                                                        <span class="badge bg-warning">@teeTime.Notes</span>
                                                     }
                                                     else if (isYourBooking)
                                                     {
@@ -222,53 +221,36 @@
                                                 @if (User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin"))
                                                 {
                                                     <td>
-                                                        @if (reservation != null && reservation.Member?.User != null)
+                                                        @if (teeTime.Reservations.Any())
                                                         {
-                                                            @($"{reservation.Member.User.FirstName} {reservation.Member.User.LastName}")
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>-</span>
+                                                            var memberNames = string.Join(", ", teeTime.Reservations.Select(r => r.Member?.User != null ? $"{r.Member.User.FirstName} {r.Member.User.LastName}" : "Unknown"));
+                                                            @memberNames
                                                         }
                                                     </td>
                                                 }
-                                                <td>
-                                                    @if (reservation != null)
-                                                    {
-                                                        @reservation.NumberOfPlayers
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>-</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (reservation != null)
-                                                    {
-                                                        @reservation.NumberOfCarts
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>-</span>
-                                                    }
-                                                </td>
+                                                <td>@teeTime.TotalPlayersBooked / @teeTime.MaxPlayers</td>
+                                                <td>@(teeTime.MaxPlayers - teeTime.TotalPlayersBooked)</td>
                                                 <td>
                                                     @if (teeTime.IsAvailable)
                                                     {
                                                         <button type="button" class="btn btn-sm btn-success book-button" 
                                                                 data-bs-toggle="modal" data-bs-target="#bookingModal"
-                                                                data-time-id="@teeTime.ScheduledGolfTimeID"
-                                                                data-date="@teeTime.ScheduledDate.ToString("yyyy-MM-dd")"
+                                                                data-time-id="@teeTime.Id" 
+                                                                data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
                                                                 data-time="@timeDisplay">
                                                             Book
                                                         </button>
                                                     }
                                                     else if (isYourBooking)
                                                     {
-                                                        <form method="post" asp-page-handler="CancelReservation" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
-                                                            <input type="hidden" name="ReservationToCancel" value="@(reservation?.ReservationID)" />
-                                                            <input type="hidden" name="startDate" value="@(Model.StartDate.ToString("yyyy-MM-dd"))" />
-                                                            <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                                        var yourReservation = Model.UserReservations.First(r => teeTime.Reservations.Any(tr => tr.ReservationID == r.ReservationID));
+                                                        <form method="post" asp-page-handler="CancelReservation" class="d-inline">
+                                                            <input type="hidden" name="startDate" value="@date.ToString("yyyy-MM-dd")" />
+                                                            <input type="hidden" name="ReservationToCancel" value="@yourReservation.ReservationID" />
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                                    onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                                                Cancel
+                                                            </button>
                                                         </form>
                                                     }
                                                 </td>
@@ -294,60 +276,79 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Your Upcoming Tee Times</h5>
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Your Current Reservations</h4>
                 </div>
                 <div class="card-body">
                     @if (Model.UserReservations.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Players</th>
                                         <th>Carts</th>
-                                        <th>Confirmation #</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var reservation in Model.UserReservations)
+                                    @foreach (var reservation in Model.UserReservations.OrderBy(r => r.TeeTime?.StartTime))
                                     {
-                                        <tr>
-                                            <td>@(reservation.ScheduledGolfTime?.ScheduledDate.ToShortDateString() ?? "N/A")</td>
-                                            <td>
-                                                @{
-                                                    if (reservation.ScheduledGolfTime != null)
+                                        var teeTime = reservation.TeeTime;
+                                        
+                                        @if (teeTime != null)
+                                        {
+                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
+                                            
+                                            <tr>
+                                                <td>@teeTime.StartTime.ToString("MMM d, yyyy")</td>
+                                                <td>@timeDisplay</td>
+                                                <td>@reservation.NumberOfPlayers</td>
+                                                <td>@reservation.NumberOfCarts</td>
+                                                <td>
+                                                    @if (reservation.ReservationStatus == "Confirmed")
                                                     {
-                                                        var time = reservation.ScheduledGolfTime.ScheduledTime;
-                                                        var displayHour = time.Hours > 12 ? time.Hours - 12 : (time.Hours == 0 ? 12 : time.Hours);
-                                                        @Html.Raw($"{displayHour:D2}:{time.Minutes:D2} {(time.Hours >= 12 ? "PM" : "AM")}");
+                                                        <span class="badge bg-success">@reservation.ReservationStatus</span>
+                                                    }
+                                                    else if (reservation.ReservationStatus == "Cancelled")
+                                                    {
+                                                        <span class="badge bg-danger">@reservation.ReservationStatus</span>
                                                     }
                                                     else
                                                     {
-                                                        @Html.Raw("N/A");
+                                                        <span class="badge bg-secondary">@reservation.ReservationStatus</span>
                                                     }
-                                                }
-                                            </td>
-                                            <td>@reservation.NumberOfPlayers</td>
-                                            <td>@reservation.NumberOfCarts</td>
-                                            <td>TT@(reservation.ReservationID.ToString("D6"))</td>
-                                            <td>@reservation.ReservationStatus</td>
-                                            <td>
-                                                @if (reservation.ReservationStatus == "Confirmed" && 
-                                                    reservation.ScheduledGolfTime?.ScheduledDate > DateTime.Today)
-                                                {
-                                                    <form method="post" asp-page-handler="CancelReservation" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
-                                                        <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
-                                                        <input type="hidden" name="startDate" value="@(Model.StartDate.ToString("yyyy-MM-dd"))" />
-                                                        <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
-                                                    </form>
-                                                }
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td>
+                                                    @if (reservation.ReservationStatus == "Confirmed" && teeTime.StartTime > DateTime.Now)
+                                                    {
+                                                        <div class="btn-group" role="group">
+                                                            <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info me-2">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                            <form method="post" asp-page-handler="CancelReservation" class="d-inline">
+                                                                <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                                                                <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
+                                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                                        onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    }
+                                                    else if (reservation.ReservationStatus == "Confirmed")
+                                                    {
+                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info">
+                                                            <i class="bi bi-eye"></i> View
+                                                        </a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
                                     }
                                 </tbody>
                             </table>
@@ -356,7 +357,8 @@
                     else
                     {
                         <div class="alert alert-info">
-                            You don't have any upcoming tee times.
+                            <p>You don't have any active reservations.</p>
+                            <p>Use the tee sheet above to book a tee time.</p>
                         </div>
                     }
                 </div>
@@ -368,7 +370,7 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Handle booking button clicks
+            // Handle booking modal
             $('.book-button').click(function() {
                 var timeId = $(this).data('time-id');
                 var date = $(this).data('date');
@@ -378,19 +380,12 @@
                 $('#selectedDate').val(date);
                 $('#bookingDate').text(date);
                 $('#bookingTime').text(time);
-                
-                $('#bookingModal').modal('show');
             });
             
-            // Initialize tabs
-            var triggerTabList = [].slice.call(document.querySelectorAll('#teeSheetTabs button'))
-            triggerTabList.forEach(function (triggerEl) {
-                var tabTrigger = new bootstrap.Tab(triggerEl)
-                
-                triggerEl.addEventListener('click', function (event) {
-                    event.preventDefault()
-                    tabTrigger.show()
-                })
+            // Pre-select tab for the active date
+            $('#teeSheetTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var date = $(e.target).data('date');
+                // You could store this in local storage or just use the URL if you wanted
             });
         });
     </script>

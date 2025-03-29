@@ -42,17 +42,17 @@ namespace TeeTime.Controllers
                 var startDate = DateTime.Today;
                 var endDate = startDate.AddDays(14);
 
-                // Get all scheduled tee times in the date range
-                var scheduledTimes = await _context.ScheduledGolfTimes
-                    .Where(t => t.ScheduledDate >= startDate && t.ScheduledDate <= endDate)
+                // Get all tee times in the date range
+                var scheduledTimes = await _context.TeeTimes
+                    .Where(t => t.StartTime.Date >= startDate && t.StartTime.Date <= endDate)
                     .ToListAsync();
 
                 // Get all reservations for these times
                 var reservationCounts = await _context.Reservations
-                    .Where(r => r.ScheduledGolfTime != null && 
-                               r.ScheduledGolfTime.ScheduledDate >= startDate && 
-                               r.ScheduledGolfTime.ScheduledDate <= endDate)
-                    .GroupBy(r => r.ScheduledGolfTime!.ScheduledDate.Date)
+                    .Where(r => r.TeeTime != null && 
+                               r.TeeTime.StartTime.Date >= startDate && 
+                               r.TeeTime.StartTime.Date <= endDate)
+                    .GroupBy(r => r.TeeTime!.StartTime.Date)
                     .Select(g => new
                     {
                         Date = g.Key,
@@ -63,7 +63,7 @@ namespace TeeTime.Controllers
 
                 // Get count of tee times for each date
                 var teeTimesByDate = scheduledTimes
-                    .GroupBy(t => t.ScheduledDate.Date)
+                    .GroupBy(t => t.StartTime.Date)
                     .ToDictionary(
                         g => g.Key,
                         g => new { 
@@ -99,32 +99,82 @@ namespace TeeTime.Controllers
                 // Return the results as JSON
                 return Ok(new
                 {
-                    fullyBooked,
-                    limitedAvailability
+                    FullyBooked = fullyBooked,
+                    LimitedAvailability = limitedAvailability
                 });
             }
             catch (Exception ex)
             {
-                // Log the exception and return a 500 error
-                _logger.LogError(ex, "Error retrieving tee time availability");
-                return StatusCode(500, new { error = "An error occurred while processing your request." });
+                _logger.LogError(ex, "Error getting availability");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("generateteetimes")]
+        public async Task<IActionResult> GenerateTeeTimesForDateRange(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime? endDate = null,
+            [FromQuery] int startHour = 7,
+            [FromQuery] int endHour = 18,
+            [FromQuery] int intervalMinutes = 10)
+        {
+            try
+            {
+                // Default to 7 days if no end date provided
+                if (endDate == null)
+                {
+                    endDate = startDate.AddDays(7);
+                }
+
+                var dailyStartTime = new TimeSpan(startHour, 0, 0);
+                var dailyEndTime = new TimeSpan(endHour, 0, 0);
+
+                await TeeTimeGenerator.GenerateTeeTimesForDateRangeAsync(
+                    _context,
+                    startDate,
+                    endDate.Value,
+                    dailyStartTime,
+                    dailyEndTime,
+                    intervalMinutes);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Generated tee times from {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}",
+                    details = $"Time range: {startHour}:00 - {endHour}:00, Interval: {intervalMinutes} minutes"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error generating tee times",
+                    error = ex.Message
+                });
             }
         }
 
         private async Task<Member?> GetCurrentMemberAsync()
         {
-            // Get the current user ID from claims
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            try
+            {
+                // Get current user ID from claims
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return null;
+                }
+
+                // Get member info
+                return await _context.Members
+                    .Include(m => m.User)
+                    .FirstOrDefaultAsync(m => m.UserID == userId);
+            }
+            catch
             {
                 return null;
             }
-
-            // Find the member associated with this user
-            return await _context.Members
-                .Include(m => m.MembershipCategory)
-                .FirstOrDefaultAsync(m => m.UserID == userId);
         }
     }
 }
