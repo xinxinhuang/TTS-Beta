@@ -132,7 +132,7 @@ namespace TeeTime.Pages.TeeSheet
             }
             
             // Check if any of the tee times are already blocked or reserved
-            var unavailableTeeTime = teeTimes.FirstOrDefault(t => !t.IsAvailable || t.ReservationId.HasValue);
+            var unavailableTeeTime = teeTimes.FirstOrDefault(t => !t.IsAvailable || t.Reservations.Any());
             if (unavailableTeeTime != null)
             {
                 TempData["ErrorMessage"] = $"Some tee times in this range are already blocked or reserved.";
@@ -167,40 +167,41 @@ namespace TeeTime.Pages.TeeSheet
                 startDateTime = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
             }
             
-            // Set the StartDate for page rendering
-            StartDate = startDateTime.Date;
-            
             try
             {
-                // Find all tee times with this event in their notes
-var teeTimesToUpdate = await _context.TeeTimes
-                .Where(tt => tt.Notes.Contains($"({EventColor})") && !tt.IsAvailable)
-                .ToListAsync();
-                    
-                if (teeTimesToUpdate.Any())
+                var eventToDelete = await _context.Events
+                    .Include(e => e.TeeTimes)
+                        .ThenInclude(tt => tt.Reservations)
+                    .FirstOrDefaultAsync(e => e.EventID == eventId);
+
+                if (eventToDelete == null)
                 {
-                    // Make the associated tee times available again
-                    foreach (var teeTime in teeTimesToUpdate)
-                    {
-                        teeTime.IsAvailable = true;
-                        teeTime.Notes = string.Empty;
-                        _context.TeeTimes.Update(teeTime);
-                    }
-                    
-                    await _context.SaveChangesAsync();
-                    
-                    TempData["SuccessMessage"] = $"Event deleted successfully and {teeTimesToUpdate.Count} tee times unblocked.";
+                    TempData["ErrorMessage"] = "Event not found.";
+                    return RedirectToPage(new { startDate = startDate });
                 }
-                else
+
+                // Check if any tee times in this event have reservations
+                bool hasReservations = eventToDelete.TeeTimes.Any(tt => tt.Reservations.Any());
+                if (hasReservations)
                 {
-                    TempData["WarningMessage"] = "No tee times found for this event.";
+                    TempData["ErrorMessage"] = "Cannot delete an event that has reservations. Cancel all reservations first.";
+                    return RedirectToPage(new { startDate = startDate });
                 }
+
+                // Delete associated tee times first
+                _context.TeeTimes.RemoveRange(eventToDelete.TeeTimes);
+                
+                // Then delete the event
+                _context.Events.Remove(eventToDelete);
+                
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Event deleted successfully.";
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error deleting event: {ex.Message}";
             }
-            
+
             // Redirect back to the same page with the original startDate string
             return RedirectToPage("./ManageEvents", new { startDate = startDate });
         }

@@ -19,7 +19,6 @@ namespace TeeTime.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<MemberUpgrade> MemberUpgrades { get; set; }
-        public DbSet<ScheduledGolfTime> ScheduledGolfTimes { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<StandingTeeTimeRequest> StandingTeeTimeRequests { get; set; }
         public DbSet<Event> Events { get; set; }
@@ -93,9 +92,9 @@ namespace TeeTime.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Reservation>()
-                .HasOne(r => r.ScheduledGolfTime)
-                .WithMany(sgt => sgt.Reservations)
-                .HasForeignKey(r => r.ScheduledGolfTimeID)
+                .HasOne(r => r.TeeTime)
+                .WithMany(tt => tt.Reservations)
+                .HasForeignKey(r => r.TeeTimeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StandingTeeTimeRequest>()
@@ -109,12 +108,6 @@ namespace TeeTime.Data
                 .WithMany()
                 .HasForeignKey(sttr => sttr.ApprovedByUserID)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ScheduledGolfTime>()
-                .HasOne(s => s.Event)
-                .WithMany(e => e.ScheduledGolfTimes)
-                .HasForeignKey(s => s.EventID)
-                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Models.TeeSheet.TeeTime>()
                 .HasOne(tt => tt.TeeSheet)
