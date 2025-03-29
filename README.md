@@ -31,35 +31,72 @@ A comprehensive golf course management system for handling tee times, member res
 - **Authentication**: Custom authentication system
 
 ## Installation and Setup
-1. Clone repository:
+
+**1. Prerequisites:**
+   - Ensure you have the [.NET SDK](https://dotnet.microsoft.com/download) installed (version compatible with the project, likely .NET 6.0 or later based on ASP.NET Core Razor Pages).
+
+**2. Clone Repository:**
    ```bash
    git clone https://github.com/xinxinhuang/TTS-Beta.git
    ```
-2. Navigate to the project directory:
+
+**3. Navigate to Project Directory:**
    ```bash
-   cd TeeTime
+   cd TeeTime 
    ```
-3. Build the project:
+   *(Make sure you are in the directory containing the `TeeTime.csproj` file)*
+
+**4. Set up EF Core Tools (Required for Database Migrations):**
+
+   *   **Create Tool Manifest (if it doesn't exist):** This file tracks local .NET tools for the project.
+       ```bash
+       dotnet new tool-manifest 
+       ```
+   *   **Install EF Core Tools Locally:** This command installs the `dotnet-ef` tool and records it in the manifest.
+       ```bash
+       dotnet tool install dotnet-ef --local
+       ```
+   *   **Add EF Core Design Package:** This package is required for EF Core commands.
+       ```bash
+       dotnet add package Microsoft.EntityFrameworkCore.Design
+       ```
+   *(Note: If you prefer, you can install `dotnet-ef` globally using `dotnet tool install --global dotnet-ef`. If installed globally, you run EF commands directly, e.g., `dotnet ef database update`. However, local installation is often preferred for better project dependency management.)*
+
+**5. Build the Project:**
    ```bash
    dotnet build
    ```
-4. Update the database:
+
+**6. Update the Database:** Apply any pending Entity Framework migrations.
    ```bash
+   # This command works if dotnet-ef is installed globally or accessible via PATH
    dotnet ef database update
+
+   # If using the locally installed tool explicitly, run:
+   # dotnet tool run dotnet-ef database update 
    ```
-5. Run application:
+
+**7. Run the Application:**
    ```bash
    dotnet run
    ```
 
 ## Database Updates
-When pulling the latest changes, remember to update your database to ensure all migrations are applied:
 
-```bash
-dotnet ef database update
-```
+Whenever you pull changes from the repository that might include database schema modifications (new migrations), you need to update your local database:
 
-The latest migration (`RemoveScheduledGolfTimeAndUpdateTeeTimeRelationship`) consolidates the tee time booking system by connecting TeeTimes directly with Reservations and removing the redundant ScheduledGolfTimes table.
+1.  Ensure you are in the project directory (`TeeTime`).
+2.  Run the database update command:
+
+    ```bash
+    # Use this command if dotnet-ef is installed globally or accessible via PATH
+    dotnet ef database update
+
+    # If using the locally installed tool explicitly (check .config/dotnet-tools.json)
+    # dotnet tool run dotnet-ef database update
+    ```
+
+This ensures your database schema matches the current state of the application's models and migrations.
 
 ## Usage
 1. Access the application at the URL shown in the console after running `dotnet run` (typically something like `http://localhost:5000` or `https://localhost:5001`)
