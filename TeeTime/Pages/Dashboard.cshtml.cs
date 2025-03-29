@@ -26,6 +26,9 @@ namespace TeeTime.Pages
         public bool CanApplyForUpgrade { get; set; }
         public bool IsCommitteeMember { get; set; }
         
+        // Property to hold the count of pending standing tee time requests
+        public int PendingStandingRequestsCount { get; set; }
+
         // Properties for showing the membership upgrade notification
         public bool ShowUpgradeNotification { get; set; }
         public required MemberUpgrade RecentUpgrade { get; set; }
@@ -60,8 +63,8 @@ namespace TeeTime.Pages
             MembershipLevel = user.MembershipCategory.MembershipName;
             UserRole = user.Role?.RoleDescription ?? "Member";
             
-            // Check if user is a committee member
-            IsCommitteeMember = user.Role?.RoleDescription == "Committee Member";
+            // Check if user is a committee member using standard role check
+            IsCommitteeMember = User.IsInRole("Committee Member"); // Match SeedData RoleDescription
 
             // Set permissions based on membership level
             CanBookTeeTime = MembershipLevel != "Copper"; // All except Copper can book tee times
@@ -85,6 +88,13 @@ namespace TeeTime.Pages
                     ShowUpgradeNotification = true;
                     RecentUpgrade = recentUpgrade;
                 }
+            }
+
+            // If user is a committee member, get count of pending standing tee time requests
+            if (IsCommitteeMember)
+            {
+                PendingStandingRequestsCount = await _context.StandingTeeTimeRequests
+                    .CountAsync(r => r.ApprovedTeeTime == null);
             }
 
             return Page();

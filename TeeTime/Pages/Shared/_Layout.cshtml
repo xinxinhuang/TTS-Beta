@@ -48,6 +48,20 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-light" asp-area="" asp-page="/TeeTime/BookTeeTime">Book Tee Time</a>
                                 </li>
+                                
+                                @if (User.IsInRole("Shareholder") || User.Claims.Any(c => c.Type == "MembershipCategory" && (c.Value == "Gold Shareholder" || c.Value == "Gold Associate")))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-light" asp-area="" asp-page="/TeeTime/RequestStandingTeeTime">Request Standing Tee Time</a>
+                                    </li>
+                                }
+                            }
+                            
+                            @if (User.IsInRole("Committee"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-page="/TeeSheet/ManageStandingTeeTimes">Manage Standing Tee Times</a>
+                                </li>
                             }
                         }
                         <li class="nav-item">
@@ -72,6 +86,14 @@
                                     else
                                     {
                                         <li><a class="dropdown-item" asp-page="/TeeTime/BookTeeTime">Book Tee Time</a></li>
+                                    }
+                                    @if (User.IsInRole("Shareholder") || User.Claims.Any(c => c.Type == "MembershipCategory" && (c.Value == "Gold Shareholder" || c.Value == "Gold Associate")))
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/TeeTime/RequestStandingTeeTime">Request Standing Tee Time</a></li>
+                                    }
+                                    @if (User.IsInRole("Committee"))
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/TeeSheet/ManageStandingTeeTimes">Manage Standing Tee Times</a></li>
                                     }
                                     <li><a class="dropdown-item" href="#">Profile</a></li>
                                     <li><hr class="dropdown-divider"></li>

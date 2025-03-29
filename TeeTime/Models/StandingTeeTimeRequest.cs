@@ -11,6 +11,16 @@ namespace TeeTime.Models
         [Required]
         public int MemberID { get; set; }
 
+        // Make player IDs nullable and NotMapped until schema is updated
+        [NotMapped]
+        public int? Player2ID { get; set; }
+        
+        [NotMapped]
+        public int? Player3ID { get; set; }
+        
+        [NotMapped]
+        public int? Player4ID { get; set; }
+
         [Required]
         [MaxLength(10)]
         public string DayOfWeek { get; set; } = string.Empty;
@@ -40,6 +50,15 @@ namespace TeeTime.Models
         // Navigation properties
         [ForeignKey("MemberID")]
         public Member? Member { get; set; }
+
+        [NotMapped]
+        public Member? Player2 { get; set; }
+
+        [NotMapped]
+        public Member? Player3 { get; set; }
+
+        [NotMapped]
+        public Member? Player4 { get; set; }
 
         [ForeignKey("ApprovedByUserID")]
         public User? ApprovedBy { get; set; }
