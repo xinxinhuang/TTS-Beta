@@ -33,7 +33,7 @@
         <h2>Manage Special Events - Week of @Model.StartDate.ToString("MMMM d, yyyy")</h2>
         <div>
             <a asp-page="./ViewTeeSheets" asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")" class="btn btn-primary me-2">View Tee Sheet</a>
-            <a asp-page="./Index" class="btn btn-secondary">Back to Tee Sheet Management</a>
+            <a asp-page="/Dashboard" class="btn btn-secondary">Dashboard</a>
         </div>
     </div>
     

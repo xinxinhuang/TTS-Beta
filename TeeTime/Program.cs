@@ -5,6 +5,9 @@ using TeeTime.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add User Secrets
+builder.Configuration.AddUserSecrets<Program>();
+
 // Debug connection string
 Console.WriteLine($"CONNECTION STRING: {builder.Configuration.GetConnectionString("TeeTimeDatabase")}");
 
