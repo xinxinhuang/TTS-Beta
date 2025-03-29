@@ -76,6 +76,101 @@
         </div>
     }
     
+    <!-- Your Reservations Section (Moved Here) -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Your Current Reservations</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.UserReservations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Players</th>
+                                        <th>Carts</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reservation in Model.UserReservations.OrderBy(r => r.TeeTime?.StartTime))
+                                    {
+                                        var teeTime = reservation.TeeTime;
+                                        
+                                        @if (teeTime != null)
+                                        {
+                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
+                                            
+                                            <tr>
+                                                <td>@teeTime.StartTime.ToString("MMM d, yyyy")</td>
+                                                <td>@timeDisplay</td>
+                                                <td>@reservation.NumberOfPlayers</td>
+                                                <td>@reservation.NumberOfCarts</td>
+                                                <td>
+                                                    @if (reservation.ReservationStatus == "Confirmed")
+                                                    {
+                                                        <span class="badge bg-success">@reservation.ReservationStatus</span>
+                                                    }
+                                                    else if (reservation.ReservationStatus == "Cancelled")
+                                                    {
+                                                        <span class="badge bg-danger">@reservation.ReservationStatus</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">@reservation.ReservationStatus</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (reservation.ReservationStatus == "Confirmed" && teeTime.StartTime > DateTime.Now)
+                                                    {
+                                                        <div class="btn-group" role="group">
+                                                            <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info me-2">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                            <form method="post" asp-page-handler="CancelReservation" class="d-inline">
+                                                                <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                                                                <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
+                                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                                        onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    }
+                                                    else if (reservation.ReservationStatus == "Confirmed")
+                                                    {
+                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info">
+                                                            <i class="bi bi-eye"></i> View
+                                                        </a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <p>You don't have any active reservations.</p>
+                            <p>Use the tee sheet below to book a tee time.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Your Reservations Section -->
+    
     <!-- Booking Form Modal -->
     <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -85,7 +180,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" asp-page-handler="BookTimeAsync" id="bookTeeTimeForm">
+                    <form method="post" asp-page-handler="BookTime" id="bookTeeTimeForm">
                         <input type="hidden" asp-for="SelectedDate" id="selectedDate" />
                         <input type="hidden" asp-for="SelectedTimeId" id="selectedTimeId" />
                         
@@ -268,100 +363,6 @@
                         }
                     </div>
                 }
-            </div>
-        </div>
-    </div>
-    
-    <!-- Your Reservations Section -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Your Current Reservations</h4>
-                </div>
-                <div class="card-body">
-                    @if (Model.UserReservations.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Players</th>
-                                        <th>Carts</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var reservation in Model.UserReservations.OrderBy(r => r.TeeTime?.StartTime))
-                                    {
-                                        var teeTime = reservation.TeeTime;
-                                        
-                                        @if (teeTime != null)
-                                        {
-                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
-                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
-                                            
-                                            <tr>
-                                                <td>@teeTime.StartTime.ToString("MMM d, yyyy")</td>
-                                                <td>@timeDisplay</td>
-                                                <td>@reservation.NumberOfPlayers</td>
-                                                <td>@reservation.NumberOfCarts</td>
-                                                <td>
-                                                    @if (reservation.ReservationStatus == "Confirmed")
-                                                    {
-                                                        <span class="badge bg-success">@reservation.ReservationStatus</span>
-                                                    }
-                                                    else if (reservation.ReservationStatus == "Cancelled")
-                                                    {
-                                                        <span class="badge bg-danger">@reservation.ReservationStatus</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-secondary">@reservation.ReservationStatus</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (reservation.ReservationStatus == "Confirmed" && teeTime.StartTime > DateTime.Now)
-                                                    {
-                                                        <div class="btn-group" role="group">
-                                                            <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info me-2">
-                                                                <i class="bi bi-eye"></i> View
-                                                            </a>
-                                                            <form method="post" asp-page-handler="CancelReservation" class="d-inline">
-                                                                <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
-                                                                <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
-                                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                                        onclick="return confirm('Are you sure you want to cancel this reservation?')">
-                                                                    <i class="bi bi-x-circle"></i> Cancel
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    }
-                                                    else if (reservation.ReservationStatus == "Confirmed")
-                                                    {
-                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info">
-                                                            <i class="bi bi-eye"></i> View
-                                                        </a>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <p>You don't have any active reservations.</p>
-                            <p>Use the tee sheet above to book a tee time.</p>
-                        </div>
-                    }
-                </div>
             </div>
         </div>
     </div>

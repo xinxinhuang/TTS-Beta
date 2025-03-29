@@ -129,35 +129,33 @@ namespace TeeTime.Pages
 
         public async Task<IActionResult> OnPostBookTimeAsync()
         {
-            Console.WriteLine($"OnPostBookTimeAsync called. SelectedTimeId={SelectedTimeId}, NumberOfPlayers={NumberOfPlayers}");
-            
+            Console.WriteLine("--- OnPostBookTimeAsync started ---");
+
+            // Validate the model state first
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("Model state is invalid. Errors:");
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine($"- {error.ErrorMessage}");
-                }
-                
+                Console.WriteLine("--- OnPostBookTimeAsync: Model state invalid ---");
+                // Reload available times if validation fails
                 StartDate = SelectedDate.Date;
                 await LoadTeeSheetDataAsync(StartDate);
-                var currentMember = await GetCurrentMemberAsync();
-                if (currentMember != null)
+                var currentMemberForValidation = await GetCurrentMemberAsync();
+                if (currentMemberForValidation != null)
                 {
-                    await LoadUserReservationsAsync(currentMember.MemberID);
+                    await LoadUserReservationsAsync(currentMemberForValidation.MemberID);
                 }
                 return Page();
             }
 
+            Console.WriteLine($"--- OnPostBookTimeAsync: Attempting to get current member ---");
             var member = await GetCurrentMemberAsync();
             if (member == null)
             {
-                Console.WriteLine("Member not found. Redirecting to login.");
+                Console.WriteLine("--- OnPostBookTimeAsync: Member not found, redirecting to login ---");
                 return RedirectToPage("/Account/Login");
             }
+            Console.WriteLine($"--- OnPostBookTimeAsync: Found member: {member.MemberID} ---");
 
-            Console.WriteLine($"Member found: MemberID={member.MemberID}");
-
+            Console.WriteLine($"--- OnPostBookTimeAsync: Entering try block for reservation creation ---");
             try
             {
                 // Use the service to create the reservation
@@ -189,7 +187,7 @@ namespace TeeTime.Pages
             catch (Exception ex)
             {
                 // Log the exception
-                Console.WriteLine($"Error booking tee time: {ex.Message}");
+                Console.WriteLine($"Error booking tee time in OnPostBookTimeAsync: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 
                 // Add error to TempData
