@@ -29,15 +29,14 @@ namespace TeeTime.Models
         [Range(0, 4, ErrorMessage = "Number of carts must be between 0 and 4")]
         public int NumberOfCarts { get; set; }
 
-        // These properties might not exist in the current schema
-        // Using NotMapped attribute to indicate they should be ignored in migrations
-        [NotMapped]
-        public bool IsStandingTeeTime { get; set; } = false;
-
-        [NotMapped]
+        // Link back to the standing request if this reservation originated from one
         public int? StandingRequestID { get; set; }
 
-        [NotMapped]
+        // Enum to classify the type/origin of the reservation
+        [Required]
+        public ReservationType Type { get; set; } = ReservationType.Regular; // Default to Regular
+
+        // Removed [NotMapped]
         [MaxLength(200)]
         public string? Notes { get; set; }
 
@@ -48,8 +47,8 @@ namespace TeeTime.Models
         [ForeignKey("TeeTimeId")]
         public TeeSheet.TeeTime? TeeTime { get; set; }
 
-        // Don't map this as we don't have the column yet
-        [NotMapped]
-        public StandingTeeTimeRequest? StandingTeeTimeRequest { get; set; }
+        // Added ForeignKey for StandingRequestID
+        [ForeignKey("StandingRequestID")]
+        public StandingTeeTimeRequest? StandingTeeTimeRequest { get; set; } // Removed [NotMapped]
     }
 }

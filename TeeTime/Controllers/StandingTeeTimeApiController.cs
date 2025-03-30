@@ -63,7 +63,7 @@ namespace TeeTime.Controllers
                         r.EndDate,
                         RequestedTime = r.DesiredTeeTime.ToString(@"hh\:mm"),
                         r.PriorityNumber,
-                        Status = r.ApprovedTeeTime.HasValue ? "Approved" : "Pending",
+                        Status = r.Status ?? (r.ApprovedTeeTime.HasValue ? "Approved" : "Pending"),
                         ApprovedTime = r.ApprovedTeeTime != null ? r.ApprovedTeeTime.Value.ToString(@"hh\:mm") : null,
                         ApprovedDate = r.ApprovedDate
                     }).ToListAsync();
@@ -137,7 +137,7 @@ namespace TeeTime.Controllers
                     // Player2ID = model.Player2ID,
                     // Player3ID = model.Player3ID,
                     // Player4ID = model.Player4ID,
-                    DayOfWeek = model.DayOfWeek, // Safe after validation
+                    DayOfWeek = Enum.Parse<DayOfWeek>(model.DayOfWeek, true), // Case-insensitive parsing
                     StartDate = model.StartDate,
                     EndDate = model.EndDate,
                     DesiredTeeTime = desiredTimeSpan, // Safe after validation
@@ -220,7 +220,7 @@ namespace TeeTime.Controllers
                         r.DayOfWeek,
                         r.StartDate,
                         r.EndDate,
-                        ApprovedTime = r.ApprovedTeeTime.Value.ToString(@"hh\:mm"),
+                        ApprovedTime = r.ApprovedTeeTime.HasValue ? r.ApprovedTeeTime.Value.ToString(@"hh\:mm") : "N/A",
                         r.PriorityNumber
                         // Don't include Player2, Player3, Player4 details yet
                     }).ToListAsync();
@@ -266,6 +266,7 @@ namespace TeeTime.Controllers
                 request.ApprovedByUserID = approverUserId;
                 request.ApprovedDate = DateTime.Now;
                 request.PriorityNumber = model.PriorityNumber;
+                request.Status = "Approved"; // Update status to ensure it's picked up during tee sheet generation
 
                 await _context.SaveChangesAsync();
 

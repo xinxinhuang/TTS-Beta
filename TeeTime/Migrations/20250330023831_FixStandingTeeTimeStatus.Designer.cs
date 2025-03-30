@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeeTime.Data;
 
@@ -11,9 +12,11 @@ using TeeTime.Data;
 namespace TeeTime.Migrations
 {
     [DbContext(typeof(TeeTimeDbContext))]
-    partial class TeeTimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250330023831_FixStandingTeeTimeStatus")]
+    partial class FixStandingTeeTimeStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,15 +308,6 @@ namespace TeeTime.Migrations
                     b.Property<int>("MemberID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Player2ID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Player3ID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Player4ID")
-                        .HasColumnType("int");
-
                     b.Property<int?>("PriorityNumber")
                         .HasColumnType("int");
 
@@ -330,12 +324,6 @@ namespace TeeTime.Migrations
                     b.HasIndex("ApprovedByUserID");
 
                     b.HasIndex("MemberID");
-
-                    b.HasIndex("Player2ID");
-
-                    b.HasIndex("Player3ID");
-
-                    b.HasIndex("Player4ID");
 
                     b.ToTable("StandingTeeTimeRequests", "Beta");
                 });
@@ -545,30 +533,9 @@ namespace TeeTime.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TeeTime.Models.Member", "Player2")
-                        .WithMany()
-                        .HasForeignKey("Player2ID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TeeTime.Models.Member", "Player3")
-                        .WithMany()
-                        .HasForeignKey("Player3ID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TeeTime.Models.Member", "Player4")
-                        .WithMany()
-                        .HasForeignKey("Player4ID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("ApprovedBy");
 
                     b.Navigation("Member");
-
-                    b.Navigation("Player2");
-
-                    b.Navigation("Player3");
-
-                    b.Navigation("Player4");
                 });
 
             modelBuilder.Entity("TeeTime.Models.TeeSheet.TeeTime", b =>

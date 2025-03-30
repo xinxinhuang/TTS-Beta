@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 using TeeTime.Data;
 using TeeTime.Models;
 using TeeTime.Models.TeeSheet;
+using TeeTime.Services;
+using Microsoft.Extensions.Logging;
 
 namespace TeeTime.Pages.TeeSheet
 {
@@ -13,10 +15,14 @@ namespace TeeTime.Pages.TeeSheet
     public class ScheduleTeeSheetModel : PageModel
     {
         private readonly TeeTimeDbContext _context;
+        private readonly TeeSheetService _teeSheetService;
+        private readonly ILogger<ScheduleTeeSheetModel> _logger;
 
-        public ScheduleTeeSheetModel(TeeTimeDbContext context)
+        public ScheduleTeeSheetModel(TeeTimeDbContext context, TeeSheetService teeSheetService, ILogger<ScheduleTeeSheetModel> logger)
         {
             _context = context;
+            _teeSheetService = teeSheetService;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -60,98 +66,84 @@ namespace TeeTime.Pages.TeeSheet
 
         public async Task<IActionResult> OnPostGenerateAsync()
         {
-        if (!ModelState.IsValid)
-        {
-        await LoadPublishedWeeksAsync();
-        return Page();
-        }
-
-        try
-        {
-        // Ensure we're working with just the date part, no time component
-        DateTime inputDate = StartDate.Date;
-
-        // Round start date to Sunday (beginning of week)
-        DateTime weekStartDate = inputDate.DayOfWeek == DayOfWeek.Sunday
-        ? inputDate
-        : inputDate.AddDays(-(int)inputDate.DayOfWeek);
-
-        // The end date is Saturday (inclusive)
-        DateTime weekEndDate = weekStartDate.AddDays(6);
-
-        // Check if tee times already exist for this week
-        bool teesExist = await _context.TeeSheets
-        .AnyAsync(t => t.Date.Date >= weekStartDate && 
-        t.Date.Date <= weekEndDate);
-
-        if (teesExist)
-        {
-        ModelState.AddModelError(string.Empty, "Tee times already exist for this week. Please select a different week.");
-        await LoadPublishedWeeksAsync();
-        return Page();
-        }
-
-        // Generate tee sheets and tee times for each day of the week (Sunday to Saturday, 7 days)
-        for (int day = 0; day < 7; day++)
-        {
-        // Create a new date object for each day to avoid time component issues
-        DateTime currentDate = weekStartDate.Date.AddDays(day);
-        DateTime morningStart = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, FirstTeeTime.Hours, FirstTeeTime.Minutes, 0);
-                DateTime eveningEnd = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, LastTeeTime.Hours, LastTeeTime.Minutes, 0);
-
-        // Create tee sheet for this day
-        var teeSheet = new Models.TeeSheet.TeeSheet
-        {
-        Date = currentDate,
-        StartTime = morningStart,
-        EndTime = eveningEnd,
-        IntervalMinutes = 7, // We're using fixed intervals, but setting a nominal value
-        IsActive = true
-                };
-
-        _context.TeeSheets.Add(teeSheet);
-        await _context.SaveChangesAsync(); // Save to get the TeeSheet ID
-
-                // Now create tee times using fixed intervals
-            for (int hour = morningStart.Hour; hour <= eveningEnd.Hour; hour++) 
+            if (!ModelState.IsValid)
             {
-                foreach (int minutes in _fixedIntervals)
-                {
-                    var teeTime = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, hour, minutes, 0);
-                    
-                    // Skip times before morning start or after evening end
-                    if (teeTime < morningStart || teeTime > eveningEnd)
-                        continue;
-                        
-                    var teeTimeEntry = new Models.TeeSheet.TeeTime
-                    {
-                        StartTime = teeTime,
-                        TeeSheetId = teeSheet.Id,
-                        IsAvailable = true
-                    };
+                await LoadPublishedWeeksAsync();
+                return Page();
+            }
 
-                    _context.TeeTimes.Add(teeTimeEntry);
+            // Determine week start/end dates
+            DateTime inputDate = StartDate.Date;
+            DateTime weekStartDate = inputDate.DayOfWeek == DayOfWeek.Sunday
+                ? inputDate
+                : inputDate.AddDays(-(int)inputDate.DayOfWeek);
+            DateTime weekEndDate = weekStartDate.AddDays(6);
+
+            _logger.LogInformation("Request received to generate tee sheet for week starting: {WeekStartDate}", weekStartDate);
+
+            // Check if ANY tee sheet exists for this week (can be refined if needed)
+            bool weekExists = await _context.TeeSheets
+                .AnyAsync(t => t.Date.Date >= weekStartDate && t.Date.Date <= weekEndDate);
+
+            if (weekExists)
+            {
+                ModelState.AddModelError(string.Empty, "Tee times already exist for this week. Please select a different week.");
+                _logger.LogWarning("Generation cancelled: Tee sheet already exists for week starting {WeekStartDate}", weekStartDate);
+                await LoadPublishedWeeksAsync();
+                return Page();
+            }
+
+            int daysGenerated = 0;
+            List<string> errors = new List<string>();
+
+            // Generate tee sheets for each day using the service
+            for (int day = 0; day < 7; day++)
+            {
+                DateTime currentDate = weekStartDate.Date.AddDays(day);
+                try
+                {
+                    // Call the service to generate the sheet for the current day
+                    // This now includes standing requests and standard slots
+                    await _teeSheetService.GenerateTeeSheetWithStandingRequestsAsync(currentDate);
+                    daysGenerated++;
+                }
+                catch (InvalidOperationException ex) // Service throws this if sheet for the day exists
+                {
+                    // This specific day might already exist if generation was interrupted
+                    _logger.LogWarning("Skipping generation for {CurrentDate}: {ErrorMessage}", currentDate, ex.Message);
+                    // Continue to the next day
+                }
+                catch (Exception ex)
+                {
+                    // Log critical error for this specific day and stop or collect errors
+                    _logger.LogError(ex, "Failed to generate tee sheet for {CurrentDate}", currentDate);
+                    errors.Add($"Error generating sheet for {currentDate:MM/dd}: {ex.Message}");
+                    // Depending on requirements, you might want to break the loop here
+                    // or attempt to continue with other days.
+                    // For now, let's collect errors and report after.
                 }
             }
-        }
 
-            await _context.SaveChangesAsync();
-                
+            // --- Post-Generation Handling --- 
             WeekStartDate = weekStartDate;
-            await LoadTeeSheetDataAsync(weekStartDate);
+            await LoadTeeSheetDataAsync(weekStartDate); // Reload data to show the new sheets
             await LoadPublishedWeeksAsync();
 
-            TempData["SuccessMessage"] = $"Tee sheet for week of {weekStartDate:MMMM d, yyyy} has been successfully generated.";
+            if (errors.Any())
+            {
+                TempData["ErrorMessage"] = $"Tee sheet generation completed with errors: {string.Join("; ", errors)}";
+            }
+            else if (daysGenerated > 0)
+            {
+                TempData["SuccessMessage"] = $"Tee sheet for week of {weekStartDate:MMMM d, yyyy} ({daysGenerated} days) has been successfully generated.";
+            }
+            else
+            {
+                TempData["InfoMessage"] = "No new tee sheets were generated (they may have already existed).";
+            }
 
             return Page();
         }
-        catch (Exception ex)
-        {
-            TempData["ErrorMessage"] = $"Error generating tee sheet: {ex.Message}";
-            await LoadPublishedWeeksAsync();
-            return Page();
-        }
-    }
 
         public async Task<IActionResult> OnPostPublishAsync(DateTime startDate)
         {

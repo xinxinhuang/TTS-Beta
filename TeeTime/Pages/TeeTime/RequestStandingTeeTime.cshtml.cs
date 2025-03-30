@@ -49,7 +49,7 @@ namespace TeeTime.Pages
             RequestData.EndDate = DateTime.Today.AddMonths(3);
 
             // Check if the member is eligible (Shareholder or Associate)
-            IsEligible = await CheckEligibilityAsync(member);
+            IsEligible = CheckEligibility(member);
 
             // If eligible, load other data
             if (IsEligible)
@@ -69,7 +69,7 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/AccessDenied");
             }
 
-            IsEligible = await CheckEligibilityAsync(member);
+            IsEligible = CheckEligibility(member);
             if (!IsEligible)
             {
                 StatusMessage = "You are not eligible to request standing tee times. Only Shareholder members can request standing tee times.";
@@ -106,11 +106,14 @@ namespace TeeTime.Pages
             var request = new StandingTeeTimeRequest
             {
                 MemberID = member.MemberID,
-                // Player IDs are commented out until the database schema is updated
-                // Player2ID = RequestData.Player2ID,
-                // Player3ID = RequestData.Player3ID,
-                // Player4ID = RequestData.Player4ID,
-                DayOfWeek = RequestData.DayOfWeek,
+                // Include Player IDs now that the database schema has been updated
+                Player2ID = RequestData.Player2ID,
+                Player3ID = RequestData.Player3ID,
+                Player4ID = RequestData.Player4ID,
+                
+                // Parse DayOfWeek string to enum
+                DayOfWeek = Enum.Parse<DayOfWeek>(RequestData.DayOfWeek, true),
+                
                 StartDate = RequestData.StartDate,
                 EndDate = RequestData.EndDate,
                 DesiredTeeTime = TimeSpan.Parse(RequestData.DesiredTeeTime)
@@ -164,7 +167,7 @@ namespace TeeTime.Pages
             return RedirectToPage();
         }
 
-        private async Task<bool> CheckEligibilityAsync(Member member)
+        private bool CheckEligibility(Member member)
         {
             // Check if member has Shareholder or Gold Associate membership
             if (member.MembershipCategory == null)

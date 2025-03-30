@@ -97,10 +97,39 @@ namespace TeeTime.Data
                 .HasForeignKey(r => r.TeeTimeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure the new relationship between Reservation and StandingTeeTimeRequest
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.StandingTeeTimeRequest) // Navigation property in Reservation
+                .WithMany() // Assuming StandingTeeTimeRequest doesn't need a collection of Reservations
+                .HasForeignKey(r => r.StandingRequestID) // The foreign key property in Reservation
+                .IsRequired(false) // StandingRequestID is optional (nullable)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a StandingRequest if Reservations exist
+
             modelBuilder.Entity<StandingTeeTimeRequest>()
                 .HasOne(sttr => sttr.Member)
                 .WithMany(m => m.StandingTeeTimeRequests)
                 .HasForeignKey(sttr => sttr.MemberID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StandingTeeTimeRequest>()
+                .HasOne(sttr => sttr.Player2)
+                .WithMany()
+                .HasForeignKey(sttr => sttr.Player2ID)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StandingTeeTimeRequest>()
+                .HasOne(sttr => sttr.Player3)
+                .WithMany()
+                .HasForeignKey(sttr => sttr.Player3ID)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StandingTeeTimeRequest>()
+                .HasOne(sttr => sttr.Player4)
+                .WithMany()
+                .HasForeignKey(sttr => sttr.Player4ID)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StandingTeeTimeRequest>()

@@ -25,6 +25,9 @@ builder.Services.AddDbContext<TeeTimeDbContext>(options => {
 
 // Register services
 builder.Services.AddScoped<ITeeTimeService, TeeTimeService>();
+builder.Services.AddScoped<TeeTime.Data.Interfaces.IStandingTeeTimeRepository, TeeTime.Data.Repositories.StandingTeeTimeRepository>();
+builder.Services.AddScoped<TeeTime.Data.Interfaces.ITeeSheetRepository, TeeTime.Data.Repositories.TeeSheetRepository>();
+builder.Services.AddScoped<TeeTime.Services.TeeSheetService>();
 
 // Add cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

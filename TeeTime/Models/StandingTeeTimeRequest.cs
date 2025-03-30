@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,19 +12,15 @@ namespace TeeTime.Models
         [Required]
         public int MemberID { get; set; }
 
-        // Make player IDs nullable and NotMapped until schema is updated
-        [NotMapped]
+        // Remove NotMapped attribute to store these fields in the database
         public int? Player2ID { get; set; }
         
-        [NotMapped]
         public int? Player3ID { get; set; }
         
-        [NotMapped]
         public int? Player4ID { get; set; }
 
         [Required]
-        [MaxLength(10)]
-        public string DayOfWeek { get; set; } = string.Empty;
+        public DayOfWeek DayOfWeek { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
@@ -36,6 +33,9 @@ namespace TeeTime.Models
         [Required]
         [DataType(DataType.Time)]
         public TimeSpan DesiredTeeTime { get; set; }
+
+        [MaxLength(50)]
+        public string Status { get; set; } = "Pending";
 
         public int? PriorityNumber { get; set; }
 
@@ -51,13 +51,13 @@ namespace TeeTime.Models
         [ForeignKey("MemberID")]
         public Member? Member { get; set; }
 
-        [NotMapped]
+        [ForeignKey("Player2ID")]
         public Member? Player2 { get; set; }
 
-        [NotMapped]
+        [ForeignKey("Player3ID")]
         public Member? Player3 { get; set; }
 
-        [NotMapped]
+        [ForeignKey("Player4ID")]
         public Member? Player4 { get; set; }
 
         [ForeignKey("ApprovedByUserID")]

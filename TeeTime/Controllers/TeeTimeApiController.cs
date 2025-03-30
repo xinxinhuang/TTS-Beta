@@ -110,6 +110,8 @@ namespace TeeTime.Controllers
             }
         }
 
+        // Removing the GenerateTeeTimesForDateRange endpoint as the generator class is deleted
+        /*
         [HttpGet("generateteetimes")]
         public async Task<IActionResult> GenerateTeeTimesForDateRange(
             [FromQuery] DateTime startDate,
@@ -129,13 +131,14 @@ namespace TeeTime.Controllers
                 var dailyStartTime = new TimeSpan(startHour, 0, 0);
                 var dailyEndTime = new TimeSpan(endHour, 0, 0);
 
-                await TeeTimeGenerator.GenerateTeeTimesForDateRangeAsync(
-                    _context,
-                    startDate,
-                    endDate.Value,
-                    dailyStartTime,
-                    dailyEndTime,
-                    intervalMinutes);
+                // This call is removed as TeeTimeGenerator is deleted
+                // await TeeTimeGenerator.GenerateTeeTimesForDateRangeAsync(
+                //     _context,
+                //     startDate,
+                //     endDate.Value,
+                //     dailyStartTime,
+                //     dailyEndTime,
+                //     intervalMinutes);
 
                 return Ok(new
                 {
@@ -154,6 +157,7 @@ namespace TeeTime.Controllers
                 });
             }
         }
+        */
 
         private async Task<Member?> GetCurrentMemberAsync()
         {

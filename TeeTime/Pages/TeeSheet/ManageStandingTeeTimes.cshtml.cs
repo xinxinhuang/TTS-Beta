@@ -35,14 +35,14 @@ namespace TeeTime.Pages
                 // Load all standing tee time requests - avoid using navigation properties that aren't in database yet
                 var allRequests = await _context.StandingTeeTimeRequests
                     .Include(r => r.Member)
-                        .ThenInclude(m => m.User)
-                    // Skip Player2, Player3, Player4 includes until database schema is updated
-                    // .Include(r => r.Player2)
-                    //     .ThenInclude(p => p.User)
-                    // .Include(r => r.Player3)
-                    //     .ThenInclude(p => p.User)
-                    // .Include(r => r.Player4)
-                    //     .ThenInclude(p => p.User)
+                        .ThenInclude(m => m!.User)
+                    // Include Player2, Player3, Player4 now that database schema is updated
+                    .Include(r => r.Player2)
+                        .ThenInclude(p => p!.User)
+                    .Include(r => r.Player3)
+                        .ThenInclude(p => p!.User)
+                    .Include(r => r.Player4)
+                        .ThenInclude(p => p!.User)
                     .Include(r => r.ApprovedBy)
                     .ToListAsync();
 
@@ -53,22 +53,25 @@ namespace TeeTime.Pages
                     .Select(r => new StandingTeeTimeDisplayViewModel
                 {
                     RequestID = r.RequestID,
-                    // Safe to use null-forgiving operator after .Where clause
-                    MemberName = $"{r.Member!.User!.FirstName} {r.Member.User.LastName}", 
-                    DayOfWeek = r.DayOfWeek ?? "N/A",
+                    // Use null-forgiving operator (!) as Where clause handles nulls
+                    MemberName = $"{r.Member!.User!.FirstName} {r.Member!.User!.LastName}", 
+                    
+                    // Convert DayOfWeek enum to string
+                    DayOfWeek = r.DayOfWeek.ToString(), 
+                    
                     StartDate = r.StartDate,
                     EndDate = r.EndDate,
                     // Check for null before calling ToString
                     DesiredTeeTime = r.DesiredTeeTime != TimeSpan.Zero ? r.DesiredTeeTime.ToString(@"hh\:mm") : "N/A", 
                     ApprovedTeeTime = r.ApprovedTeeTime?.ToString(@"hh\:mm"),
                     PriorityNumber = r.PriorityNumber,
-                    Status = r.ApprovedTeeTime.HasValue ? "Approved" : "Pending",
+                    Status = r.Status ?? (r.ApprovedTeeTime.HasValue ? "Approved" : "Pending"),
                     ApprovedDate = r.ApprovedDate,
                     // ApprovedBy might be null, keep the null check
                     ApprovedBy = r.ApprovedBy != null ? $"{r.ApprovedBy.FirstName} {r.ApprovedBy.LastName}" : "", 
-                    Player2Name = "TBD", 
-                    Player3Name = "TBD",
-                    Player4Name = "TBD"
+                    Player2Name = r.Player2 != null ? $"{r.Player2!.User!.FirstName} {r.Player2!.User!.LastName}" : "TBD", 
+                    Player3Name = r.Player3 != null ? $"{r.Player3!.User!.FirstName} {r.Player3!.User!.LastName}" : "TBD",
+                    Player4Name = r.Player4 != null ? $"{r.Player4!.User!.FirstName} {r.Player4!.User!.LastName}" : "TBD"
                 }).ToList();
 
                 // Separate into pending and approved
@@ -115,6 +118,7 @@ namespace TeeTime.Pages
                 request.PriorityNumber = priorityNumber;
                 request.ApprovedByUserID = user.UserID;
                 request.ApprovedDate = DateTime.Now;
+                request.Status = "Approved"; // Update status to ensure it's picked up during tee sheet generation
 
                 await _context.SaveChangesAsync();
 
@@ -188,6 +192,7 @@ namespace TeeTime.Pages
                     request.ApprovedByUserID = null;
                     request.ApprovedDate = null;
                     request.PriorityNumber = null;
+                    request.Status = "Pending"; // Reset status when revoking approval
                 }
 
                 await _context.SaveChangesAsync();
