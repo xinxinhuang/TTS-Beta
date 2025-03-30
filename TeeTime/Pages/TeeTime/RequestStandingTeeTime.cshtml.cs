@@ -167,6 +167,49 @@ namespace TeeTime.Pages
             return RedirectToPage();
         }
 
+        public async Task<IActionResult> OnPostDeleteRequestAsync(int requestId)
+        {
+            var member = await GetCurrentMemberAsync();
+            if (member == null)
+            {
+                return Unauthorized();
+            }
+
+            // Find the request and verify ownership
+            var request = await _context.StandingTeeTimeRequests
+                .FirstOrDefaultAsync(r => r.RequestID == requestId && r.MemberID == member.MemberID);
+
+            if (request == null)
+            {
+                TempData["ErrorMessage"] = "Request not found or you do not have permission to delete it.";
+                return RedirectToPage();
+            }
+
+            try
+            {
+                // Find all reservations associated with this standing tee time
+                var reservations = await _context.Reservations
+                    .Where(r => r.StandingRequestID == requestId)
+                    .ToListAsync();
+
+                // Remove all reservations
+                _context.Reservations.RemoveRange(reservations);
+
+                // Delete the standing tee time request
+                _context.StandingTeeTimeRequests.Remove(request);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = "Standing tee time request deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting standing tee time request", ex);
+                TempData["ErrorMessage"] = "An error occurred while deleting your request. Please try again.";
+            }
+
+            return RedirectToPage();
+        }
+
         private bool CheckEligibility(Member member)
         {
             // Check if member has Shareholder or Gold Associate membership

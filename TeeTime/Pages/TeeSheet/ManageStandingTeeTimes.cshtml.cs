@@ -202,8 +202,42 @@ namespace TeeTime.Pages
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error revoking standing tee time");
-                TempData["ErrorMessage"] = "An error occurred while revoking the standing tee time. Please try again.";
+                _logger.LogError(ex, "Error revoking standing tee time request");
+                TempData["ErrorMessage"] = "An error occurred while revoking the request. Please try again.";
+                return RedirectToPage();
+            }
+        }
+
+        public async Task<IActionResult> OnPostRemoveAsync(int requestId)
+        {
+            try
+            {
+                var request = await _context.StandingTeeTimeRequests.FindAsync(requestId);
+                if (request == null)
+                {
+                    TempData["ErrorMessage"] = "Request not found.";
+                    return RedirectToPage();
+                }
+
+                // Find all reservations associated with this standing tee time
+                var reservations = await _context.Reservations
+                    .Where(r => r.StandingRequestID == requestId)
+                    .ToListAsync();
+
+                // Remove all reservations
+                _context.Reservations.RemoveRange(reservations);
+
+                // Completely remove the standing tee time request
+                _context.StandingTeeTimeRequests.Remove(request);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Standing tee time request has been permanently removed.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing standing tee time request");
+                TempData["ErrorMessage"] = "An error occurred while removing the request. Please try again.";
                 return RedirectToPage();
             }
         }

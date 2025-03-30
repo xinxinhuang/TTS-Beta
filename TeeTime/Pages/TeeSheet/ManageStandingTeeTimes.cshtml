@@ -148,6 +148,9 @@
                                                 <button type="button" class="btn btn-sm btn-danger revoke-btn" data-request-id="@request.RequestID">
                                                     Revoke
                                                 </button>
+                                                <button type="button" class="btn btn-sm btn-danger remove-btn" data-request-id="@request.RequestID">
+                                                    Remove
+                                                </button>
                                             </td>
                                         </tr>
                                     }
@@ -241,6 +244,31 @@
     </div>
 </div>
 
+<!-- Remove Request Modal -->
+<div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="removeForm" method="post" asp-page-handler="Remove">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel">Remove Standing Tee Time Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="removeRequestId" name="requestId" />
+                    <div class="alert alert-danger">
+                        <strong>Warning:</strong> This will permanently delete this standing tee time request and all associated future bookings.
+                    </div>
+                    <p>Are you sure you want to completely remove this standing tee time request from the system?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Remove Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function() {
@@ -276,6 +304,13 @@
                 const requestId = $(this).data('request-id');
                 $('#revokeRequestId').val(requestId);
                 $('#revokeModal').modal('show');
+            });
+            
+            // Remove button click
+            $('.remove-btn').click(function() {
+                const requestId = $(this).data('request-id');
+                $('#removeRequestId').val(requestId);
+                $('#removeModal').modal('show');
             });
             
             // Refresh button click
