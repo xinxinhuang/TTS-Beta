@@ -122,41 +122,76 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.StartTime))
-                                            {
-                                                <tr>
-                                                    <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
-                                                    <td>
-                                                        @if (teeTime.IsAvailable && teeTime.EventID == null && teeTime.TotalPlayersBooked < teeTime.MaxPlayers)
-                                                        {
-                                                            <span class="badge bg-success">Available</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="badge bg-danger">Blocked</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        @if (!teeTime.IsAvailable)
-                                                        {
-                                                            <span>@(Model.Events.TryGetValue(teeTime.Id, out var eventName) ? eventName : "Blocked")</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        <form method="post" class="d-inline">
-                                                            <input type="hidden" name="TeeTimeId" value="@teeTime.Id" />
-                                                            <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />
-                                                            @if (teeTime.IsAvailable)
-                                                            {
-                                                                <button type="submit" asp-page-handler="Block" class="btn btn-sm btn-warning">Block</button>
-                                                            }
-                                                            else
-                                                            {
-                                                                <button type="submit" asp-page-handler="Unblock" class="btn btn-sm btn-success">Unblock</button>
-                                                            }
-                                                        </form>
-                                                    </td>
-                                                </tr>
+                                            @{
+                                                // Group tee times by hour
+                                                var teeTimesByHour = teeTimesForDay
+                                                    .OrderBy(t => t.StartTime)
+                                                    .GroupBy(t => new { t.StartTime.Hour })
+                                                    .ToList();
+                                                
+                                                foreach (var hourGroup in teeTimesByHour)
+                                                {
+                                                    var hour = hourGroup.Key.Hour;
+                                                    var hourDisplay = hour > 12 ? (hour - 12) + " PM" : (hour == 12 ? "12 PM" : hour + " AM");
+                                                    var hourId = $"hour-{date.ToString("yyyy-MM-dd")}-{hour}";
+                                                    var availableCount = hourGroup.Count(t => t.IsAvailable && t.EventID == null && t.TotalPlayersBooked < t.MaxPlayers);
+                                                    var totalCount = hourGroup.Count();
+                                                    
+                                                    <tr class="hour-header" data-bs-toggle="collapse" data-bs-target="#@hourId" aria-expanded="false">
+                                                        <td colspan="4">
+                                                            <i class="bi bi-chevron-down me-2"></i>
+                                                            <strong>@hourDisplay</strong>
+                                                            <span class="ms-2 text-muted">(@availableCount of @totalCount available)</span>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="collapse-row">
+                                                        <td colspan="4" class="p-0">
+                                                            <div id="@hourId" class="collapse">
+                                                                <table class="table mb-0">
+                                                                    <tbody>
+                                                                        @foreach (var teeTime in hourGroup)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
+                                                                                <td>
+                                                                                    @if (teeTime.IsAvailable && teeTime.EventID == null && teeTime.TotalPlayersBooked < teeTime.MaxPlayers)
+                                                                                    {
+                                                                                        <span class="badge bg-success">Available</span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="badge bg-danger">Blocked</span>
+                                                                                    }
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if (!teeTime.IsAvailable)
+                                                                                    {
+                                                                                        <span>@(Model.Events.TryGetValue(teeTime.Id, out var eventName) ? eventName : "Blocked")</span>
+                                                                                    }
+                                                                                </td>
+                                                                                <td>
+                                                                                    <form method="post" class="d-inline">
+                                                                                        <input type="hidden" name="TeeTimeId" value="@teeTime.Id" />
+                                                                                        <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />
+                                                                                        @if (teeTime.IsAvailable)
+                                                                                        {
+                                                                                            <button type="submit" asp-page-handler="Block" class="btn btn-sm btn-warning">Block</button>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <button type="submit" asp-page-handler="Unblock" class="btn btn-sm btn-success">Unblock</button>
+                                                                                        }
+                                                                                    </form>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>
@@ -218,6 +253,26 @@
                 
                 $('#deleteStartDate').val(startDate);
                 $('#deleteWeekDisplay').text(weekDisplay);
+            });
+            
+            // Initialize the first hour row as expanded
+            $('.hour-header').first().addClass('active').attr('aria-expanded', 'true');
+            $('.hour-header').first().find('i').removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            $('#' + $('.hour-header').first().data('bs-target').substring(1)).addClass('show');
+            
+            // Toggle chevron icon on collapse/expand
+            $('.hour-header').on('click', function() {
+                var icon = $(this).find('i');
+                if ($(this).attr('aria-expanded') === 'true') {
+                    icon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    icon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                    
+                    // Close other expanded sections
+                    $('.hour-header').not(this).attr('aria-expanded', 'false');
+                    $('.hour-header').not(this).find('i').removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    $('.collapse').not($($(this).data('bs-target'))).removeClass('show');
+                }
             });
         });
     </script>

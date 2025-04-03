@@ -268,88 +268,135 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var teeTime in teeTimesForDay.OrderBy(t => t.StartTime.TimeOfDay))
-                                        {
-                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
-                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
-                                            
-                                            var isYourBooking = teeTime.Reservations.Any(r => Model.UserReservations.Any(ur => ur.ReservationID == r.ReservationID));
-                                            var rowClass = "";
-                                            
-                                            if (!string.IsNullOrEmpty(teeTime.Notes))
+                                        @{
+                                            // Group tee times by hour
+                                            var teeTimesByHour = teeTimesForDay
+                                                .OrderBy(t => t.StartTime.TimeOfDay)
+                                                .GroupBy(t => new { t.StartTime.Hour })
+                                                .ToList();
+
+                                            foreach (var hourGroup in teeTimesByHour)
                                             {
-                                                rowClass = "tee-time-event";
-                                            }
-                                            else if (isYourBooking)
-                                            {
-                                                rowClass = "tee-time-your-booking";
-                                            }
-                                            else if (!teeTime.IsAvailable)
-                                            {
-                                                rowClass = "tee-time-booked";
-                                            }
-                                            else
-                                            {
-                                                rowClass = "tee-time-available";
-                                            }
-                                            
-                                            <tr class="@rowClass">
-                                                <td>@timeDisplay</td>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(teeTime.Notes))
-                                                    {
-                                                        <span class="badge bg-warning">@teeTime.Notes</span>
-                                                    }
-                                                    else if (isYourBooking)
-                                                    {
-                                                        <span class="badge bg-primary">Your Booking</span>
-                                                    }
-                                                    else if (!teeTime.IsAvailable)
-                                                    {
-                                                        <span class="badge bg-danger">Booked</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-success">Available</span>
-                                                    }
-                                                </td>
-                                                @if (User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin"))
-                                                {
-                                                    <td>
-                                                        @if (teeTime.Reservations.Any())
-                                                        {
-                                                            var memberNames = string.Join(", ", teeTime.Reservations.Select(r => r.Member?.User != null ? $"{r.Member.User.FirstName} {r.Member.User.LastName}" : "Unknown"));
-                                                            @memberNames
-                                                        }
+                                                var hour = hourGroup.Key.Hour;
+                                                var hourDisplay = hour > 12 ? (hour - 12) + " PM" : (hour == 12 ? "12 PM" : hour + " AM");
+                                                var hourId = $"hour-{date.ToString("yyyy-MM-dd")}-{hour}";
+                                                
+                                                var availableCount = hourGroup.Count(t => t.IsAvailable);
+                                                var yourBookingCount = hourGroup.Count(t => t.Reservations.Any(r => Model.UserReservations.Any(ur => ur.ReservationID == r.ReservationID)));
+                                                var totalCount = hourGroup.Count();
+                                                
+                                                // Determine colspan based on user role
+                                                var colspan = User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin") ? 6 : 5;
+
+                                                <tr class="hour-header" data-bs-toggle="collapse" data-bs-target="#@hourId" aria-expanded="false">
+                                                    <td colspan="@colspan">
+                                                        <i class="bi bi-chevron-down me-2"></i>
+                                                        <strong>@hourDisplay</strong>
+                                                        <span class="ms-2 text-muted">
+                                                            (@availableCount available
+                                                            @if (yourBookingCount > 0)
+                                                            {
+                                                                <span class="text-primary">/ @yourBookingCount your bookings</span>
+                                                            }
+                                                            / @totalCount total)
+                                                        </span>
                                                     </td>
-                                                }
-                                                <td>@teeTime.TotalPlayersBooked / @teeTime.MaxPlayers</td>
-                                                <td>@(teeTime.MaxPlayers - teeTime.TotalPlayersBooked)</td>
-                                                <td>
-                                                    @if (teeTime.IsAvailable)
-                                                    {
-                                                        <button type="button" class="btn btn-sm btn-success book-button" 
-                                                                data-bs-toggle="modal" data-bs-target="#bookingModal"
-                                                                data-time-id="@teeTime.Id" 
-                                                                data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
-                                                                data-time="@timeDisplay">
-                                                            Book
-                                                        </button>
-                                                    }
-                                                    else if (isYourBooking)
-                                                    {
-                                                        var yourReservation = Model.UserReservations.First(r => teeTime.Reservations.Any(tr => tr.ReservationID == r.ReservationID));
-                                                        <form method="post" asp-page-handler="CancelReservation" class="d-inline">
-                                                            <input type="hidden" name="startDate" value="@date.ToString("yyyy-MM-dd")" />
-                                                            <input type="hidden" name="ReservationToCancel" value="@yourReservation.ReservationID" />
-                                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                                    onclick="return confirm('Are you sure you want to cancel this reservation?')">
-                                                                Cancel
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                </td>
-                                            </tr>
+                                                </tr>
+                                                
+                                                <tr class="collapse-row">
+                                                    <td colspan="@colspan" class="p-0">
+                                                        <div id="@hourId" class="collapse">
+                                                            <table class="table mb-0">
+                                                                <tbody>
+                                                                    @foreach (var teeTime in hourGroup)
+                                                                    {
+                                                                        var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                                                                        var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
+                                                                        
+                                                                        var isYourBooking = teeTime.Reservations.Any(r => Model.UserReservations.Any(ur => ur.ReservationID == r.ReservationID));
+                                                                        var rowClass = "";
+                                                                        
+                                                                        if (!string.IsNullOrEmpty(teeTime.Notes))
+                                                                        {
+                                                                            rowClass = "tee-time-event";
+                                                                        }
+                                                                        else if (isYourBooking)
+                                                                        {
+                                                                            rowClass = "tee-time-your-booking";
+                                                                        }
+                                                                        else if (!teeTime.IsAvailable)
+                                                                        {
+                                                                            rowClass = "tee-time-booked";
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            rowClass = "tee-time-available";
+                                                                        }
+                                                                        
+                                                                        <tr class="@rowClass">
+                                                                            <td>@timeDisplay</td>
+                                                                            <td>
+                                                                                @if (!string.IsNullOrEmpty(teeTime.Notes))
+                                                                                {
+                                                                                    <span class="badge bg-warning">@teeTime.Notes</span>
+                                                                                }
+                                                                                else if (isYourBooking)
+                                                                                {
+                                                                                    <span class="badge bg-primary">Your Booking</span>
+                                                                                }
+                                                                                else if (!teeTime.IsAvailable)
+                                                                                {
+                                                                                    <span class="badge bg-danger">Booked</span>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <span class="badge bg-success">Available</span>
+                                                                                }
+                                                                            </td>
+                                                                            @if (User.IsInRole("Clerk") || User.IsInRole("Pro Shop Staff") || User.IsInRole("Admin"))
+                                                                            {
+                                                                                <td>
+                                                                                    @if (teeTime.Reservations.Any())
+                                                                                    {
+                                                                                        var memberNames = string.Join(", ", teeTime.Reservations.Select(r => r.Member?.User != null ? $"{r.Member.User.FirstName} {r.Member.User.LastName}" : "Unknown"));
+                                                                                        @memberNames
+                                                                                    }
+                                                                                </td>
+                                                                            }
+                                                                            <td>@teeTime.TotalPlayersBooked / @teeTime.MaxPlayers</td>
+                                                                            <td>@(teeTime.MaxPlayers - teeTime.TotalPlayersBooked)</td>
+                                                                            <td>
+                                                                                @if (teeTime.IsAvailable)
+                                                                                {
+                                                                                    <button type="button" class="btn btn-sm btn-success book-button" 
+                                                                                            data-bs-toggle="modal" data-bs-target="#bookingModal"
+                                                                                            data-time-id="@teeTime.Id" 
+                                                                                            data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
+                                                                                            data-time="@timeDisplay">
+                                                                                        Book
+                                                                                    </button>
+                                                                                }
+                                                                                else if (isYourBooking)
+                                                                                {
+                                                                                    var yourReservation = Model.UserReservations.First(r => teeTime.Reservations.Any(tr => tr.ReservationID == r.ReservationID));
+                                                                                    <form method="post" asp-page-handler="CancelReservation" class="d-inline">
+                                                                                        <input type="hidden" name="startDate" value="@date.ToString("yyyy-MM-dd")" />
+                                                                                        <input type="hidden" name="ReservationToCancel" value="@yourReservation.ReservationID" />
+                                                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                                                                onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                                                                            Cancel
+                                                                                        </button>
+                                                                                    </form>
+                                                                                }
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
                                         }
                                     </tbody>
                                 </table>
@@ -387,7 +434,50 @@
             $('#teeSheetTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var date = $(e.target).data('date');
                 // You could store this in local storage or just use the URL if you wanted
+                
+                // Initialize hour headers for the newly active tab
+                initializeHourHeaders();
             });
+            
+            // Function to initialize collapsible hour headers
+            function initializeHourHeaders() {
+                // Get active tab content
+                var activeTabId = $('#teeSheetTabs button.active').attr('aria-controls');
+                var activeTab = $('#' + activeTabId);
+                
+                // Find hour headers within the active tab
+                var hourHeaders = activeTab.find('.hour-header');
+                
+                if (hourHeaders.length > 0) {
+                    // Initialize first hour row as expanded
+                    hourHeaders.first().addClass('active').attr('aria-expanded', 'true');
+                    hourHeaders.first().find('i').removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                    
+                    // Get the target of the first hour header and show it
+                    var targetId = hourHeaders.first().data('bs-target').substring(1);
+                    $('#' + targetId).addClass('show');
+                }
+                
+                // Add click handler for hour headers
+                hourHeaders.off('click').on('click', function() {
+                    var icon = $(this).find('i');
+                    if ($(this).attr('aria-expanded') === 'true') {
+                        icon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    } else {
+                        icon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                        
+                        // Close other expanded sections in this tab
+                        activeTab.find('.hour-header').not(this).attr('aria-expanded', 'false');
+                        activeTab.find('.hour-header').not(this).find('i').removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                        
+                        var target = $(this).data('bs-target');
+                        activeTab.find('.collapse').not(target).removeClass('show');
+                    }
+                });
+            }
+            
+            // Initialize hour headers on page load
+            initializeHourHeaders();
         });
     </script>
 }
