@@ -152,6 +152,7 @@ namespace TeeTime.Pages.TeeSheet
             var teeSheets = await _context.TeeSheets
                 .Where(ts => ts.Date >= startDate && ts.Date < endDate)
                 .Include(ts => ts.TeeTimes)
+                    .ThenInclude(tt => tt.Event)
                 .OrderBy(ts => ts.Date)
                 .ToListAsync();
 
@@ -171,7 +172,12 @@ namespace TeeTime.Pages.TeeSheet
                 // Store notes in the dictionary for easy access
                 foreach(var teeTime in orderedTeeTimes)
                 {
-                    if (!teeTime.IsAvailable && !string.IsNullOrEmpty(teeTime.Notes))
+                    if (teeTime.Event != null)
+                    {
+                        // If teeTime has an associated Event, use its information
+                        Events[teeTime.Id] = $"{teeTime.Event.EventName} ({teeTime.Event.EventColor})";
+                    }
+                    else if (!teeTime.IsAvailable && !string.IsNullOrEmpty(teeTime.Notes))
                     {
                         Events[teeTime.Id] = teeTime.Notes;
                     }

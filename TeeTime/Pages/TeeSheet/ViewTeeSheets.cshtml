@@ -127,7 +127,7 @@
                                                 <tr>
                                                     <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
                                                     <td>
-                                                        @if (teeTime.IsAvailable)
+                                                        @if (teeTime.IsAvailable && teeTime.EventID == null && teeTime.TotalPlayersBooked < teeTime.MaxPlayers)
                                                         {
                                                             <span class="badge bg-success">Available</span>
                                                         }

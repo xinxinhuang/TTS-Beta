@@ -219,7 +219,7 @@
                                             <tr>
                                                 <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
                                                 <td>
-                                                    @if (teeTime.IsAvailable)
+                                                    @if (teeTime.IsAvailable && teeTime.EventID == null && teeTime.TotalPlayersBooked == 0)
                                                     {
                                                         <span class="badge bg-success">Available</span>
                                                     }
@@ -229,7 +229,12 @@
                                                     }
                                                 </td>
                                                 <td>
-                                                    @if (!teeTime.IsAvailable && !string.IsNullOrEmpty(teeTime.Notes))
+                                                    @if (teeTime.Event != null)
+                                                    {
+                                                        <span class="event-color event-color-@teeTime.Event.EventColor"></span>
+                                                        @teeTime.Event.EventName
+                                                    }
+                                                    else if (!teeTime.IsAvailable && !string.IsNullOrEmpty(teeTime.Notes))
                                                     {
                                                         string color = "blue";
                                                         string eventName = teeTime.Notes;
@@ -350,6 +355,21 @@
                             text: '-- Select End Time --'
                         }));
                         
+                        // Check if there's an error in the response
+                        if (data && data.error) {
+                            console.error("Error loading times:", data.error);
+                            startDropdown.append($('<option>', {
+                                value: '',
+                                text: 'Error loading times'
+                            }));
+                            endDropdown.append($('<option>', {
+                                value: '',
+                                text: 'Error loading times'
+                            }));
+                            alert('Error: ' + data.error);
+                            return;
+                        }
+                        
                         // Add time options
                         if (data && data.length > 0) {
                             $.each(data, function(i, time) {
@@ -375,8 +395,9 @@
                             }));
                         }
                     },
-                    error: function() {
-                        alert('Error loading available times. Please try again.');
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        alert('Error loading available times: ' + error);
                     }
                 });
             }

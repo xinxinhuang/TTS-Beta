@@ -141,11 +141,26 @@ namespace TeeTime.Pages.TeeSheet
                 return Page();
             }
             
-            // Block all the tee times for the event
+            // Create a new Event record in the database
+            var newEvent = new Event
+            {
+                EventName = EventName,
+                EventDate = eventDateValue,
+                StartTime = startTimeSpan,
+                EndTime = endTimeSpan,
+                EventColor = EventColor
+            };
+
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
+
+            // Link the TeeTimes to the new Event record
             foreach (var teeTime in teeTimes)
             {
-                teeTime.IsAvailable = false;
+                // Set TotalPlayersBooked to MaxPlayers to make IsAvailable return false
+                teeTime.TotalPlayersBooked = 4; // MaxPlayers is 4
                 teeTime.Notes = $"{EventName} ({EventColor})";
+                teeTime.EventID = newEvent.EventID;
                 _context.TeeTimes.Update(teeTime);
             }
 
@@ -188,13 +203,23 @@ namespace TeeTime.Pages.TeeSheet
                     return RedirectToPage(new { startDate = startDate });
                 }
 
-                // Delete associated tee times first
-                _context.TeeTimes.RemoveRange(eventToDelete.TeeTimes);
+                // Make associated tee times available again
+                var teeTimes = eventToDelete.TeeTimes.ToList(); // Create a copy of the collection
+                foreach (var teeTime in teeTimes)
+                {
+                    teeTime.TotalPlayersBooked = 0;
+                    teeTime.Notes = string.Empty;
+                    teeTime.EventID = null;
+                    _context.TeeTimes.Update(teeTime);
+                }
                 
-                // Then delete the event
-                _context.Events.Remove(eventToDelete);
-                
+                // First save the tee time changes
                 await _context.SaveChangesAsync();
+
+                // Then delete the event in a separate operation
+                _context.Events.Remove(eventToDelete);
+                await _context.SaveChangesAsync();
+                
                 TempData["SuccessMessage"] = "Event deleted successfully.";
             }
             catch (Exception ex)
@@ -209,25 +234,34 @@ namespace TeeTime.Pages.TeeSheet
         // Method to get available tee times for a specific date
         public async Task<IActionResult> OnGetAvailableTimesAsync(DateTime date)
         {
-            // Ensure user has proper permissions (already handled by Authorize attribute)
-            var teeSheet = await _context.TeeSheets
-                .Include(ts => ts.TeeTimes)
-                .FirstOrDefaultAsync(ts => ts.Date.Date == date.Date);
-                
-            if (teeSheet == null)
+            try
             {
-                return new JsonResult(new List<object>());
+                // Ensure user has proper permissions (already handled by Authorize attribute)
+                var teeSheet = await _context.TeeSheets
+                    .Include(ts => ts.TeeTimes)
+                        .ThenInclude(tt => tt.Event)
+                    .FirstOrDefaultAsync(ts => ts.Date.Date == date.Date);
+                    
+                if (teeSheet == null)
+                {
+                    return new JsonResult(new List<object>());
+                }
+                    
+                var availableTimes = teeSheet.TeeTimes
+                    .Where(tt => tt.IsAvailable && tt.EventID == null && tt.TotalPlayersBooked < 4)
+                    .OrderBy(tt => tt.StartTime)
+                    .Select(tt => new { 
+                        Time = tt.StartTime.ToString("HH:mm") 
+                    })
+                    .ToList();
+                    
+                return new JsonResult(availableTimes);
             }
-                
-            var availableTimes = teeSheet.TeeTimes
-                .Where(tt => tt.IsAvailable)
-                .OrderBy(tt => tt.StartTime)
-                .Select(tt => new { 
-                    Time = tt.StartTime.ToString("HH:mm") 
-                })
-                .ToList();
-                
-            return new JsonResult(availableTimes);
+            catch (Exception ex)
+            {
+                // Log error and return empty result
+                return new JsonResult(new { error = ex.Message });
+            }
         }
         
         private async Task LoadTeeSheetDataAsync(DateTime startDate)
@@ -242,6 +276,7 @@ namespace TeeTime.Pages.TeeSheet
             var teeSheets = await _context.TeeSheets
                 .Where(ts => ts.Date >= startDate && ts.Date < endDate)
                 .Include(ts => ts.TeeTimes)
+                    .ThenInclude(tt => tt.Event)
                 .OrderBy(ts => ts.Date)
                 .ToListAsync();
 
@@ -268,11 +303,24 @@ namespace TeeTime.Pages.TeeSheet
             // Calculate week range (Sunday to Saturday)
             var endDate = startDate.AddDays(7);
             
-            // Get distinct event names from tee time notes
+            // First, load actual Event entities from the database
+            var dbEvents = await _context.Events
+                .Where(e => e.EventDate >= startDate && e.EventDate < endDate)
+                .Include(e => e.TeeTimes)
+                .ToListAsync();
+
+            // Add all database events to the collection
+            foreach (var dbEvent in dbEvents)
+            {
+                AllEvents.Add(dbEvent);
+            }
+            
+            // For backward compatibility, also get events from tee time notes
             var eventTeeTimes = await _context.TeeTimes
                 .Where(tt => tt.TeeSheet.Date >= startDate && 
                             tt.TeeSheet.Date < endDate && 
                             !tt.IsAvailable && 
+                            tt.EventID == null && // Only include ones that don't have an EventID
                             !string.IsNullOrEmpty(tt.Notes) &&
                             tt.Notes.Contains("(")
                 )
