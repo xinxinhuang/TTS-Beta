@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TeeTime.Data;
 using TeeTime.Models;
 using TeeTime.Models.TeeSheet;
+using TeeTime.Services.Logging;
 
 namespace TeeTime.Services
 {
@@ -26,10 +27,13 @@ namespace TeeTime.Services
     public class TeeTimeService : ITeeTimeService
     {
         private readonly TeeTimeDbContext _context;
+        private readonly ILoggerService _logger;
 
-        public TeeTimeService(TeeTimeDbContext context)
+        public TeeTimeService(TeeTimeDbContext context, ILoggerService logger)
         {
             _context = context;
+            _logger = logger;
+            _logger.Debug("TeeTimeService initialized");
         }
 
         public async Task<Dictionary<DateTime, List<Models.TeeSheet.TeeTime>>> GetTeeSheetDataAsync(DateTime startDate, DateTime endDate)
@@ -324,6 +328,26 @@ namespace TeeTime.Services
             return await _context.Members
                 .Include(m => m.MembershipCategory)
                 .FirstOrDefaultAsync(m => m.UserID == userId);
+        }
+
+        public async Task<List<Models.TeeSheet.TeeTime>> GetAvailableTeeTimesAsync(DateTime date)
+        {
+            _logger.Info("Getting available tee times for date: {0}", date.ToString("yyyy-MM-dd"));
+            try
+            {
+                var teeTimes = await _context.TeeTimes
+                    .Where(tt => tt.StartTime.Date == date.Date && tt.IsAvailable && tt.TotalPlayersBooked == 0)
+                    .OrderBy(tt => tt.StartTime)
+                    .ToListAsync();
+                
+                _logger.Info("Found {0} available tee times for date {1}", teeTimes.Count, date.ToString("yyyy-MM-dd"));
+                return teeTimes;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error retrieving available tee times for date: {0}", date.ToString("yyyy-MM-dd"));
+                throw;
+            }
         }
     }
 }

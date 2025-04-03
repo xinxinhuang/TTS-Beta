@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using TeeTime.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using TeeTime.Services;
+using TeeTime.Services.Logging;
+using Microsoft.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,10 @@ Console.WriteLine($"CONNECTION STRING: {builder.Configuration.GetConnectionStrin
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
+
+// Add logging service
+builder.Services.AddLoggingService(builder.Configuration);
+builder.Services.AddSingleton<RecyclableMemoryStreamManager>();
 
 // Add database context
 builder.Services.AddDbContext<TeeTimeDbContext>(options => {
@@ -48,12 +54,15 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var logger = services.GetRequiredService<ILoggerService>();
+        logger.Info("Initializing database with seed data");
         SeedData.Initialize(services);
+        logger.Info("Database initialization completed");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred seeding the DB.");
+        var logger = services.GetRequiredService<ILoggerService>();
+        logger.Error(ex, "An error occurred seeding the DB.");
     }
 }
 
@@ -63,6 +72,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    // Only enable request/response logging in development
+    app.UseRequestResponseLogging();
 }
 
 app.Use((context, next) =>
