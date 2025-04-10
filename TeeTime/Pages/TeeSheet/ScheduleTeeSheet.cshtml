@@ -7,16 +7,16 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Schedule Tee Sheets</h2>
-        <a asp-page="/Dashboard" class="btn btn-secondary">Dashboard</a>
+        <a asp-page="/Dashboard" class="btn" style="background-color: #dee2e6;">Dashboard</a>
     </div>
     
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-dark" style="background-color: #dee2e6;">
                     <h5 class="mb-0">Generate Tee Sheet</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: #f8f9fa;">
                     <form method="post" name="generateForm">
                         @if (TempData["SuccessMessage"] != null)
                         {
@@ -41,7 +41,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="control-label">Time Intervals</label>
-                                    <p class="form-text text-primary">Fixed at: 00, 07, 15, 22, 30, 37, 45, 52 minutes</p>
+                                    <p class="form-text text-secondary">Fixed at: 00, 07, 15, 22, 30, 37, 45, 52 minutes</p>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                                 </p>
                             </div>
                         </div>
-                        <button type="submit" asp-page-handler="Generate" class="btn btn-primary">Generate Tee Sheet</button>
+                        <button type="submit" asp-page-handler="Generate" class="btn" style="background-color: #b4bcc2; color: #fff;">Generate Tee Sheet</button>
                     </form>
                 </div>
             </div>
@@ -138,7 +138,7 @@
             <div class="col-12 text-center">
                 <form method="post">
                     <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />
-                    <button type="submit" asp-page-handler="Publish" class="btn btn-lg btn-primary">Publish Tee Sheet</button>
+                    <button type="submit" asp-page-handler="Publish" class="btn btn-lg" style="background-color: #b4bcc2; color: #fff;">Publish Tee Sheet</button>
                     <p class="text-muted mt-2">Publishing will make these tee times available for member booking.</p>
                 </form>
             </div>
@@ -146,17 +146,17 @@
         
         <div class="row mt-3">
             <div class="col-12 text-center">
-                <a asp-page="./ViewTeeSheets" class="btn btn-info">View All Tee Sheets</a>
-                <a asp-page="./ManageEvents" asp-route-startDate="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" class="btn btn-success ml-2">Add Special Events</a>
+                <a asp-page="./ViewTeeSheets" class="btn" style="background-color: #dee2e6;">View All Tee Sheets</a>
+                <a asp-page="./ManageEvents" asp-route-startDate="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" class="btn" style="background-color: #b4bcc2; color: #fff;">Add Special Events</a>
             </div>
         </div>
     }
     
     <div class="card mt-4">
-        <div class="card-header bg-info text-white">
+        <div class="card-header text-dark" style="background-color: #dee2e6;">
             <h5 class="mb-0">Published Tee Sheets</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="background-color: #f8f9fa;">
             <div class="table-responsive">
                 @if (Model.PublishedWeeks.Any())
                 {
@@ -176,8 +176,8 @@
                                     <td>@week.TeeTimeCount</td>
                                     <td>
                                         <div class="d-flex">
-                                            <a class="btn btn-sm btn-primary me-2" asp-page="./ViewTeeSheets" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">View</a>
-                                            <a class="btn btn-sm btn-success me-2" asp-page="./ManageEvents" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">Events</a>
+                                            <a class="btn btn-sm me-2" style="background-color: #b4bcc2; color: #fff;" asp-page="./ViewTeeSheets" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">View</a>
+                                            <a class="btn btn-sm me-2" style="background-color: #b4bcc2; color: #fff;" asp-page="./ManageEvents" asp-route-startDate="@week.StartDate.ToString("yyyy-MM-dd")">Events</a>
                                         </div>
                                     </td>
                                 </tr>

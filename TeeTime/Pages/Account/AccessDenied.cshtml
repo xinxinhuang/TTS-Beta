@@ -4,17 +4,17 @@
     ViewData["Title"] = "Access Denied";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
         <div class="col-md-6">
-            <div class="card mt-5">
-                <div class="card-header bg-danger text-white">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
                     <h2 class="text-center">Access Denied</h2>
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body text-center" style="background-color: #f8f9fa;">
                     <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
                     <p class="lead mt-3">You do not have permission to access this resource.</p>
-                    <a asp-page="/Index" class="btn btn-primary mt-3">Return to Home</a>
+                    <a asp-page="/Index" class="btn mt-3" style="background-color: #b4bcc2; color: #000000;">Return to Home</a>
                 </div>
             </div>
         </div>

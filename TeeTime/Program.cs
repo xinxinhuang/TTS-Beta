@@ -27,6 +27,12 @@ builder.Services.AddDbContext<TeeTimeDbContext>(options => {
     Console.WriteLine($"EF USING: {connStr}");
     options.UseSqlServer(connStr,
         sqlOptions => sqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "Beta"));
+    
+    // Enable sensitive data logging
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+    }
 });
 
 // Register services

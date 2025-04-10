@@ -1,5 +1,125 @@
 /* TeeTime Custom CSS */
 
+/* Make text darker/black throughout TeeSheet and TeeTime pages */
+.container {
+    color: #000000;
+}
+
+.text-muted {
+    color: #333333 !important;
+}
+
+.table {
+    color: #000000;
+}
+
+.card-body, .card-header, .tab-content {
+    color: #000000;
+}
+
+.badge {
+    font-weight: 600;
+}
+
+/* Modern button styling based on reference */
+.btn,
+button[type="button"],
+button[type="submit"],
+input[type="button"],
+input[type="submit"],
+a.btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    border-radius: 0.5rem !important; /* rounded-lg */
+    font-size: 0.875rem !important; /* text-sm */
+    font-weight: 500 !important; /* font-medium */
+    transition: all 0.2s ease-in-out !important;
+    outline-offset: 2px !important;
+    height: 2.25rem !important; /* h-9 */
+    padding: 0.5rem 1rem !important; /* px-4 py-2 */
+    border: 1px solid #d1d5db !important; /* light grey outline */
+    background-color: #f8f9fa !important; /* super light grey background */
+    color: #000000 !important; /* black text */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* shadow-sm shadow-black/5 */
+}
+
+/* Button hover states */
+.btn:hover,
+button[type="button"]:hover,
+button[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+a.btn:hover {
+    background-color: #e9ecef !important; /* slightly darker on hover */
+    color: #000000 !important;
+}
+
+/* Button focus states */
+.btn:focus-visible,
+button[type="button"]:focus-visible,
+button[type="submit"]:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+a.btn:focus-visible {
+    outline: 2px solid rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Button disabled states */
+.btn:disabled,
+button[type="button"]:disabled,
+button[type="submit"]:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+a.btn:disabled,
+.btn.disabled,
+button[type="button"].disabled,
+button[type="submit"].disabled,
+input[type="button"].disabled,
+input[type="submit"].disabled,
+a.btn.disabled {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+/* Outline buttons */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info,
+.btn-outline-light,
+.btn-outline-dark,
+.btn[style*="color: #000000; border-color"],
+.btn[style*="color: #606060; border-color"] {
+    background-color: transparent !important;
+    border: 1px solid #d1d5db !important; /* light grey outline */
+    color: #000000 !important;
+}
+
+/* Outline button hover states */
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-success:hover,
+.btn-outline-danger:hover,
+.btn-outline-warning:hover,
+.btn-outline-info:hover,
+.btn-outline-light:hover,
+.btn-outline-dark:hover,
+.btn[style*="color: #000000; border-color"]:hover,
+.btn[style*="color: #606060; border-color"]:hover {
+    background-color: #e9ecef !important; /* slightly darker on hover */
+    color: #000000 !important;
+}
+
+/* Close buttons and small buttons should maintain their size */
+.btn-close, .btn-sm {
+    height: auto !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
 /* Date picker specific styles */
 .date-unavailable {
     background-color: #f8d7da !important;

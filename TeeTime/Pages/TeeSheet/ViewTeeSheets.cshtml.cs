@@ -104,18 +104,46 @@ namespace TeeTime.Pages.TeeSheet
 
             try
             {
-                // Delete all tee sheets for this week (cascade delete will handle tee times)
+                // First, find all tee sheets and their related tee times with reservations
                 var teeSheetsToDelete = await _context.TeeSheets
                     .Where(ts => ts.Date >= weekStartDate && ts.Date < weekEndDate)
+                    .Include(ts => ts.TeeTimes)
+                        .ThenInclude(tt => tt.Reservations)
+                    .Include(ts => ts.TeeTimes)
+                        .ThenInclude(tt => tt.Event)
                     .ToListAsync();
 
                 if (teeSheetsToDelete.Any())
                 {
+                    int reservationCount = 0;
+                    
+                    // Delete all related reservations first
+                    foreach (var teeSheet in teeSheetsToDelete)
+                    {
+                        foreach (var teeTime in teeSheet.TeeTimes)
+                        {
+                            if (teeTime.Reservations.Any())
+                            {
+                                reservationCount += teeTime.Reservations.Count;
+                                _context.Reservations.RemoveRange(teeTime.Reservations);
+                            }
+                        }
+                    }
+                    
+                    // Save changes to delete reservations
+                    await _context.SaveChangesAsync();
+                    
+                    // Now delete the tee sheets (cascade delete will handle tee times)
                     _context.TeeSheets.RemoveRange(teeSheetsToDelete);
                     await _context.SaveChangesAsync();
                     
                     int teeSheetCount = teeSheetsToDelete.Count;
-                    TempData["SuccessMessage"] = $"Successfully deleted {teeSheetCount} tee sheets for the week of {weekStartDate:MMMM d, yyyy}.";
+                    string message = $"Successfully deleted {teeSheetCount} tee sheets for the week of {weekStartDate:MMMM d, yyyy}.";
+                    if (reservationCount > 0)
+                    {
+                        message += $" {reservationCount} existing reservations were also deleted.";
+                    }
+                    TempData["SuccessMessage"] = message;
                 }
                 else
                 {

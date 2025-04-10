@@ -4,14 +4,14 @@
     ViewData["Title"] = "Register";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
         <div class="col-md-8">
-            <div class="card mt-5">
-                <div class="card-header bg-primary text-white">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
                     <h2 class="text-center">Create a New Account</h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: #f8f9fa;">
                     <form method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="row">
@@ -59,12 +59,12 @@
                             <span asp-validation-for="RegisterInput.MembershipCategoryID" class="text-danger"></span>
                         </div>
                         <div class="form-group d-grid">
-                            <button type="submit" class="btn btn-primary">Register</button>
+                            <button type="submit" class="btn" style="background-color: #b4bcc2; color: #000000;">Register</button>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer text-center">
-                    <p>Already have an account? <a asp-page="./Login">Login</a></p>
+                <div class="card-footer text-center" style="background-color: #dee2e6;">
+                    <p>Already have an account? <a asp-page="./Login" style="color: #6c757d;">Login</a></p>
                 </div>
             </div>
         </div>

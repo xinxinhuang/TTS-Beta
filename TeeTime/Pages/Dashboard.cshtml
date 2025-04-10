@@ -52,9 +52,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-dark" style="background-color: #dee2e6;">
                     <h2>Welcome, @Model.UserFullName!</h2>
-                    <p class="mb-0">Role: <span class="badge bg-info">@Model.UserRole</span></p>
+                    <p class="mb-0">Role: <span class="badge" style="background-color: #b4bcc2;">@Model.UserRole</span></p>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -64,10 +64,10 @@
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
                                     <div class="card-body text-center">
-                                        <i class="bi bi-calendar-plus" style="font-size: 3rem; color: #0d6efd;"></i>
+                                        <i class="bi bi-calendar-plus" style="font-size: 3rem; color: #b4bcc2;"></i>
                                         <h4 class="mt-3">Schedule TeeSheets</h4>
                                         <p>Create and schedule new tee times</p>
-                                        <a href="/TeeSheet/ScheduleTeeSheet" class="btn btn-primary">Schedule Now</a>
+                                        <a href="/TeeSheet/ScheduleTeeSheet" class="btn" style="background-color: #b4bcc2; color: #fff;">Schedule Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -75,10 +75,10 @@
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
                                     <div class="card-body text-center">
-                                        <i class="bi bi-table" style="font-size: 3rem; color: #0d6efd;"></i>
+                                        <i class="bi bi-table" style="font-size: 3rem; color: #b4bcc2;"></i>
                                         <h4 class="mt-3">View TeeSheets</h4>
                                         <p>Browse and search all scheduled tee times</p>
-                                        <a href="/TeeSheet/ViewTeeSheets" class="btn btn-primary">View Now</a>
+                                        <a href="/TeeSheet/ViewTeeSheets" class="btn" style="background-color: #b4bcc2; color: #fff;">View Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -86,10 +86,10 @@
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100">
                                     <div class="card-body text-center">
-                                        <i class="bi bi-calendar-event" style="font-size: 3rem; color: #0d6efd;"></i>
+                                        <i class="bi bi-calendar-event" style="font-size: 3rem; color: #b4bcc2;"></i>
                                         <h4 class="mt-3">Manage Events</h4>
                                         <p>Create and modify club events</p>
-                                        <a href="/TeeSheet/ManageEvents" class="btn btn-primary">Manage Now</a>
+                                        <a href="/TeeSheet/ManageEvents" class="btn" style="background-color: #b4bcc2; color: #fff;">Manage Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -100,13 +100,11 @@
                             @if (Model.CanBookTeeTime && !Model.IsCommitteeMember)
                             {
                                 <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center">
-                                            <i class="bi bi-calendar-check" style="font-size: 3rem; color: #0d6efd;"></i>
-                                            <h4 class="mt-3">Book Tee Time</h4>
-                                            <p>Schedule your next golf session</p>
-                                            <a href="/TeeTime/BookTeeTime" class="btn btn-primary">Book Now</a>
-                                        </div>
+                                    <div class="text-center p-3">
+                                        <i class="bi bi-calendar-check" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                        <h4 class="mt-3">Book Tee Time</h4>
+                                        <p>Schedule your next golf session</p>
+                                        <a href="/TeeTime/BookTeeTime" class="btn btn-outline-secondary" style="color: #000000; border-color: #b4bcc2;">Book Now</a>
                                     </div>
                                 </div>
                             }
@@ -114,13 +112,11 @@
                             @if (Model.CanRequestStandingTeeTime && !Model.IsCommitteeMember)
                             {
                                 <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center">
-                                            <i class="bi bi-calendar-week" style="font-size: 3rem; color: #0d6efd;"></i>
-                                            <h4 class="mt-3">Standing Tee Time</h4>
-                                            <p>Request a regular tee time slot</p>
-                                            <a href="/TeeTime/RequestStandingTeeTime" class="btn btn-primary">Request</a>
-                                        </div>
+                                    <div class="text-center p-3">
+                                        <i class="bi bi-calendar-week" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                        <h4 class="mt-3">Standing Tee Time</h4>
+                                        <p>Request a regular tee time slot</p>
+                                        <a href="/TeeTime/RequestStandingTeeTime" class="btn btn-outline-secondary" style="color: #000000; border-color: #b4bcc2;">Request</a>
                                     </div>
                                 </div>
                             }
@@ -128,13 +124,11 @@
                             @if (Model.CanApplyForUpgrade && Model.MembershipLevel == "Gold" && !Model.IsCommitteeMember)
                             {
                                 <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center">
-                                            <i class="bi bi-arrow-up-circle" style="font-size: 3rem; color: #0d6efd;"></i>
-                                            <h4 class="mt-3">Membership Upgrade</h4>
-                                            <p>Apply for Shareholder/Associate status</p>
-                                            <a asp-page="/Membership/UpgradeApplication" class="btn btn-primary">Apply Now</a>
-                                        </div>
+                                    <div class="text-center p-3">
+                                        <i class="bi bi-arrow-up-circle" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                        <h4 class="mt-3">Membership Upgrade</h4>
+                                        <p>Apply for Shareholder/Associate status</p>
+                                        <a asp-page="/Membership/UpgradeApplication" class="btn btn-outline-secondary" style="color: #606060; border-color: #b4bcc2;">Apply Now</a>
                                     </div>
                                 </div>
                             }
@@ -143,43 +137,37 @@
                             {
                                 <!-- Standing Tee Time Request Management for Committee -->
                                 <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center position-relative">
-                                            @if (Model.PendingStandingRequestsCount > 0)
-                                            {
-                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                    @Model.PendingStandingRequestsCount
-                                                    <span class="visually-hidden">pending requests</span>
-                                                </span>
-                                            }
-                                            <i class="bi bi-calendar-week-fill" style="font-size: 3rem; color: #0d6efd;"></i>
-                                            <h4 class="mt-3">Manage Standing Tee Times</h4>
-                                            <p>Review and approve pending requests</p>
-                                            <a asp-page="/TeeSheet/ManageStandingTeeTimes" class="btn btn-primary">Manage Now</a>
-                                        </div>
+                                    <div class="text-center p-3 position-relative">
+                                        @if (Model.PendingStandingRequestsCount > 0)
+                                        {
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                @Model.PendingStandingRequestsCount
+                                                <span class="visually-hidden">pending requests</span>
+                                            </span>
+                                        }
+                                        <i class="bi bi-calendar-week-fill" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                        <h4 class="mt-3">Manage Standing Tee Times</h4>
+                                        <p>Review and approve pending requests</p>
+                                        <a asp-page="/TeeSheet/ManageStandingTeeTimes" class="btn btn-outline-secondary" style="color: #606060; border-color: #b4bcc2;">Manage Now</a>
                                     </div>
                                 </div>
 
                                 <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body text-center">
-                                            <i class="bi bi-clipboard-check" style="font-size: 3rem; color: #0d6efd;"></i>
-                                            <h4 class="mt-3">Review Applications</h4>
-                                            <p>Review pending membership upgrades</p>
-                                            <a asp-page="/Membership/ApplicationReview" class="btn btn-primary">Review Now</a>
-                                        </div>
+                                    <div class="text-center p-3">
+                                        <i class="bi bi-clipboard-check" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                        <h4 class="mt-3">Review Applications</h4>
+                                        <p>Review pending membership upgrades</p>
+                                        <a asp-page="/Membership/ApplicationReview" class="btn btn-outline-secondary" style="color: #606060; border-color: #b4bcc2;">Review Now</a>
                                     </div>
                                 </div>
                             }
 
                             <div class="col-md-4 mb-3">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-person-circle" style="font-size: 3rem; color: #0d6efd;"></i>
-                                        <h4 class="mt-3">My Profile</h4>
-                                        <p>View and update your information</p>
-                                        <a href="/Profile" class="btn btn-primary">View Profile</a>
-                                    </div>
+                                <div class="text-center p-3">
+                                    <i class="bi bi-person-circle" style="font-size: 3rem; color: #b4bcc2;"></i>
+                                    <h4 class="mt-3">My Profile</h4>
+                                    <p>View and update your information</p>
+                                    <a href="/Profile" class="btn btn-outline-secondary" style="color: #000000; border-color: #b4bcc2;">View Profile</a>
                                 </div>
                             </div>
                         }

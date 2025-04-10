@@ -18,7 +18,7 @@
     }
     
     .tee-time-your-booking {
-        background-color: rgba(13, 110, 253, 0.1);
+        background-color: rgba(180, 188, 194, 0.2);
         font-weight: bold;
     }
     
@@ -35,10 +35,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Tee Times - Week of @Model.StartDate.ToString("MMMM d, yyyy")</h2>
         <div>
-            <a asp-page="./BookTeeTime" asp-route-startDate="@Model.StartDate.AddDays(-7).ToString("yyyy-MM-dd")" class="btn btn-outline-primary me-2">
+            <a asp-page="./BookTeeTime" asp-route-startDate="@Model.StartDate.AddDays(-7).ToString("yyyy-MM-dd")" class="btn" style="background-color: #dee2e6; margin-right: 0.5rem;">
                 <i class="bi bi-arrow-left"></i> Previous Week
             </a>
-            <a asp-page="./BookTeeTime" asp-route-startDate="@Model.StartDate.AddDays(7).ToString("yyyy-MM-dd")" class="btn btn-outline-primary">
+            <a asp-page="./BookTeeTime" asp-route-startDate="@Model.StartDate.AddDays(7).ToString("yyyy-MM-dd")" class="btn" style="background-color: #dee2e6;">
                 Next Week <i class="bi bi-arrow-right"></i>
             </a>
         </div>
@@ -80,10 +80,10 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-dark" style="background-color: #dee2e6;">
                     <h4 class="mb-0">Your Current Reservations</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: #f8f9fa;">
                     @if (Model.UserReservations.Any())
                     {
                         <div class="table-responsive">
@@ -131,7 +131,7 @@
                                                     @if (reservation.ReservationStatus == "Confirmed" && teeTime.StartTime > DateTime.Now)
                                                     {
                                                         <div class="btn-group" role="group">
-                                                            <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info me-2">
+                                                            <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm me-2" style="background-color: #dee2e6;">
                                                                 <i class="bi bi-eye"></i> View
                                                             </a>
                                                             <form method="post" asp-page-handler="CancelReservation" class="d-inline">
@@ -146,7 +146,7 @@
                                                     }
                                                     else if (reservation.ReservationStatus == "Confirmed")
                                                     {
-                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm btn-info">
+                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm" style="background-color: #dee2e6;">
                                                             <i class="bi bi-eye"></i> View
                                                         </a>
                                                     }
@@ -211,7 +211,7 @@
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-success">Book Tee Time</button>
+                            <button type="submit" class="btn" style="background-color: #b4bcc2; color: #fff;">Book Tee Time</button>
                         </div>
                     </form>
                 </div>
@@ -296,7 +296,7 @@
                                                             (@availableCount available
                                                             @if (yourBookingCount > 0)
                                                             {
-                                                                <span class="text-primary">/ @yourBookingCount your bookings</span>
+                                                                <span class="text-secondary">/ @yourBookingCount your bookings</span>
                                                             }
                                                             / @totalCount total)
                                                         </span>
@@ -342,7 +342,7 @@
                                                                                 }
                                                                                 else if (isYourBooking)
                                                                                 {
-                                                                                    <span class="badge bg-primary">Your Booking</span>
+                                                                                    <span class="badge" style="background-color: #b4bcc2; color: #fff;">Your Booking</span>
                                                                                 }
                                                                                 else if (!teeTime.IsAvailable)
                                                                                 {
@@ -368,7 +368,8 @@
                                                                             <td>
                                                                                 @if (teeTime.IsAvailable)
                                                                                 {
-                                                                                    <button type="button" class="btn btn-sm btn-success book-button" 
+                                                                                    <button type="button" class="btn btn-sm" 
+                                                                                            style="background-color: #b4bcc2; color: #fff;"
                                                                                             data-bs-toggle="modal" data-bs-target="#bookingModal"
                                                                                             data-time-id="@teeTime.Id" 
                                                                                             data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
@@ -419,7 +420,7 @@
     <script>
         $(document).ready(function() {
             // Handle booking modal
-            $('.book-button').click(function() {
+            $('[data-bs-toggle="modal"][data-bs-target="#bookingModal"]').click(function() {
                 var timeId = $(this).data('time-id');
                 var date = $(this).data('date');
                 var time = $(this).data('time');

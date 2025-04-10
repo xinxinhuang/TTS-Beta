@@ -4,58 +4,19 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="container">
-    <div class="row align-items-center mb-5">
-        <div class="col-md-6">
-            <h1 class="display-4 fw-bold">Welcome to TeeTime Golf Club</h1>
-            <p class="lead">Experience the finest golfing in a beautiful setting with our premium facilities and exclusive membership benefits.</p>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 text-center">
+            <h1 class="display-4 fw-bold mb-4 fascinate-regular">TeeTime</h1>
+            <div class="d-grid gap-3 justify-content-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
-                    <a asp-page="/Dashboard" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+                    <a asp-page="/Dashboard" class="btn btn-outline-secondary px-4" style="color: #000000;">Go to Dashboard</a>
                 }
                 else
                 {
-                    <a asp-page="/Account/Register" class="btn btn-primary btn-lg px-4 me-md-2">Join Now</a>
-                    <a asp-page="/Account/Login" class="btn btn-outline-secondary btn-lg px-4">Sign In</a>
+                    <a asp-page="/Account/Login" class="btn btn-outline-secondary px-4" style="color: #000000;">Sign In</a>
                 }
-            </div>
-        </div>
-        <div class="col-md-6">
-            <img src="https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="img-fluid rounded shadow" alt="Golf Course">
-        </div>
-    </div>
-
-    <!-- Features Section -->
-    <div class="row mb-5">
-        <div class="col-md-12 text-center">
-            <h2 class="mb-4">Club Features</h2>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="bi bi-calendar-check fs-1 mb-3 text-primary"></i>
-                    <h3>Convenient Booking</h3>
-                    <p>Easily book tee times through our online system and manage your reservations.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="bi bi-trophy fs-1 mb-3 text-primary"></i>
-                    <h3>Tournaments</h3>
-                    <p>Participate in regular tournaments and competitions for all skill levels.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="bi bi-person-circle fs-1 mb-3 text-primary"></i>
-                    <h3>Personalized Dashboard</h3>
-                    <p>Track your bookings and manage your membership details from one place.</p>
-                </div>
             </div>
         </div>
     </div>
