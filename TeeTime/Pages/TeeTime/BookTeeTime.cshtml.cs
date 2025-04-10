@@ -27,6 +27,9 @@ namespace TeeTime.Pages
             ConfirmationNumber = string.Empty; // Initialize to empty string
         }
 
+        // Add property for membership tier
+        public string UserMembershipTier { get; set; } = string.Empty;
+
         [BindProperty]
         [Required(ErrorMessage = "Please select a date")]
         [DataType(DataType.Date)]
@@ -83,8 +86,10 @@ namespace TeeTime.Pages
                 return null;
             }
 
-            // Find the member associated with this user
-            return await _teeTimeService.GetMemberByUserIdAsync(userId);
+            // Find the member associated with this user, including MembershipCategory
+            return await _context.Members
+                .Include(m => m.MembershipCategory)
+                .FirstOrDefaultAsync(m => m.UserID == userId);
         }
 
         public async Task<IActionResult> OnGetAsync(DateTime? startDate = null, int? editReservation = null)
@@ -94,6 +99,9 @@ namespace TeeTime.Pages
             {
                 return RedirectToPage("/Account/Login");
             }
+
+            // Get the member's membership tier from the MembershipCategory object
+            UserMembershipTier = member.MembershipCategory?.MembershipName ?? "Regular";
 
             // Set the start date to the provided date or today
             StartDate = startDate?.Date ?? DateTime.Today;
@@ -188,6 +196,43 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
             Console.WriteLine($"--- OnPostBookTimeAsync: Found member: {member.MemberID} ---");
+
+            // Check Silver membership restrictions
+            if (member.MembershipCategory?.MembershipName == "Silver")
+            {
+                // Get the tee time to check its start time
+                var teeTime = await _teeTimeService.GetTeeTimeByIdAsync(SelectedTimeId);
+                if (teeTime == null)
+                {
+                    TempData["ErrorMessage"] = "Could not retrieve tee time details.";
+                    return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Get day of week and time
+                var dayOfWeek = teeTime.StartTime.DayOfWeek;
+                var hour = teeTime.StartTime.Hour;
+                var minute = teeTime.StartTime.Minute;
+
+                bool isRestricted = false;
+
+                // Apply restrictions based on day of week
+                if (dayOfWeek == DayOfWeek.Saturday)
+                {
+                    // Saturdays: Restricted before 11:00 AM
+                    isRestricted = hour < 11;
+                }
+                else if (dayOfWeek != DayOfWeek.Sunday)
+                {
+                    // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                    isRestricted = (hour >= 15 && hour < 17) || (hour == 17 && minute < 30);
+                }
+
+                if (isRestricted)
+                {
+                    TempData["ErrorMessage"] = "Silver members cannot book this time slot due to membership restrictions.";
+                    return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+            }
 
             Console.WriteLine($"--- OnPostBookTimeAsync: Entering try block for reservation creation ---");
             try

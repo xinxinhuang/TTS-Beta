@@ -279,6 +279,17 @@
     <!-- Tee Sheet Tabs -->
     <div class="card">
         <div class="card-header">
+            @if (Model.UserMembershipTier == "Silver")
+            {
+                <div class="alert alert-info mb-3">
+                    <h5><i class="bi bi-info-circle"></i> Silver Member Booking Restrictions</h5>
+                    <ul class="mb-0">
+                        <li>Weekdays: You can book before 3:00 PM or after 5:30 PM</li>
+                        <li>Saturdays: You can book after 11:00 AM only</li>
+                        <li>Sundays: No restrictions (you can book anytime)</li>
+                    </ul>
+                </div>
+            }
             <ul class="nav nav-tabs card-header-tabs" id="teeSheetTabs" role="tablist">
                 @for (int i = 0; i < 7; i++)
                 {
@@ -491,10 +502,12 @@
             // Pre-select tab for the active date
             $('#teeSheetTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var date = $(e.target).data('date');
-                // You could store this in local storage or just use the URL if you wanted
                 
                 // Initialize hour headers for the newly active tab
                 initializeHourHeaders();
+                
+                // Apply membership restrictions when changing tabs
+                applySilverMemberRestrictions();
             });
             
             // Function to initialize collapsible hour headers
@@ -537,7 +550,7 @@
             // Initialize hour headers on page load
             initializeHourHeaders();
 
-            // Edit modal functionality (new script)
+            // Edit modal functionality
             $('[data-bs-toggle="modal"][data-bs-target="#editModal"]').click(function() {
                 var reservationId = $(this).data("reservation-id");
                 var players = $(this).data("players");
@@ -553,7 +566,7 @@
             });
             
             // Check if we need to show the edit modal on page load (from TempData)
-            @if (TempData["ShowEditModal"] != null && (bool)TempData["ShowEditModal"])
+            @if (TempData["ShowEditModal"] != null && (bool?)TempData["ShowEditModal"] == true)
             {
                 <text>
                 // Set form values from TempData
@@ -568,6 +581,63 @@
                 editModal.show();
                 </text>
             }
+            
+            // Silver Membership Restrictions
+            // Weekdays: Before 3:00 PM or after 5:30 PM
+            // Saturdays: After 11:00 AM only
+            // Sundays: No restrictions (can book anytime)
+            function applySilverMemberRestrictions() {
+                // Only apply restrictions for Silver members
+                const userMembershipTier = '@Model.UserMembershipTier';
+                if (userMembershipTier !== 'Silver') {
+                    return;
+                }
+                
+                // Get the current active day tab
+                const activeTabId = $('#teeSheetTabs button.active').attr('id');
+                const dayOfWeek = activeTabId.replace('-tab', '');
+                
+                // Find all available tee times in the current tab
+                $('.tee-time-available').each(function() {
+                    const timeText = $(this).find('td:first-child').text().trim();
+                    const timeMatch = timeText.match(/(\d+):(\d+)\s+(AM|PM)/);
+                    
+                    if (timeMatch) {
+                        let hour = parseInt(timeMatch[1]);
+                        const minute = parseInt(timeMatch[2]);
+                        const period = timeMatch[3];
+                        
+                        // Convert to 24-hour format
+                        if (period === 'PM' && hour < 12) {
+                            hour += 12;
+                        } else if (period === 'AM' && hour === 12) {
+                            hour = 0;
+                        }
+                        
+                        let isRestricted = false;
+                        
+                        // Apply restrictions based on day of week
+                        if (dayOfWeek === 'Saturday') {
+                            // Saturdays: Restricted before 11:00 AM
+                            isRestricted = hour < 11;
+                        } else if (dayOfWeek !== 'Sunday') {
+                            // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                            isRestricted = (hour >= 15 && hour < 17) || (hour === 17 && minute < 30);
+                        }
+                        
+                        if (isRestricted) {
+                            // Hide or disable booking button
+                            $(this).find('button').prop('disabled', true).text('Restricted').addClass('btn-secondary').removeClass('btn-sm').attr('title', 'Silver members cannot book this time');
+                            $(this).addClass('text-muted');
+                            // Add a visual indicator
+                            $(this).find('td:nth-child(2)').html('<span class="badge bg-secondary">Restricted</span>');
+                        }
+                    }
+                });
+            }
+            
+            // Apply Silver member restrictions on page load
+            applySilverMemberRestrictions();
         });
     </script>
 }
