@@ -495,6 +495,28 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Pre-initialize all tabs on page load to ensure correct restriction display
+            function preInitializeAllTabs() {
+                // Force load all tab content (even hidden ones)
+                $('.tab-pane').each(function() {
+                    const tabId = $(this).attr('id');
+                    $(this).addClass('active show');
+                });
+                
+                // Apply restrictions to all tabs
+                applySilverMemberRestrictions();
+                
+                // Reset to just showing the first tab
+                $('.tab-pane').removeClass('active show');
+                $('.tab-pane').first().addClass('active show');
+            }
+            
+            // Run pre-initialization
+            preInitializeAllTabs();
+            
+            // Initialize hour headers on page load
+            initializeHourHeaders();
+            
             // Handle booking modal
             $('[data-bs-toggle="modal"][data-bs-target="#bookingModal"]').click(function() {
                 var timeId = $(this).data('time-id');
@@ -555,9 +577,6 @@
                 });
             }
             
-            // Initialize hour headers on page load
-            initializeHourHeaders();
-
             // Edit modal functionality
             $('[data-bs-toggle="modal"][data-bs-target="#editModal"]').click(function() {
                 var reservationId = $(this).data("reservation-id");
@@ -606,63 +625,63 @@
                     return;
                 }
                 
-                // Get the current active day tab
-                const activeTabId = $('#teeSheetTabs button.active').attr('id');
-                const dayOfWeek = activeTabId.replace('-tab', '');
-                
-                // Find all available tee times in the current tab
-                $('.tee-time-available').each(function() {
-                    const timeText = $(this).find('td:first-child').text().trim();
-                    const timeMatch = timeText.match(/(\d+):(\d+)\s+(AM|PM)/);
+                // Process all tab panes, not just the active one
+                $('.tab-pane').each(function() {
+                    // Get the day of week from the tab ID
+                    const tabId = $(this).attr('id');
+                    const dayOfWeek = tabId; // This is already the day name (e.g., "Monday", "Tuesday")
                     
-                    if (timeMatch) {
-                        let hour = parseInt(timeMatch[1]);
-                        const minute = parseInt(timeMatch[2]);
-                        const period = timeMatch[3];
+                    // Find all tee times in this tab
+                    $(this).find('tr.tee-time-available').each(function() {
+                        const timeText = $(this).find('td:first-child').text().trim();
+                        const timeMatch = timeText.match(/(\d+):(\d+)\s+(AM|PM)/);
                         
-                        // Convert to 24-hour format
-                        if (period === 'PM' && hour < 12) {
-                            hour += 12;
-                        } else if (period === 'AM' && hour === 12) {
-                            hour = 0;
-                        }
-                        
-                        let isRestricted = false;
-                        
-                        // Apply restrictions based on membership tier and day of week
-                        if (userMembershipTier === 'Silver') {
-                            // Silver restrictions
-                            if (dayOfWeek === 'Saturday') {
-                                // Saturdays: Restricted before 11:00 AM
-                                isRestricted = hour < 11;
-                            } else if (dayOfWeek !== 'Sunday') {
-                                // Weekdays: Restricted between 3:00 PM and 5:30 PM
-                                isRestricted = (hour >= 15 && hour < 17) || (hour === 17 && minute < 30);
+                        if (timeMatch) {
+                            let hour = parseInt(timeMatch[1]);
+                            const minute = parseInt(timeMatch[2]);
+                            const period = timeMatch[3];
+                            
+                            // Convert to 24-hour format
+                            if (period === 'PM' && hour < 12) {
+                                hour += 12;
+                            } else if (period === 'AM' && hour === 12) {
+                                hour = 0;
                             }
-                        } else if (userMembershipTier === 'Bronze') {
-                            // Bronze restrictions
-                            if (dayOfWeek === 'Saturday') {
-                                // Saturdays: Restricted before 1:00 PM
-                                isRestricted = hour < 13;
-                            } else if (dayOfWeek !== 'Sunday') {
-                                // Weekdays: Restricted between 3:00 PM and 6:00 PM
-                                isRestricted = (hour >= 15 && hour < 18);
+                            
+                            let isRestricted = false;
+                            
+                            // Apply restrictions based on membership tier and day of week
+                            if (userMembershipTier === 'Silver') {
+                                // Silver restrictions
+                                if (dayOfWeek === 'Saturday') {
+                                    // Saturdays: Restricted before 11:00 AM
+                                    isRestricted = hour < 11;
+                                } else if (dayOfWeek !== 'Sunday') {
+                                    // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                                    isRestricted = (hour >= 15 && hour < 17) || (hour === 17 && minute < 30);
+                                }
+                            } else if (userMembershipTier === 'Bronze') {
+                                // Bronze restrictions
+                                if (dayOfWeek === 'Saturday') {
+                                    // Saturdays: Restricted before 1:00 PM
+                                    isRestricted = hour < 13;
+                                } else if (dayOfWeek !== 'Sunday') {
+                                    // Weekdays: Restricted between 3:00 PM and 6:00 PM
+                                    isRestricted = (hour >= 15 && hour < 18);
+                                }
+                            }
+                            
+                            if (isRestricted) {
+                                // Hide or disable booking button
+                                $(this).find('button').prop('disabled', true).text('Restricted').addClass('btn-secondary').removeClass('btn-sm').attr('title', userMembershipTier + ' members cannot book this time');
+                                $(this).addClass('text-muted');
+                                // Add a visual indicator
+                                $(this).find('td:nth-child(2)').html('<span class="badge bg-secondary">Restricted</span>');
                             }
                         }
-                        
-                        if (isRestricted) {
-                            // Hide or disable booking button
-                            $(this).find('button').prop('disabled', true).text('Restricted').addClass('btn-secondary').removeClass('btn-sm').attr('title', userMembershipTier + ' members cannot book this time');
-                            $(this).addClass('text-muted');
-                            // Add a visual indicator
-                            $(this).find('td:nth-child(2)').html('<span class="badge bg-secondary">Restricted</span>');
-                        }
-                    }
+                    });
                 });
             }
-            
-            // Apply Silver member restrictions on page load
-            applySilverMemberRestrictions();
         });
     </script>
 }

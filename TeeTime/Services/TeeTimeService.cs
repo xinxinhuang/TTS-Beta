@@ -166,30 +166,46 @@ namespace TeeTime.Services
             // For "Silver", filter out prime time slots on weekends
             else if (membershipCategory.MembershipName == "Silver")
             {
-                bool isWeekend = DateTime.Today.DayOfWeek == DayOfWeek.Saturday || DateTime.Today.DayOfWeek == DayOfWeek.Sunday;
-                
-                if (isWeekend)
-                {
-                    // Restrict weekend morning tee times (before noon)
-                    return allTimes.Where(t => t.StartTime.Hour >= 12).ToList();
-                }
-                
-                return allTimes;
+                return allTimes.Where(t => {
+                    bool isWeekend = t.StartTime.DayOfWeek == DayOfWeek.Saturday || t.StartTime.DayOfWeek == DayOfWeek.Sunday;
+                    
+                    if (t.StartTime.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        // Saturdays: Restricted before 11:00 AM
+                        return t.StartTime.Hour >= 11;
+                    }
+                    else if (t.StartTime.DayOfWeek != DayOfWeek.Sunday)
+                    {
+                        // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                        bool isRestricted = (t.StartTime.Hour >= 15 && t.StartTime.Hour < 17) || 
+                                         (t.StartTime.Hour == 17 && t.StartTime.Minute < 30);
+                        return !isRestricted;
+                    }
+                    
+                    // No restrictions on Sundays
+                    return true;
+                }).ToList();
             }
             
             // For "Bronze", more restrictions
             else if (membershipCategory.MembershipName == "Bronze")
             {
-                bool isWeekend = DateTime.Today.DayOfWeek == DayOfWeek.Saturday || DateTime.Today.DayOfWeek == DayOfWeek.Sunday;
-                
-                if (isWeekend)
-                {
-                    // Only allow afternoon tee times on weekends (after 2pm)
-                    return allTimes.Where(t => t.StartTime.Hour >= 14).ToList();
-                }
-                
-                // Restrict weekday morning tee times (before 10am)
-                return allTimes.Where(t => t.StartTime.Hour >= 10).ToList();
+                return allTimes.Where(t => {
+                    if (t.StartTime.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        // Saturdays: Restricted before 1:00 PM
+                        return t.StartTime.Hour >= 13;
+                    }
+                    else if (t.StartTime.DayOfWeek != DayOfWeek.Sunday)
+                    {
+                        // Weekdays: Restricted between 3:00 PM and 6:00 PM
+                        bool isRestricted = (t.StartTime.Hour >= 15 && t.StartTime.Hour < 18);
+                        return !isRestricted;
+                    }
+                    
+                    // No restrictions on Sundays
+                    return true;
+                }).ToList();
             }
             
             // Default case - if membership doesn't match known categories
