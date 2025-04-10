@@ -29,6 +29,11 @@
     .booking-form.show {
         display: block;
     }
+    
+    .tee-time-restricted {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
 </style>
 
 <div class="container">
@@ -42,6 +47,15 @@
                 Next Week <i class="bi bi-arrow-right"></i>
             </a>
         </div>
+    </div>
+    
+    @{
+        var currentMember = await Model.GetCurrentMemberAsync();
+    }
+    
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Membership Privileges:</strong> @Model.GetMembershipRestrictionMessage(currentMember)
     </div>
     
     @if (TempData["SuccessMessage"] != null)
@@ -399,7 +413,7 @@
                                                                                 }
                                                                                 else if (isYourBooking)
                                                                                 {
-                                                                                    <span class="badge" style="background-color: #b4bcc2; color: #fff;">Your Booking</span>
+                                                                                    <span class="badge bg-primary">Your Booking</span>
                                                                                 }
                                                                                 else if (!teeTime.IsAvailable)
                                                                                 {
@@ -415,36 +429,58 @@
                                                                                 <td>
                                                                                     @if (teeTime.Reservations.Any())
                                                                                     {
-                                                                                        var memberNames = string.Join(", ", teeTime.Reservations.Select(r => r.Member?.User != null ? $"{r.Member.User.FirstName} {r.Member.User.LastName}" : "Unknown"));
-                                                                                        @memberNames
+                                                                                        foreach (var r in teeTime.Reservations.Take(1))
+                                                                                        {
+                                                                                            @if (r.Member?.User != null)
+                                                                                            {
+                                                                                                @($"{r.Member.User.LastName}, {r.Member.User.FirstName}")
+                                                                                            }
+                                                                                        }
+                                                                                        
+                                                                                        @if (teeTime.Reservations.Count > 1)
+                                                                                        {
+                                                                                            <span class="badge bg-secondary">+@(teeTime.Reservations.Count - 1) more</span>
+                                                                                        }
                                                                                     }
                                                                                 </td>
                                                                             }
                                                                             <td>@teeTime.TotalPlayersBooked / @teeTime.MaxPlayers</td>
-                                                                            <td>@(teeTime.MaxPlayers - teeTime.TotalPlayersBooked)</td>
+                                                                            <td>@(teeTime.IsAvailable ? (teeTime.MaxPlayers - teeTime.TotalPlayersBooked) : 0)</td>
                                                                             <td>
-                                                                                @if (teeTime.IsAvailable)
+                                                                                @{
+                                                                                    // Check if this time slot is allowed for this membership level
+                                                                                    bool isAllowedByMembership = Model.IsTimeAllowedForMembership(currentMember, teeTime.StartTime);
+                                                                                    
+                                                                                    // Determine if the time slot is restricted by membership
+                                                                                    string restrictionReason = !isAllowedByMembership ? 
+                                                                                        $"Your {currentMember?.MembershipCategory?.MembershipName} membership doesn't allow booking at this time" : "";
+                                                                                }
+                                                                                
+                                                                                @if (isYourBooking)
                                                                                 {
-                                                                                    <button type="button" class="btn btn-sm" 
-                                                                                            style="background-color: #b4bcc2; color: #fff;"
+                                                                                    var reservation = Model.UserReservations.FirstOrDefault(r => r.TeeTimeId == teeTime.Id);
+                                                                                    if (reservation != null)
+                                                                                    {
+                                                                                        <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm" style="background-color: #dee2e6;">
+                                                                                            <i class="bi bi-eye"></i> View
+                                                                                        </a>
+                                                                                    }
+                                                                                }
+                                                                                else if (teeTime.IsAvailable && teeTime.StartTime > DateTime.Now && isAllowedByMembership)
+                                                                                {
+                                                                                    <button type="button" class="btn btn-sm btn-success book-button"
                                                                                             data-bs-toggle="modal" data-bs-target="#bookingModal"
-                                                                                            data-time-id="@teeTime.Id" 
-                                                                                            data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
+                                                                                            data-tee-time-id="@teeTime.Id"
+                                                                                            data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")"
                                                                                             data-time="@timeDisplay">
                                                                                         Book
                                                                                     </button>
                                                                                 }
-                                                                                else if (isYourBooking)
+                                                                                else if (teeTime.IsAvailable && !isAllowedByMembership)
                                                                                 {
-                                                                                    var yourReservation = Model.UserReservations.First(r => teeTime.Reservations.Any(tr => tr.ReservationID == r.ReservationID));
-                                                                                    <form method="post" asp-page-handler="CancelReservation" class="d-inline">
-                                                                                        <input type="hidden" name="startDate" value="@date.ToString("yyyy-MM-dd")" />
-                                                                                        <input type="hidden" name="ReservationToCancel" value="@yourReservation.ReservationID" />
-                                                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                                                                onclick="return confirm('Are you sure you want to cancel this reservation?')">
-                                                                                            Cancel
-                                                                                        </button>
-                                                                                    </form>
+                                                                                    <button type="button" class="btn btn-sm btn-secondary" disabled title="@restrictionReason">
+                                                                                        Restricted
+                                                                                    </button>
                                                                                 }
                                                                             </td>
                                                                         </tr>

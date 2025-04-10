@@ -73,7 +73,76 @@ namespace TeeTime.Pages
         [Range(0, 2, ErrorMessage = "Number of carts must be between 0 and 2")]
         public int UpdatedNumberOfCarts { get; set; }
 
-        private async Task<Member?> GetCurrentMemberAsync()
+        // Method to check if a time is allowed for a member based on membership level
+        public bool IsTimeAllowedForMembership(Member member, DateTime bookingTime)
+        {
+            if (member == null || bookingTime == DateTime.MinValue)
+                return false;
+                
+            // Get membership level from the membership category
+            string membershipLevel = member.MembershipCategory?.MembershipName ?? string.Empty;
+            
+            // Get the day of week (0 = Sunday, 1 = Monday, etc.)
+            int dayOfWeek = (int)bookingTime.DayOfWeek;
+            TimeSpan timeOfDay = bookingTime.TimeOfDay;
+            
+            // Gold members can book anytime
+            if (membershipLevel == "Gold")
+                return true;
+                
+            // Sunday - all members can book anytime
+            if (dayOfWeek == 0)
+                return true;
+                
+            // Saturday restrictions
+            if (dayOfWeek == 6)
+            {
+                if (membershipLevel == "Silver")
+                    return timeOfDay >= new TimeSpan(11, 0, 0); // After 11:00 AM
+                else if (membershipLevel == "Bronze")
+                    return timeOfDay >= new TimeSpan(13, 0, 0); // After 1:00 PM
+            }
+            
+            // Weekday restrictions (Monday-Friday)
+            if (dayOfWeek >= 1 && dayOfWeek <= 5)
+            {
+                if (membershipLevel == "Silver")
+                    return timeOfDay <= new TimeSpan(15, 0, 0) || // Before 3:00 PM
+                           timeOfDay >= new TimeSpan(17, 30, 0);  // After 5:30 PM
+                else if (membershipLevel == "Bronze")
+                    return timeOfDay <= new TimeSpan(15, 0, 0) || // Before 3:00 PM
+                           timeOfDay >= new TimeSpan(18, 0, 0);   // After 6:00 PM
+            }
+            
+            // Default fallback - should not reach here if all cases are covered
+            return false;
+        }
+        
+        // Get a description of membership restrictions
+        public string GetMembershipRestrictionMessage(Member member)
+        {
+            if (member == null || member.MembershipCategory == null)
+                return "Your membership level has specific tee time booking restrictions.";
+                
+            string membershipLevel = member.MembershipCategory.MembershipName;
+            
+            switch (membershipLevel)
+            {
+                case "Gold":
+                    return "Gold members can book tee times anytime.";
+                    
+                case "Silver":
+                    return "Silver members can book weekdays before 3:00 PM or after 5:30 PM, Saturdays after 11:00 AM, and anytime on Sundays.";
+                    
+                case "Bronze":
+                    return "Bronze members can book weekdays before 3:00 PM or after 6:00 PM, Saturdays after 1:00 PM, and anytime on Sundays.";
+                    
+                default:
+                    return "Your membership level has specific tee time booking restrictions.";
+            }
+        }
+
+        public async Task<Member?> GetCurrentMemberAsync()
         {
             // Get the current user ID from claims
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -188,6 +257,21 @@ namespace TeeTime.Pages
                 return RedirectToPage("/Account/Login");
             }
             Console.WriteLine($"--- OnPostBookTimeAsync: Found member: {member.MemberID} ---");
+
+            // Get the tee time to validate booking restrictions
+            var teeTime = await _context.TeeTimes.FindAsync(SelectedTimeId);
+            if (teeTime == null)
+            {
+                TempData["ErrorMessage"] = "The selected tee time is not available.";
+                return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+            }
+
+            // Check membership level restrictions
+            if (!IsTimeAllowedForMembership(member, teeTime.StartTime))
+            {
+                TempData["ErrorMessage"] = $"Your {member.MembershipCategory?.MembershipName} membership does not allow booking at this time. {GetMembershipRestrictionMessage(member)}";
+                return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
+            }
 
             Console.WriteLine($"--- OnPostBookTimeAsync: Entering try block for reservation creation ---");
             try
