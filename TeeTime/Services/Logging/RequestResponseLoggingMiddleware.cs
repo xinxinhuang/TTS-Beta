@@ -56,7 +56,8 @@ namespace TeeTime.Services.Logging
             
             _logger.Info($"HTTP {method} {requestPath} received");
 
-            if (ShouldCaptureBody(context.Request.ContentType))
+            var contentType = context.Request.ContentType;
+            if (contentType != null && ShouldCaptureBody(contentType))
             {
                 using var requestStream = _recyclableMemoryStreamManager.GetStream();
                 await context.Request.Body.CopyToAsync(requestStream);
@@ -92,7 +93,8 @@ namespace TeeTime.Services.Logging
             var statusCode = context.Response.StatusCode;
             _logger.Info($"HTTP {statusCode} returned for {context.Request.Method} {context.Request.Path}");
             
-            if (ShouldCaptureBody(context.Response.ContentType) && !string.IsNullOrEmpty(responseBodyText))
+            var contentType = context.Response.ContentType;
+            if (contentType != null && ShouldCaptureBody(contentType) && !string.IsNullOrEmpty(responseBodyText))
             {
                 if (responseBodyText.Length > 1000) // Avoid logging large responses
                 {

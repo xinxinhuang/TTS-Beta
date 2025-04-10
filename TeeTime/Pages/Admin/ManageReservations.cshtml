@@ -1,0 +1,196 @@
+@page
+@model TeeTime.Pages.Admin.ManageReservationsModel
+@{
+    ViewData["Title"] = "Manage Reservations";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Reservation Management</h2>
+        <div>
+            <a asp-page="/Admin/BookForMember" class="btn me-2">Book New Reservation</a>
+            <a asp-page="/Dashboard" class="btn">Dashboard</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Search Reservations</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-5">
+                    <div class="form-group mb-3">
+                        <label for="searchTerm">Search by Name or Email</label>
+                        <input type="text" id="searchTerm" name="searchTerm" class="form-control" value="@Model.SearchTerm" placeholder="Enter name or email...">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group mb-3">
+                        <label for="dateFilter">Filter by Date</label>
+                        <input type="date" id="dateFilter" name="dateFilter" class="form-control" value="@(Model.DateFilter?.ToString("yyyy-MM-dd"))">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group mb-3 h-100 d-flex flex-column justify-content-end">
+                        <button type="submit" class="btn w-100">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Reservations</h5>
+                <span class="badge bg-secondary">@Model.Reservations.Count Reservations Found</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Confirmation #</th>
+                            <th>Member</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Players</th>
+                            <th>Carts</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservation in Model.Reservations)
+                        {
+                            var memberName = reservation.Member?.User != null 
+                                ? $"{reservation.Member.User.LastName}, {reservation.Member.User.FirstName}"
+                                : "Unknown";
+                            
+                            var confirmationNumber = $"TT{reservation.ReservationID:D6}";
+                            var teeTime = reservation.TeeTime;
+                            var displayHour = teeTime != null ? teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour) : 0;
+                            var timeDisplay = teeTime != null ? $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}" : "Unknown";
+                            
+                            <tr>
+                                <td>@confirmationNumber</td>
+                                <td>@memberName</td>
+                                <td>@(teeTime != null ? teeTime.StartTime.ToString("MM/dd/yyyy") : "Unknown")</td>
+                                <td>@timeDisplay</td>
+                                <td>@reservation.NumberOfPlayers</td>
+                                <td>@reservation.NumberOfCarts</td>
+                                <td>
+                                    @if (reservation.ReservationStatus == "Confirmed")
+                                    {
+                                        <span class="badge bg-success">@reservation.ReservationStatus</span>
+                                    }
+                                    else if (reservation.ReservationStatus == "Cancelled")
+                                    {
+                                        <span class="badge bg-danger">@reservation.ReservationStatus</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@reservation.ReservationStatus</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (reservation.ReservationStatus == "Confirmed" && teeTime != null && teeTime.StartTime > DateTime.Now)
+                                    {
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editModal-@reservation.ReservationID">
+                                                Edit
+                                            </button>
+                                            <form method="post" asp-page-handler="CancelReservation" class="d-inline">
+                                                <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
+                                                <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                                <input type="hidden" name="DateFilter" value="@(Model.DateFilter?.ToString("yyyy-MM-dd"))" />
+                                                <button type="submit" class="btn btn-sm"
+                                                        onclick="return confirm('Are you sure you want to cancel this reservation for @memberName?')">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        </div>
+                                        
+                                        <!-- Edit Reservation Modal -->
+                                        <div class="modal fade" id="editModal-@reservation.ReservationID" tabindex="-1" aria-labelledby="editModalLabel-@reservation.ReservationID" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editModalLabel-@reservation.ReservationID">Edit Reservation</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form method="post" asp-page-handler="UpdateReservation">
+                                                            <input type="hidden" name="ReservationToEdit" value="@reservation.ReservationID" />
+                                                            <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                                            <input type="hidden" name="DateFilter" value="@(Model.DateFilter?.ToString("yyyy-MM-dd"))" />
+                                                            
+                                                            <div class="mb-3">
+                                                                <p><strong>Confirmation:</strong> @confirmationNumber</p>
+                                                                <p><strong>Member:</strong> @memberName</p>
+                                                                <p><strong>Date/Time:</strong> @(teeTime != null ? $"{teeTime.StartTime:MM/dd/yyyy} at {timeDisplay}" : "Unknown")</p>
+                                                            </div>
+                                                            
+                                                            <div class="form-group mb-3">
+                                                                <label for="numberOfPlayers">Number of Players</label>
+                                                                <select name="NumberOfPlayers" id="numberOfPlayers" class="form-control">
+                                                                    @for (int i = 1; i <= 4; i++)
+                                                                    {
+                                                                        <option value="@i" selected="@(reservation.NumberOfPlayers == i)">@i</option>
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                            
+                                                            <div class="form-group mb-3">
+                                                                <label for="numberOfCarts">Number of Carts</label>
+                                                                <select name="NumberOfCarts" id="numberOfCarts" class="form-control">
+                                                                    @for (int i = 0; i <= 2; i++)
+                                                                    {
+                                                                        <option value="@i" selected="@(reservation.NumberOfCarts == i)">@i</option>
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                            
+                                                            <div class="d-grid">
+                                                                <button type="submit" class="btn">Save Changes</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Reservations.Any())
+            {
+                <div class="alert alert-info">
+                    No reservations found matching your search criteria.
+                </div>
+            }
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,324 @@
+@page
+@model TeeTime.Pages.Admin.BookForMemberModel
+@{
+    ViewData["Title"] = "Book Tee Time For Member";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Book Tee Time For Member</h2>
+        <div>
+            <a asp-page="/Admin/ManageMembers" class="btn me-2">Back to Members</a>
+            <a asp-page="/Dashboard" class="btn">Dashboard</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Select Member</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="memberId">Select Member</label>
+                        <select name="memberId" id="memberId" class="form-select">
+                            @foreach (var member in Model.MembersList)
+                            {
+                                <option value="@member.Value" selected="@member.Selected">@member.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="date">Week Starting</label>
+                        <input type="date" name="date" id="date" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group d-flex flex-column justify-content-end h-100">
+                        <button type="submit" class="btn w-100">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.SelectedMemberId > 0)
+    {
+        <!-- Booking Form Modal -->
+        <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="bookingModalLabel">Book Tee Time For Member</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" id="bookTeeTimeForm" asp-page-handler="BookTime">
+                            <input type="hidden" asp-for="SelectedMemberId" />
+                            <input type="hidden" asp-for="SelectedDate" id="selectedDate" />
+                            <input type="hidden" asp-for="SelectedTimeId" id="selectedTimeId" />
+                            
+                            <div class="mb-3">
+                                <p><strong>Member:</strong> <span id="bookingMember">@Model.MembersList.FirstOrDefault(m => m.Value == Model.SelectedMemberId.ToString())?.Text</span></p>
+                                <p><strong>Date:</strong> <span id="bookingDate"></span></p>
+                                <p><strong>Time:</strong> <span id="bookingTime"></span></p>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label asp-for="NumberOfPlayers" class="control-label">Number of Players</label>
+                                <select asp-for="NumberOfPlayers" class="form-control">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                                <span asp-validation-for="NumberOfPlayers" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label asp-for="NumberOfCarts" class="control-label">Number of Carts</label>
+                                <select asp-for="NumberOfCarts" class="form-control">
+                                    <option value="0">None</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                                <span asp-validation-for="NumberOfCarts" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn">Book Tee Time</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tee Sheet Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="teeSheetTabs" role="tablist">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.StartDate.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @isActive" id="@dayName-tab" data-bs-toggle="tab" data-bs-target="#@dayName" 
+                                    type="button" role="tab" aria-controls="@dayName" aria-selected="@(i == 0 ? "true" : "false")"
+                                    data-date="@date.ToString("yyyy-MM-dd")">
+                                @dayName<br />@date.ToString("MM/dd")
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="teeSheetTabContent">
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var date = Model.StartDate.AddDays(i);
+                        var dayName = date.DayOfWeek.ToString();
+                        var isActive = i == 0 ? "active" : "";
+                        
+                        <div class="tab-pane fade show @isActive" id="@dayName" role="tabpanel" aria-labelledby="@dayName-tab">
+                            <h4>@dayName - @date.ToString("MMMM d, yyyy")</h4>
+                            
+                            @if (Model.TeeSheets.TryGetValue(date.Date, out var teeTimesForDay))
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                                <th>Players</th>
+                                                <th>Available</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                // Group tee times by hour
+                                                var teeTimesByHour = teeTimesForDay
+                                                    .OrderBy(t => t.StartTime.TimeOfDay)
+                                                    .GroupBy(t => new { t.StartTime.Hour })
+                                                    .ToList();
+
+                                                foreach (var hourGroup in teeTimesByHour)
+                                                {
+                                                    var hour = hourGroup.Key.Hour;
+                                                    var hourDisplay = hour > 12 ? (hour - 12) + " PM" : (hour == 12 ? "12 PM" : hour + " AM");
+                                                    var hourId = $"hour-{date.ToString("yyyy-MM-dd")}-{hour}";
+                                                    
+                                                    var availableCount = hourGroup.Count(t => t.IsAvailable);
+                                                    var totalCount = hourGroup.Count();
+                                                    
+                                                    <tr class="hour-header" data-bs-toggle="collapse" data-bs-target="#@hourId" aria-expanded="false">
+                                                        <td colspan="5">
+                                                            <strong>@hourDisplay</strong>
+                                                            <span class="ms-2 text-muted">
+                                                                (@availableCount available / @totalCount total)
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="collapse-row">
+                                                        <td colspan="5" class="p-0">
+                                                            <div id="@hourId" class="collapse">
+                                                                <table class="table mb-0">
+                                                                    <tbody>
+                                                                        @foreach (var teeTime in hourGroup)
+                                                                        {
+                                                                            var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                                                                            var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
+                                                                            
+                                                                            var rowClass = "";
+                                                                            
+                                                                            if (!string.IsNullOrEmpty(teeTime.Notes))
+                                                                            {
+                                                                                rowClass = "tee-time-event";
+                                                                            }
+                                                                            else if (!teeTime.IsAvailable)
+                                                                            {
+                                                                                rowClass = "tee-time-booked";
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                rowClass = "tee-time-available";
+                                                                            }
+                                                                            
+                                                                            <tr class="@rowClass">
+                                                                                <td>@timeDisplay</td>
+                                                                                <td>
+                                                                                    @if (!string.IsNullOrEmpty(teeTime.Notes))
+                                                                                    {
+                                                                                        <span class="badge bg-warning">@teeTime.Notes</span>
+                                                                                    }
+                                                                                    else if (!teeTime.IsAvailable)
+                                                                                    {
+                                                                                        <span class="badge bg-danger">Booked</span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="badge bg-success">Available</span>
+                                                                                    }
+                                                                                </td>
+                                                                                <td>@teeTime.TotalPlayersBooked / @teeTime.MaxPlayers</td>
+                                                                                <td>@(teeTime.MaxPlayers - teeTime.TotalPlayersBooked)</td>
+                                                                                <td>
+                                                                                    @if (teeTime.IsAvailable)
+                                                                                    {
+                                                                                        <button type="button" class="btn btn-sm" 
+                                                                                                data-bs-toggle="modal" data-bs-target="#bookingModal"
+                                                                                                data-time-id="@teeTime.Id" 
+                                                                                                data-date="@teeTime.StartTime.ToString("yyyy-MM-dd")" 
+                                                                                                data-time="@timeDisplay">
+                                                                                            Book
+                                                                                        </button>
+                                                                                    }
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    No tee times have been generated for this day.
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle booking modal
+            $('[data-bs-toggle="modal"][data-bs-target="#bookingModal"]').click(function() {
+                var timeId = $(this).data('time-id');
+                var date = $(this).data('date');
+                var time = $(this).data('time');
+                
+                $('#selectedTimeId').val(timeId);
+                $('#selectedDate').val(date);
+                $('#bookingDate').text(date);
+                $('#bookingTime').text(time);
+            });
+            
+            // Function to initialize collapsible hour headers
+            function initializeHourHeaders() {
+                // Get active tab content
+                var activeTabId = $('#teeSheetTabs button.active').attr('aria-controls');
+                var activeTab = $('#' + activeTabId);
+                
+                // Find hour headers within the active tab
+                var hourHeaders = activeTab.find('.hour-header');
+                
+                if (hourHeaders.length > 0) {
+                    // Initialize first hour row as expanded
+                    hourHeaders.first().addClass('active').attr('aria-expanded', 'true');
+                    
+                    // Get the target of the first hour header and show it
+                    var targetId = hourHeaders.first().data('bs-target').substring(1);
+                    $('#' + targetId).addClass('show');
+                }
+                
+                // Add click handler for hour headers
+                hourHeaders.off('click').on('click', function() {
+                    if ($(this).attr('aria-expanded') === 'true') {
+                        // Do nothing, just let Bootstrap toggle the state
+                    } else {
+                        // Close other expanded sections in this tab
+                        activeTab.find('.hour-header').not(this).attr('aria-expanded', 'false');
+                        
+                        var target = $(this).data('bs-target');
+                        activeTab.find('.collapse').not(target).removeClass('show');
+                    }
+                });
+            }
+            
+            // Initialize hour headers on page load
+            initializeHourHeaders();
+            
+            // Initialize hour headers when tab is changed
+            $('#teeSheetTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                initializeHourHeaders();
+            });
+        });
+    </script>
+} 

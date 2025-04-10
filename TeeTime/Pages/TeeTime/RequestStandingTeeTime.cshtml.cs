@@ -124,6 +124,17 @@ namespace TeeTime.Pages
 
             StatusMessage = "Your standing tee time request has been submitted. You will be notified when it is reviewed.";
 
+            // Use simple string interpolation first, then pass as a single parameter to avoid CA2017 warning
+            var memberName = member?.User != null ? $"{member.User.FirstName} {member.User.LastName}" : "Unknown";
+            var logMessage = $"Standing tee time request submitted: Member={memberName}, " +
+                            $"DayOfWeek={request.DayOfWeek}, " +
+                            $"Start={request.StartDate:yyyy-MM-dd}, " +
+                            $"End={request.EndDate:yyyy-MM-dd}, " +
+                            $"Players=[{request.Player2ID},{request.Player3ID},{request.Player4ID}], " +
+                            $"Time={request.DesiredTeeTime}";
+            
+            _logger.LogInformation(logMessage);
+
             return RedirectToPage();
         }
 
@@ -203,7 +214,7 @@ namespace TeeTime.Pages
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting standing tee time request", ex);
+                _logger.LogError(ex, "Error deleting standing tee time request");
                 TempData["ErrorMessage"] = "An error occurred while deleting your request. Please try again.";
             }
 
@@ -227,10 +238,10 @@ namespace TeeTime.Pages
             bool isEligible = categoryName.Contains("Shareholder", StringComparison.OrdinalIgnoreCase) || 
                               categoryName.Contains("Gold Associate", StringComparison.OrdinalIgnoreCase);
             
-            _logger.LogInformation("CheckEligibilityAsync for MemberID {MemberID}: Category='{CategoryName}', IsEligible={IsEligible}", 
-                               member.MemberID, categoryName, isEligible);
+            _logger.LogInformation("CheckEligibility for MemberID {MemberID}: Category={CategoryName}, IsEligible={IsEligible}", 
+                member.MemberID, categoryName, isEligible);
 
-            return isEligible; 
+            return isEligible;
         }
 
         private async Task LoadMemberListAsync()

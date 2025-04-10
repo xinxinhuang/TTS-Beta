@@ -134,6 +134,15 @@
                                                             <a asp-page="./ViewReservation" asp-route-id="@reservation.ReservationID" class="btn btn-sm me-2" style="background-color: #dee2e6;">
                                                                 <i class="bi bi-eye"></i> View
                                                             </a>
+                                                            <button type="button" class="btn btn-sm me-2" style="background-color: #b4bcc2; color: #fff;"
+                                                                    data-bs-toggle="modal" data-bs-target="#editModal"
+                                                                    data-reservation-id="@reservation.ReservationID"
+                                                                    data-players="@reservation.NumberOfPlayers" 
+                                                                    data-carts="@reservation.NumberOfCarts"
+                                                                    data-date="@teeTime.StartTime.ToString("MMM d, yyyy")"
+                                                                    data-time="@timeDisplay">
+                                                                <i class="bi bi-pencil"></i> Edit
+                                                            </button>
                                                             <form method="post" asp-page-handler="CancelReservation" class="d-inline">
                                                                 <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                                                                 <input type="hidden" name="ReservationToCancel" value="@reservation.ReservationID" />
@@ -212,6 +221,54 @@
                         
                         <div class="d-grid">
                             <button type="submit" class="btn" style="background-color: #b4bcc2; color: #fff;">Book Tee Time</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Reservation Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Reservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" asp-page-handler="UpdateReservation" id="updateReservationForm">
+                        <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                        <input type="hidden" id="ReservationToUpdate" name="ReservationToUpdate" value="" />
+                        
+                        <div class="mb-3">
+                            <p><strong>Date:</strong> <span id="editDate"></span></p>
+                            <p><strong>Time:</strong> <span id="editTime"></span></p>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="UpdatedNumberOfPlayers" class="control-label">Number of Players</label>
+                            <select id="UpdatedNumberOfPlayers" name="UpdatedNumberOfPlayers" class="form-control">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="UpdatedNumberOfCarts" class="control-label">Number of Carts</label>
+                            <select id="UpdatedNumberOfCarts" name="UpdatedNumberOfCarts" class="form-control">
+                                <option value="0">None</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn" style="background-color: #b4bcc2; color: #fff;">
+                                Update Reservation
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -479,6 +536,38 @@
             
             // Initialize hour headers on page load
             initializeHourHeaders();
+
+            // Edit modal functionality (new script)
+            $('[data-bs-toggle="modal"][data-bs-target="#editModal"]').click(function() {
+                var reservationId = $(this).data("reservation-id");
+                var players = $(this).data("players");
+                var carts = $(this).data("carts");
+                var date = $(this).data("date");
+                var time = $(this).data("time");
+                
+                $("#ReservationToUpdate").val(reservationId);
+                $("#UpdatedNumberOfPlayers").val(players);
+                $("#UpdatedNumberOfCarts").val(carts);
+                $("#editDate").text(date);
+                $("#editTime").text(time);
+            });
+            
+            // Check if we need to show the edit modal on page load (from TempData)
+            @if (TempData["ShowEditModal"] != null && (bool)TempData["ShowEditModal"])
+            {
+                <text>
+                // Set form values from TempData
+                $("#ReservationToUpdate").val('@TempData["EditReservationId"]');
+                $("#UpdatedNumberOfPlayers").val('@TempData["EditPlayers"]');
+                $("#UpdatedNumberOfCarts").val('@TempData["EditCarts"]');
+                $("#editDate").text('@TempData["EditDate"]');
+                $("#editTime").text('@TempData["EditTime"]');
+                
+                // Show the modal
+                var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+                </text>
+            }
         });
     </script>
 }

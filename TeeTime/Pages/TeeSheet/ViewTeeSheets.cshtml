@@ -118,7 +118,7 @@
                                                 <th>Time</th>
                                                 <th>Status</th>
                                                 <th>Special Event/Tournament</th>
-                                                <th>Actions</th>
+                                                <th class="text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -170,7 +170,7 @@
                                                                                         <span>@(Model.Events.TryGetValue(teeTime.Id, out var eventName) ? eventName : "Blocked")</span>
                                                                                     }
                                                                                 </td>
-                                                                                <td>
+                                                                                <td class="text-center">
                                                                                     <form method="post" class="d-inline">
                                                                                         <input type="hidden" name="TeeTimeId" value="@teeTime.Id" />
                                                                                         <input type="hidden" name="startDate" value="@Model.WeekStartDate.Value.ToString("yyyy-MM-dd")" />

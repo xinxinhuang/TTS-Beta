@@ -1,0 +1,87 @@
+@page
+@model TeeTime.Pages.Admin.ManageMembersModel
+@{
+    ViewData["Title"] = "Manage Members";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Member Management</h2>
+        <a asp-page="/Dashboard" class="btn">Back to Dashboard</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Member Directory</h5>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" class="d-flex">
+                        <input type="text" name="searchTerm" class="form-control me-2" placeholder="Search members..." value="@Model.SearchTerm">
+                        <button type="submit" class="btn">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Membership Category</th>
+                            <th>Member Since</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.Members)
+                        {
+                            <tr>
+                                <td>@member.User?.LastName, @member.User?.FirstName</td>
+                                <td>@member.User?.Email</td>
+                                <td>@(member.MembershipCategory?.MembershipName ?? "Not Assigned")</td>
+                                <td>@member.JoinDate.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-page="/Admin/BookForMember" asp-route-memberId="@member.MemberID" class="btn btn-sm me-1">
+                                            Book Tee Time
+                                        </a>
+                                        <a asp-page="/Admin/ManageReservations" asp-route-searchTerm="@member.User?.LastName" class="btn btn-sm me-1">
+                                            View Reservations
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Members.Any())
+            {
+                <div class="alert alert-info">
+                    No members found matching your search criteria.
+                </div>
+            }
+        </div>
+    </div>
+</div> 

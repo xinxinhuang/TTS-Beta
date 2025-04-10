@@ -62,6 +62,17 @@ namespace TeeTime.Pages
         [BindProperty]
         public int ReservationToCancel { get; set; }
 
+        [BindProperty]
+        public int ReservationToUpdate { get; set; }
+
+        [BindProperty]
+        [Range(1, 4, ErrorMessage = "Number of players must be between 1 and 4")]
+        public int UpdatedNumberOfPlayers { get; set; }
+
+        [BindProperty]
+        [Range(0, 2, ErrorMessage = "Number of carts must be between 0 and 2")]
+        public int UpdatedNumberOfCarts { get; set; }
+
         private async Task<Member?> GetCurrentMemberAsync()
         {
             // Get the current user ID from claims
@@ -76,7 +87,7 @@ namespace TeeTime.Pages
             return await _teeTimeService.GetMemberByUserIdAsync(userId);
         }
 
-        public async Task<IActionResult> OnGetAsync(DateTime? startDate = null)
+        public async Task<IActionResult> OnGetAsync(DateTime? startDate = null, int? editReservation = null)
         {
             var member = await GetCurrentMemberAsync();
             if (member == null)
@@ -102,6 +113,29 @@ namespace TeeTime.Pages
                 NumberOfPlayers = TempData["BookedPlayers"] is int bookedPlayers ? bookedPlayers : 1;
                 NumberOfCarts = TempData["BookedCarts"] is int bookedCarts ? bookedCarts : 0;
                 SelectedDate = TempData["BookedDate"] is DateTime bookedDate ? bookedDate : DateTime.Today;
+            }
+
+            // If editReservation parameter is provided, set a flag to show the edit modal
+            if (editReservation.HasValue)
+            {
+                // Find the reservation to get details for populating the edit modal
+                var reservationToEdit = UserReservations.FirstOrDefault(r => r.ReservationID == editReservation.Value);
+                if (reservationToEdit != null && reservationToEdit.TeeTime != null)
+                {
+                    // Set TempData to tell the page to show the edit modal
+                    TempData["ShowEditModal"] = true;
+                    TempData["EditReservationId"] = reservationToEdit.ReservationID;
+                    TempData["EditPlayers"] = reservationToEdit.NumberOfPlayers;
+                    TempData["EditCarts"] = reservationToEdit.NumberOfCarts;
+                    
+                    // Format date and time for display
+                    var teeTime = reservationToEdit.TeeTime;
+                    var displayHour = teeTime.StartTime.Hour > 12 ? teeTime.StartTime.Hour - 12 : (teeTime.StartTime.Hour == 0 ? 12 : teeTime.StartTime.Hour);
+                    var timeDisplay = $"{displayHour:D2}:{teeTime.StartTime.Minute:D2} {(teeTime.StartTime.Hour >= 12 ? "PM" : "AM")}";
+                    
+                    TempData["EditDate"] = teeTime.StartTime.ToString("MMM d, yyyy");
+                    TempData["EditTime"] = timeDisplay;
+                }
             }
             
             return Page();
@@ -240,6 +274,90 @@ namespace TeeTime.Pages
 
             // Redirect back to the page with the selected date
             return RedirectToPage(new { startDate = startDate });
+        }
+
+        public async Task<IActionResult> OnPostUpdateReservationAsync(string startDate)
+        {
+            // Parse start date
+            DateTime parsedStartDate;
+            if (!DateTime.TryParse(startDate, out parsedStartDate))
+            {
+                parsedStartDate = DateTime.Today;
+            }
+            StartDate = parsedStartDate.Date;
+
+            // Get the current member
+            var member = await GetCurrentMemberAsync();
+            if (member == null)
+            {
+                TempData["ErrorMessage"] = "Member not found. Please log in again.";
+                return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+            }
+
+            try
+            {
+                // Validate that the reservation belongs to this member
+                var reservation = await _context.Reservations
+                    .Include(r => r.TeeTime)
+                    .FirstOrDefaultAsync(r => r.ReservationID == ReservationToUpdate);
+
+                if (reservation == null)
+                {
+                    TempData["ErrorMessage"] = "Reservation not found.";
+                    return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Check if this reservation belongs to the current member
+                if (reservation.MemberID != member.MemberID)
+                {
+                    TempData["ErrorMessage"] = "You can only update your own reservations.";
+                    return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Check if the reservation is still in the future
+                if (reservation.TeeTime?.StartTime <= DateTime.Now)
+                {
+                    TempData["ErrorMessage"] = "You cannot update a reservation for a past tee time.";
+                    return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Check if the status is confirmed
+                if (reservation.ReservationStatus != "Confirmed")
+                {
+                    TempData["ErrorMessage"] = "You can only update confirmed reservations.";
+                    return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Calculate the player count difference
+                int playerDiff = UpdatedNumberOfPlayers - reservation.NumberOfPlayers;
+                
+                // Calculate the new total players for the tee time
+                int newTotalPlayers = reservation.TeeTime!.TotalPlayersBooked + playerDiff;
+
+                // Check if there's enough space for additional players
+                if (playerDiff > 0 && newTotalPlayers > reservation.TeeTime.MaxPlayers)
+                {
+                    TempData["ErrorMessage"] = "There is not enough space available to add more players to this tee time.";
+                    return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+                }
+
+                // Update the reservation details
+                reservation.NumberOfPlayers = UpdatedNumberOfPlayers;
+                reservation.NumberOfCarts = UpdatedNumberOfCarts;
+                
+                // Update the tee time total players
+                reservation.TeeTime.TotalPlayersBooked = newTotalPlayers;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Your reservation has been successfully updated.";
+                return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error updating reservation: {ex.Message}";
+                return RedirectToPage("./BookTeeTime", new { startDate = StartDate.ToString("yyyy-MM-dd") });
+            }
         }
     }
 }

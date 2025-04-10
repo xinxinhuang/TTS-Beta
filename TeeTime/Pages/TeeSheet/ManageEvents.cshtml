@@ -209,7 +209,7 @@
                                     <thead>
                                         <tr>
                                             <th>Time</th>
-                                            <th>Status</th>
+                                            <th class="text-center">Status</th>
                                             <th>Event</th>
                                         </tr>
                                     </thead>
@@ -246,7 +246,7 @@
                                                                     {
                                                                         <tr>
                                                                             <td>@teeTime.StartTime.ToString("hh:mm tt")</td>
-                                                                            <td>
+                                                                            <td class="text-center">
                                                                                 @if (teeTime.IsAvailable && teeTime.EventID == null && teeTime.TotalPlayersBooked == 0)
                                                                                 {
                                                                                     <span class="badge bg-success">Available</span>

@@ -324,6 +324,7 @@ namespace TeeTime.Pages.TeeSheet
                             !string.IsNullOrEmpty(tt.Notes) &&
                             tt.Notes.Contains("(")
                 )
+                .Include(tt => tt.TeeSheet) // Make sure TeeSheet is included
                 .OrderBy(tt => tt.StartTime)
                 .ToListAsync();
                 

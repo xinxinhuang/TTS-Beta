@@ -89,11 +89,17 @@
                     
                     @if (Model.Reservation.ReservationStatus == "Confirmed" && Model.TeeTime.StartTime > DateTime.Now)
                     {
-                        <form method="post" asp-page-handler="CancelReservation" asp-route-id="@Model.Reservation.ReservationID" asp-route-returnUrl="@Url.Page("./BookTeeTime")">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this reservation?')">
-                                Cancel Reservation
-                            </button>
-                        </form>
+                        <div>
+                            <a asp-page="./BookTeeTime" asp-route-startDate="@Model.TeeTime.StartTime.ToString("yyyy-MM-dd")" 
+                               asp-route-editReservation="@Model.Reservation.ReservationID" class="btn me-2" style="background-color: #b4bcc2; color: #fff;">
+                                <i class="bi bi-pencil"></i> Edit Reservation
+                            </a>
+                            <form method="post" asp-page-handler="CancelReservation" asp-route-id="@Model.Reservation.ReservationID" asp-route-returnUrl="@Url.Page("./BookTeeTime")" class="d-inline">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                    Cancel Reservation
+                                </button>
+                            </form>
+                        </div>
                     }
                 </div>
             </div>
