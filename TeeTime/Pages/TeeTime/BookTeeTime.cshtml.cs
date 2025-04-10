@@ -197,8 +197,8 @@ namespace TeeTime.Pages
             }
             Console.WriteLine($"--- OnPostBookTimeAsync: Found member: {member.MemberID} ---");
 
-            // Check Silver membership restrictions
-            if (member.MembershipCategory?.MembershipName == "Silver")
+            // Check membership restrictions
+            if (member.MembershipCategory?.MembershipName == "Silver" || member.MembershipCategory?.MembershipName == "Bronze")
             {
                 // Get the tee time to check its start time
                 var teeTime = await _teeTimeService.GetTeeTimeByIdAsync(SelectedTimeId);
@@ -215,21 +215,39 @@ namespace TeeTime.Pages
 
                 bool isRestricted = false;
 
-                // Apply restrictions based on day of week
-                if (dayOfWeek == DayOfWeek.Saturday)
+                // Apply restrictions based on membership level and day of week
+                if (member.MembershipCategory.MembershipName == "Silver")
                 {
-                    // Saturdays: Restricted before 11:00 AM
-                    isRestricted = hour < 11;
+                    // Silver restrictions
+                    if (dayOfWeek == DayOfWeek.Saturday)
+                    {
+                        // Saturdays: Restricted before 11:00 AM
+                        isRestricted = hour < 11;
+                    }
+                    else if (dayOfWeek != DayOfWeek.Sunday)
+                    {
+                        // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                        isRestricted = (hour >= 15 && hour < 17) || (hour == 17 && minute < 30);
+                    }
                 }
-                else if (dayOfWeek != DayOfWeek.Sunday)
+                else if (member.MembershipCategory.MembershipName == "Bronze")
                 {
-                    // Weekdays: Restricted between 3:00 PM and 5:30 PM
-                    isRestricted = (hour >= 15 && hour < 17) || (hour == 17 && minute < 30);
+                    // Bronze restrictions
+                    if (dayOfWeek == DayOfWeek.Saturday)
+                    {
+                        // Saturdays: Restricted before 1:00 PM
+                        isRestricted = hour < 13;
+                    }
+                    else if (dayOfWeek != DayOfWeek.Sunday)
+                    {
+                        // Weekdays: Restricted between 3:00 PM and 6:00 PM
+                        isRestricted = (hour >= 15 && hour < 18);
+                    }
                 }
 
                 if (isRestricted)
                 {
-                    TempData["ErrorMessage"] = "Silver members cannot book this time slot due to membership restrictions.";
+                    TempData["ErrorMessage"] = $"{member.MembershipCategory.MembershipName} members cannot book this time slot due to membership restrictions.";
                     return RedirectToPage(new { startDate = StartDate.ToString("yyyy-MM-dd") });
                 }
             }

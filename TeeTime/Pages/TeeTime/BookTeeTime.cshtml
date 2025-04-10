@@ -279,13 +279,21 @@
     <!-- Tee Sheet Tabs -->
     <div class="card">
         <div class="card-header">
-            @if (Model.UserMembershipTier == "Silver")
+            @if (Model.UserMembershipTier == "Silver" || Model.UserMembershipTier == "Bronze")
             {
                 <div class="alert alert-info mb-3">
-                    <h5><i class="bi bi-info-circle"></i> Silver Member Booking Restrictions</h5>
+                    <h5><i class="bi bi-info-circle"></i> @Model.UserMembershipTier Member Booking Restrictions</h5>
                     <ul class="mb-0">
-                        <li>Weekdays: You can book before 3:00 PM or after 5:30 PM</li>
-                        <li>Saturdays: You can book after 11:00 AM only</li>
+                        @if (Model.UserMembershipTier == "Silver")
+                        {
+                            <li>Weekdays: You can book before 3:00 PM or after 5:30 PM</li>
+                            <li>Saturdays: You can book after 11:00 AM only</li>
+                        }
+                        else if (Model.UserMembershipTier == "Bronze")
+                        {
+                            <li>Weekdays: You can book before 3:00 PM or after 6:00 PM</li>
+                            <li>Saturdays: You can book after 1:00 PM only</li>
+                        }
                         <li>Sundays: No restrictions (you can book anytime)</li>
                     </ul>
                 </div>
@@ -582,14 +590,19 @@
                 </text>
             }
             
-            // Silver Membership Restrictions
-            // Weekdays: Before 3:00 PM or after 5:30 PM
-            // Saturdays: After 11:00 AM only
-            // Sundays: No restrictions (can book anytime)
+            // Membership Restrictions
+            // Silver:
+            // - Weekdays: Before 3:00 PM or after 5:30 PM
+            // - Saturdays: After 11:00 AM only
+            // - Sundays: No restrictions
+            // Bronze:
+            // - Weekdays: Before 3:00 PM or after 6:00 PM
+            // - Saturdays: After 1:00 PM only
+            // - Sundays: No restrictions
             function applySilverMemberRestrictions() {
-                // Only apply restrictions for Silver members
+                // Only apply restrictions for Silver or Bronze members
                 const userMembershipTier = '@Model.UserMembershipTier';
-                if (userMembershipTier !== 'Silver') {
+                if (userMembershipTier !== 'Silver' && userMembershipTier !== 'Bronze') {
                     return;
                 }
                 
@@ -616,18 +629,30 @@
                         
                         let isRestricted = false;
                         
-                        // Apply restrictions based on day of week
-                        if (dayOfWeek === 'Saturday') {
-                            // Saturdays: Restricted before 11:00 AM
-                            isRestricted = hour < 11;
-                        } else if (dayOfWeek !== 'Sunday') {
-                            // Weekdays: Restricted between 3:00 PM and 5:30 PM
-                            isRestricted = (hour >= 15 && hour < 17) || (hour === 17 && minute < 30);
+                        // Apply restrictions based on membership tier and day of week
+                        if (userMembershipTier === 'Silver') {
+                            // Silver restrictions
+                            if (dayOfWeek === 'Saturday') {
+                                // Saturdays: Restricted before 11:00 AM
+                                isRestricted = hour < 11;
+                            } else if (dayOfWeek !== 'Sunday') {
+                                // Weekdays: Restricted between 3:00 PM and 5:30 PM
+                                isRestricted = (hour >= 15 && hour < 17) || (hour === 17 && minute < 30);
+                            }
+                        } else if (userMembershipTier === 'Bronze') {
+                            // Bronze restrictions
+                            if (dayOfWeek === 'Saturday') {
+                                // Saturdays: Restricted before 1:00 PM
+                                isRestricted = hour < 13;
+                            } else if (dayOfWeek !== 'Sunday') {
+                                // Weekdays: Restricted between 3:00 PM and 6:00 PM
+                                isRestricted = (hour >= 15 && hour < 18);
+                            }
                         }
                         
                         if (isRestricted) {
                             // Hide or disable booking button
-                            $(this).find('button').prop('disabled', true).text('Restricted').addClass('btn-secondary').removeClass('btn-sm').attr('title', 'Silver members cannot book this time');
+                            $(this).find('button').prop('disabled', true).text('Restricted').addClass('btn-secondary').removeClass('btn-sm').attr('title', userMembershipTier + ' members cannot book this time');
                             $(this).addClass('text-muted');
                             // Add a visual indicator
                             $(this).find('td:nth-child(2)').html('<span class="badge bg-secondary">Restricted</span>');
